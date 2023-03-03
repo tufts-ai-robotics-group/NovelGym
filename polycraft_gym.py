@@ -35,17 +35,28 @@ parser.add_argument(
     required=False,
     default=None
 )
+parser.add_argument(
+    '--agent',
+    type=str,
+    help="The agent module of the first agent.",
+    required=False
+)
 
 args = parser.parse_args()
 file_name = args.filename[0]
 num_episodes = args.episodes
 exp_name = args.exp_name
+agent = args.agent
 seed = args.seed
 
 
 json_parser = ConfigParser()
 config_file_path = os.path.join(os.path.dirname(__file__), file_name)
 config_content = load_json(config_file_path)
+
+# change agent
+if agent is not None:
+    config_content["entities"]["main_1"]["agent"] = agent
 
 env = NovelGridWorldSequentialEnv(
     config_dict=config_content, 
