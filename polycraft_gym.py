@@ -54,9 +54,6 @@ env = NovelGridWorldSequentialEnv(
     run_name=exp_name
 )
 
-print("hi")
-
-
 for episode in range(num_episodes):
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
