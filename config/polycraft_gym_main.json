@@ -233,7 +233,8 @@
     "num_episodes": 10,
     "entities": {
       "main_1": {
-        "agent": "gym_novel_gridworlds2.agents.RandomAgent",
+        "agent": "agents.BasePlanningAgent",
+        "agent_old": "gym_novel_gridworlds2.agents.RandomAgent",
         "name": "entity.polycraft.Player.name",
         "type": "agent",
         "entity": "gym_novel_gridworlds2.contrib.polycraft.objects.PolycraftEntity",

@@ -60,7 +60,9 @@ def translate_action(action):
     elif action[0] == "select":
         return f"select_{action[2]}"
     elif "break" in action[0]:
-        return "break"
+        return "break_block"
+    elif "collect" in action[0]:
+        return "collect"
     else:
         return action[0]
 
