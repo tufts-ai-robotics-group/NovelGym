@@ -94,6 +94,7 @@
         "approach_*",
         "interact_*",
         "select_*",
+        "deselect_item",
         "craft_*",
         "trade_*",
         "rotate_*",
@@ -146,18 +147,18 @@
         "module": "gym_novel_gridworlds2.contrib.polycraft.objects.TreeTap",
         "collect_cost": 50000
       },
-      "oak_log": "gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject",
+      "oak_log": "gym_novel_gridworlds2.contrib.polycraft.objects.BreakablePolycraftObject",
       "diamond_ore": {
         "module": "gym_novel_gridworlds2.contrib.polycraft.objects.Metal",
         "break_cost": 600
       },
       "iron_pickaxe": "gym_novel_gridworlds2.contrib.polycraft.objects.IronPickaxe",
-      "crafting_table": "gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject",
+      "crafting_table": "gym_novel_gridworlds2.contrib.polycraft.objects.BreakablePolycraftObject",
       "block_of_platinum": {
         "module": "gym_novel_gridworlds2.contrib.polycraft.objects.Metal",
         "break_cost": 600
       },
-      "block_of_titanium": "gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject",
+      "block_of_titanium": "gym_novel_gridworlds2.contrib.polycraft.objects.PolycraftObject",
       "sapling": "gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject"
     },
     "map_size": [
@@ -204,7 +205,7 @@
         "chunked": "False"
       },
       "block_of_platinum": {
-        "quantity": 2,
+        "quantity": 4,
         "room": 2,
         "chunked": "True"
       },
@@ -240,6 +241,7 @@
         "inventory": {
           "iron_pickaxe": 1
         },
+        "id": 1,
         "loc": [
           25,
           25

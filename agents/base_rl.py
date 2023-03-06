@@ -1,8 +1,10 @@
 from gym_novel_gridworlds2.agents.agent import Agent
+from gym_novel_gridworlds2.state import State
+from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym.spaces import Discrete
 
 
-class KeyboardAgent(Agent):
+class BaseRLAgent(Agent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
     
