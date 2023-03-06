@@ -17,7 +17,25 @@
     agent - actor
     oak_log - log
     distance - var
-;{{object_types}}
+    bedrock - placeable
+    door - placeable
+    safe - placeable
+    plastic_chest - placeable
+    tree_tap - placeable
+    oak_log - hand_breakable
+    diamond_ore - pickaxe_breakable
+    iron_pickaxe - physobj
+    crafting_table - hand_breakable
+    block_of_platinum - pickaxe_breakable
+    block_of_titanium - placeable
+    sapling - placeable
+    planks - physobj
+    stick - physobj
+    diamond - physobj
+    block_of_diamond - physobj
+    rubber - physobj
+    pogo_stick - physobj
+    blue_key - physobj
 )
 
 (:constants 
@@ -210,5 +228,126 @@
 ; )
 
 ; additional actions, including craft and trade
-;{{additional_actions}}
+(:action craft_stick
+    :parameters ()
+    :precondition (and
+        (>= ( inventory planks) 2)
+    )
+    :effect (and
+        (decrease ( inventory planks) 2)
+        (increase ( inventory stick) 4)
+    )
+)
+
+
+(:action craft_planks
+    :parameters ()
+    :precondition (and
+        (>= ( inventory oak_log) 1)
+    )
+    :effect (and
+        (decrease ( inventory oak_log) 1)
+        (increase ( inventory planks) 4)
+    )
+)
+
+
+(:action craft_block_of_diamond
+    :parameters ()
+    :precondition (and
+        (facing crafting_table one)
+        (>= ( inventory diamond) 9)
+    )
+    :effect (and
+        (decrease ( inventory diamond) 9)
+        (increase ( inventory block_of_diamond) 1)
+    )
+)
+
+
+(:action craft_tree_tap
+    :parameters ()
+    :precondition (and
+        (facing crafting_table one)
+        (>= ( inventory planks) 5)
+        (>= ( inventory stick) 1)
+    )
+    :effect (and
+        (decrease ( inventory planks) 5)
+        (decrease ( inventory stick) 1)
+        (increase ( inventory tree_tap) 1)
+    )
+)
+
+
+(:action craft_pogo_stick
+    :parameters ()
+    :precondition (and
+        (facing crafting_table one)
+        (>= ( inventory stick) 2)
+        (>= ( inventory block_of_titanium) 2)
+        (>= ( inventory block_of_diamond) 2)
+        (>= ( inventory rubber) 1)
+    )
+    :effect (and
+        (decrease ( inventory stick) 2)
+        (decrease ( inventory block_of_titanium) 2)
+        (decrease ( inventory block_of_diamond) 2)
+        (decrease ( inventory rubber) 1)
+        (increase ( inventory pogo_stick) 1)
+    )
+)
+
+
+(:action trade_block_of_titanium_1
+    :parameters ()
+    :precondition (and
+        (facing entity_103 one)
+        (>= ( inventory block_of_platinum) 1)
+    )
+    :effect (and
+        (decrease ( inventory block_of_platinum) 1)
+        (increase ( inventory block_of_titanium) 1)
+    )
+)
+
+
+(:action trade_block_of_platinum_1
+    :parameters ()
+    :precondition (and
+        (facing entity_103 one)
+        (>= ( inventory diamond) 18)
+    )
+    :effect (and
+        (decrease ( inventory diamond) 18)
+        (increase ( inventory block_of_platinum) 1)
+    )
+)
+
+
+(:action trade_diamond_1
+    :parameters ()
+    :precondition (and
+        (facing entity_104 one)
+        (>= ( inventory block_of_platinum) 2)
+    )
+    :effect (and
+        (decrease ( inventory block_of_platinum) 2)
+        (increase ( inventory diamond) 9)
+    )
+)
+
+
+(:action trade_block_of_titanium_2
+    :parameters ()
+    :precondition (and
+        (facing entity_104 one)
+        (>= ( inventory oak_log) 10)
+    )
+    :effect (and
+        (decrease ( inventory oak_log) 10)
+        (increase ( inventory block_of_titanium) 2)
+    )
+)
+
 )

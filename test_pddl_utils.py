@@ -1,4 +1,5 @@
 from utils.pddl_utils import generate_pddl
+from utils.plan_utils import call_planner
 from gym_novel_gridworlds2.utils.json_parser import load_json, ConfigParser
 import json
 
@@ -17,9 +18,14 @@ def test_generate_pddl():
         f.write(pddl_problem)
 
 def test_plan():
-    pass
+    plan, translated = call_planner("pddl_domain.pddl", "pddl_problem.pddl")
+    print(plan)
+    for t in translated:
+        print(t)
+
 
 
 if __name__ == "__main__":
     test_generate_pddl()
+    test_plan()
 
