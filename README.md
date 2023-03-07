@@ -2,7 +2,7 @@
 
 ## Installation
 ### Install NovelGridWorlds
-Clone NovelGridWorlds V2, and install it by running the command
+Clone [NovelGridWorlds V2](https://github.com/tufts-ai-robotics-group/NovelGridWorldsV2), and install it by running the command
 ```
 pip install -e .
 ```
