@@ -40,6 +40,9 @@ def _output_to_plan(output, action_map):
     ff_plan = re.findall(r"\d+?: (.+)", output.lower()) # matches the string to find the plan bit from the ffmetric output.
     action_set = [tuple(statement.split(" ")) for statement in ff_plan]
 
+    if len(ff_plan) == 0:
+        return ["nop", "nop"], ["nop", "nop"]
+
     if ff_plan[-1] == "reach-goal":
         ff_plan = ff_plan[:-1]
     

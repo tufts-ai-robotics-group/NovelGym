@@ -60,8 +60,8 @@ class BasePlanningAgent(Agent):
         # if the plan exists, execute the first action
         if len(self.action_buffer) > 0:
             action = self.action_buffer.pop()
-            if len(self.action_buffer) == 0:
-                self.done = True
+            # if len(self.action_buffer) == 0:
+            #     self.done = True
             return self.action_set.action_index[action]
 
-        return self.action_set.action_index("nop")
+        return self.action_set.action_index["nop"]
