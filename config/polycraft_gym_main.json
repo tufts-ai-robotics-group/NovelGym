@@ -419,5 +419,6 @@
           104
         ]
       }
-    }
+    },
+    "auto_pickup_agents": [1]
   }
