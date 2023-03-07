@@ -147,7 +147,7 @@
         "module": "gym_novel_gridworlds2.contrib.polycraft.objects.TreeTap",
         "collect_cost": 50000
       },
-      "oak_log": "gym_novel_gridworlds2.contrib.polycraft.objects.BreakablePolycraftObject",
+      "oak_log": "ngw_extensions.objects.easy_oak_log.OakLog",
       "diamond_ore": {
         "module": "gym_novel_gridworlds2.contrib.polycraft.objects.Metal",
         "break_cost": 600
@@ -242,7 +242,7 @@
         "inventory": {
           "iron_pickaxe": 1
         },
-        "id": 1,
+        "id": 0,
         "loc": [
           25,
           25
@@ -420,5 +420,5 @@
         ]
       }
     },
-    "auto_pickup_agents": [1]
+    "auto_pickup_agents": [0]
   }

@@ -21,7 +21,7 @@
         rubber - rubber
         pogo_stick - pogo_stick
         blue_key - blue_key
-        entity_1 - agent
+        entity_0 - agent
         entity_103 - trader
         entity_104 - trader
         entity_102 - pogoist
