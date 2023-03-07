@@ -7,7 +7,7 @@
 TYPE	= 
 ADDONS	= 
 
-CC      = gcc-12
+CC      = gcc
 
 CFLAGS	= -O6 -ansi $(TYPE) $(ADDONS) -g
 # -g -pg
