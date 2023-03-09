@@ -42,7 +42,7 @@ def _output_to_plan(output, action_map):
 
     if len(ff_plan) == 0:
         return ["nop", "nop"], ["nop", "nop"]
-
+    
     if ff_plan[-1] == "reach-goal":
         ff_plan = ff_plan[:-1]
     
