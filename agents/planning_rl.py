@@ -10,6 +10,7 @@ from copy import deepcopy
 from utils.pddl_utils import generate_pddl
 from utils.plan_utils import call_planner
 from agents.base_planning import BasePlanningAgent, get_config_json
+from agents.base_rl import BaseRLAgent
 from gym_novel_gridworlds2.agents import RandomAgent
 from gym_novel_gridworlds2.utils.json_parser import import_module
 
@@ -17,7 +18,7 @@ JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
 PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
-class BasePlanningAgent(BasePlanningAgent):
+class PlanningRLAgent(BasePlanningAgent):
     def __init__(self, rl_module=None, rl_module_params={}, **kwargs):
         super().__init__(**kwargs)
         self.action_buffer = []
@@ -25,7 +26,7 @@ class BasePlanningAgent(BasePlanningAgent):
         self.last_action = None
         
         # RL Mode
-        self.rl_mode = None
+        self.rl = False
 
         # RL Agent: an agent inside an agent.
         if rl_module is not None:
@@ -49,29 +50,37 @@ class BasePlanningAgent(BasePlanningAgent):
                 print("    ", item)
         else:
             print("No Plan Found. Will run RL to rescue.")
-            self.rl_mode = "cannotplan"
+            self.rl = True
     
 
     def update_metadata(self, metadata: dict):
         if not self.rl and metadata["result"] != "SUCCESS":
             print("Failed Action", self.last_action, "in the plan.")
             print("Entering RL Mode")
-            self.rl_mode = self.last_action
+            self.rl = True
+            self.rl_agent
         self.rl_agent.update_metadata(metadata)
     
 
-    def get_observation(self, state, dynamic):
-        pddl_domain, pddl_problem = generate_pddl(get_config_json(), state, dynamic)
-        self.pddl_domain = pddl_domain
-        self.pddl_problem = pddl_problem
+    def get_observation_space(self, map_size: tuple, other_size: int):
+        return self.rl_agent.get_observation_space(map_size, other_size)
 
-        if self.rl:
-            self.rl_obs = self.rl_agent.get_observation(state, dynamic)
-        return [0]
+
+    def get_observation(self, state, dynamic):
+        """
+        For the planning agent, we don't have observation space.
+        So the observation is just a wrapper around the RL observation func.
+        """
+        if self.action_buffer == []:
+            pddl_domain, pddl_problem = generate_pddl(get_config_json(), state, dynamic)
+            self.pddl_domain = pddl_domain
+            self.pddl_problem = pddl_problem
+
+        return self.rl_agent.get_observation(state, dynamic)
 
 
     def _run_rl(self, observation):
-        return self.rl_agent.policy(self.rl_obs)
+        return self.rl_agent.policy(observation)
 
 
     def policy(self, observation):
