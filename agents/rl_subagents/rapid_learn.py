@@ -1,8 +1,9 @@
 from gym_novel_gridworlds2.agents.agent import Agent
 from gym.spaces import Discrete
+from .base import BaseRLAgent
 
 
-class RapidLearnAgent(Agent):
+class RapidLearnAgent(BaseRLAgent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.failed_action = None
