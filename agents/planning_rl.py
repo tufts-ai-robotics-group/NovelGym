@@ -10,8 +10,8 @@ from copy import deepcopy
 from utils.pddl_utils import generate_pddl
 from utils.plan_utils import call_planner
 from agents.base_planning import BasePlanningAgent, get_config_json
-from agents.base_rl import BaseRLAgent
-from gym_novel_gridworlds2.agents import RandomAgent
+from agents.rl_subagents.random import RLRandom
+from agents.rl_subagents.base import BaseRLAgent
 from gym_novel_gridworlds2.utils.json_parser import import_module
 
 JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
@@ -31,9 +31,9 @@ class PlanningRLAgent(BasePlanningAgent):
         # RL Agent: an agent inside an agent.
         if rl_module is not None:
             RLModule = import_module(rl_module)
-            self.rl_agent = RLModule(**rl_module_params)
+            self.rl_agent: BaseRLAgent = RLModule(**rl_module_params)
         else:
-            self.rl_agent = RandomAgent()
+            self.rl_agent: BaseRLAgent = RLRandom()
         
     
     def plan(self):
@@ -50,6 +50,7 @@ class PlanningRLAgent(BasePlanningAgent):
                 print("    ", item)
         else:
             print("No Plan Found. Will run RL to rescue.")
+            self.rl_agent
             self.rl = True
     
 
@@ -58,9 +59,9 @@ class PlanningRLAgent(BasePlanningAgent):
             print("Failed Action", self.last_action, "in the plan.")
             print("Entering RL Mode")
             self.rl = True
-            self.rl_agent
+            self.rl_agent.init_rl(self.last_action, self.pddl_domain)
         self.rl_agent.update_metadata(metadata)
-    
+
 
     def get_observation_space(self, map_size: tuple, other_size: int):
         return self.rl_agent.get_observation_space(map_size, other_size)

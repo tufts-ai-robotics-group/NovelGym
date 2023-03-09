@@ -2,7 +2,7 @@ from gym_novel_gridworlds2.agents.agent import Agent
 from gym.spaces import Discrete
 
 
-class BaseRLAgent(Agent):
+class RapidLearnAgent(Agent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.failed_action = None
@@ -14,8 +14,9 @@ class BaseRLAgent(Agent):
         # raise NotImplementedError("Get observation for " + self.name + " is not implemented.")
         return [0]
 
-    def report_failed_action(self, action: str):
-        self.failed_action = action
+    def init_rl(self, failed_action, pddl_domain):
+        self.failed_action = failed_action
+        self.pddl_domain = pddl_domain
 
     def policy(self, observation):
         print(observation)
