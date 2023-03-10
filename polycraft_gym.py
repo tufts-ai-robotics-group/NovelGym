@@ -6,7 +6,7 @@ from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from gym_novel_gridworlds2.utils.game_report import get_game_time_str
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
-parser.add_argument("filename", type=str, nargs=1, help="The path of the config file.", default="polycraft_gym_main.json")
+parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
 parser.add_argument(
     "-n",
     "--episodes",
@@ -43,16 +43,18 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-file_name = args.filename[0]
 num_episodes = args.episodes
+config_file_paths = [
+    os.path.join(os.path.dirname(__file__), file_name) 
+    for file_name in args.filename
+]
 exp_name = args.exp_name
 agent = args.agent
 seed = args.seed
 
 
 json_parser = ConfigParser()
-config_file_path = os.path.join(os.path.dirname(__file__), file_name)
-config_content = load_json(config_file_path)
+config_content = load_json(config_json={"extends": config_file_paths})
 
 # change agent
 if agent is not None:
