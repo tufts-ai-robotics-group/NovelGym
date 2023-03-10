@@ -1,0 +1,24 @@
+{
+  "extends": "../../../config/polycraft_gym_main.json",
+  "novelties": {
+    "0": {
+      "object_types": {
+        "sapling": "novelties.evaluation1.space_around_crafting_table.clear_radius_obj.ClearRadiusPolycraftObject"
+      },
+      "entities": {
+        "main_1": {
+          "inventory": {
+            "sapling": 10
+          }
+        }
+      },
+      "objects": {
+        "oak_log": {
+          "quantity": 1,
+          "room": 2,
+          "chunked": "False"
+        }
+      }
+    }
+  }
+}
