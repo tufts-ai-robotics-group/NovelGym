@@ -3,5 +3,5 @@ from agents.rl_subagents.base import BaseRLAgent
 
 
 class RLRandom(RandomAgent, BaseRLAgent):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

@@ -1,0 +1,12 @@
+{
+    "entities": {
+        "main_1": {
+            "agent": {
+                "module": "agents.planning_rl.PlanningRLAgent",
+                "rl_module": "agents.rl_subagents.rapid_learn.RapidLearnAgent",
+                "rl_module_params": {}
+            }
+        }
+    },
+    "extends": "polycraft_gym_main.json"
+}

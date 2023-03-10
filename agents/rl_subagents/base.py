@@ -3,8 +3,8 @@ from gym.spaces import Discrete
 
 
 class BaseRLAgent(Agent):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.failed_action = None
     
     def get_observation_space(self, map_size: tuple, other_size: int):
