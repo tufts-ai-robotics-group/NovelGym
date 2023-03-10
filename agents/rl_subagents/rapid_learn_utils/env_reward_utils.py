@@ -396,6 +396,7 @@ class PolycraftRewardGenerator:
 
         def get_quantity(state):
             return state[quantity_of][item_id]
+        get_quantity.__name__ = f"get_quantity_{quantity_of}_{item_id}"
         return get_quantity
 
     def _make_check_and(self, *params):
@@ -409,6 +410,7 @@ class PolycraftRewardGenerator:
                 # print(func, func(new_state))
                 result = result and func(new_state)
             return result
+        check_all.__name__ = f"and_{params}"
         return check_all
     
     def _make_check_not(self, *params):
@@ -417,6 +419,7 @@ class PolycraftRewardGenerator:
         def check_not(new_state):
             result = fun(new_state)
             return not result
+        check_not.__name__ = f"not_{params}"
         return check_not
     
     _maker_map = {

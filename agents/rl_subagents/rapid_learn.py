@@ -25,10 +25,11 @@ class RapidLearnAgent(BaseRLAgent):
             return self.env.observation_space
     
     def get_observation(self, state, dynamic):
+        self.dynamic = dynamic
         if self.env is None:
             return [0]
         else:
-            obs_json = generate_diarc_json_from_state(self.id, state, self.failed_action, False)
+            obs_json = generate_diarc_json_from_state(self.id, state, self.dynamic, self.failed_action, False)
             self.effects_met = self.env.check_if_effects_met(obs_json)
             return self.env.generate_observation(obs_json)
     
@@ -53,13 +54,14 @@ class RapidLearnAgent(BaseRLAgent):
     def end_episode(self, success):
         if self.executor is not None:
             self.executor.end_episode(self.get_reward(reset=True, success=success), success=success)
+            self.executor = None
 
 
     def init_rl(self, failed_action, pddl_domain, pddl_plan):
         self.failed_action = failed_action
         self.pddl_domain = pddl_domain
         init_dict = {
-            "state": generate_diarc_json_from_state(self.id, self.state, self.failed_action, True),
+            "state": generate_diarc_json_from_state(self.id, self.state, self.dynamic, self.failed_action, True),
             "domain": self.pddl_domain,
             "plan": pddl_plan,
             "novelActions": []

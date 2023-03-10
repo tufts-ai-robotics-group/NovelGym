@@ -59,7 +59,7 @@ class RegularPolicyGradient(object):
         self.all_actions_id = actions_id
         self.action_counter = np.zeros((self._A))
         self.exploration_mode = exploration_mode
-        # self.exploration_mode = 'ucb' # For UCB, 'ucb', and for uniform, 'uniform'
+        self.exploration_mode = 'ucb' # For UCB, 'ucb', and for uniform, 'uniform'
         self.c = 0.0005
         os.makedirs(self.log_dir, exist_ok = True)
 

@@ -13,7 +13,7 @@ class BaseRLAgent(Agent):
     def get_observation(self, state, dynamic):
         return [0]
 
-    def init_rl(self, failed_action, pddl_domain):
+    def init_rl(self, failed_action, pddl_domain, pddl_plan):
         self.failed_action = failed_action
         self.pddl_domain = pddl_domain
 

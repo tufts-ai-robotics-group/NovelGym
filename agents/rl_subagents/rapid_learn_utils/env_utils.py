@@ -294,7 +294,7 @@ class Polycraftv2Env(object):
 
         for slot in inventory:
             item_id = self.item_encoder.get_id(slot['item'])
-            inventory_quantity_arr[item_id - 1] += slot['count']
+            inventory_quantity_arr[item_id] += slot['count']
         return inventory_quantity_arr
     
 

@@ -34,6 +34,7 @@ class PlanningRLAgent(BasePlanningAgent):
         self.action_buffer = []
         self.done = False
         self.last_action = None
+        self.pddl_plan = []
         
         # rl mode
         self.rl = False
@@ -45,6 +46,7 @@ class PlanningRLAgent(BasePlanningAgent):
             f.write(self.pddl_problem)
         plan, translated = call_planner(PDDL_DOMAIN, PDDL_PROBLEM)
         if translated is not None:
+            self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
             self.action_buffer = deepcopy(translated)
             self.action_buffer.reverse()
             print("Found Plan:")
@@ -53,7 +55,6 @@ class PlanningRLAgent(BasePlanningAgent):
             return True
         else:
             print("No Plan Found. Will run RL to rescue.")
-            self.rl = True
             return False
     
 
@@ -61,7 +62,7 @@ class PlanningRLAgent(BasePlanningAgent):
         if metadata["gameOver"]:
             self._reset()
         elif not self.rl and metadata["command_result"]["result"] != "SUCCESS":
-            self._init_rl(self.last_action, self.pddl_domain)
+            self._init_rl(self.last_action, self.pddl_domain, self.pddl_plan)
         self.rl_agent.update_metadata(metadata)
 
 
@@ -93,7 +94,7 @@ class PlanningRLAgent(BasePlanningAgent):
                         "result": "SUCCESS" if plan_result else "FAILED"
                     },
                     "gameOver": False,
-                    "goal": {"achieved": False}
+                    "goal": {"goalAchieved": False}
                 })
                 if plan_result:
                     # if replan success, execute the plan.
@@ -108,11 +109,11 @@ class PlanningRLAgent(BasePlanningAgent):
                 return action - 1
 
 
-    def _init_rl(self, failed_action, pddl_domain):
+    def _init_rl(self, failed_action, pddl_domain, pddl_plan):
         print("Failed Action", self.last_action, "in the plan.")
         print("Entering RL Mode")
         self.rl = True
-        self.rl_agent.init_rl(failed_action, pddl_domain)
+        self.rl_agent.init_rl(failed_action, pddl_domain, pddl_plan)
 
 
     def policy(self, observation):
@@ -127,7 +128,8 @@ class PlanningRLAgent(BasePlanningAgent):
             plan_result = self.plan()
             if not plan_result:
                 # if cannot plan, run RL
-                self._init_rl("cannotplan", self.pddl_domain)
+                self.pddl_plan = []
+                self._init_rl("cannotplan", self.pddl_domain, self.pddl_plan)
                 return self._run_rl(observation)
         
         # if the plan exists, execute the first action

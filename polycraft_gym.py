@@ -4,6 +4,7 @@ from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
 from gym_novel_gridworlds2.utils.game_report import report_game_result
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from gym_novel_gridworlds2.utils.game_report import get_game_time_str
+from utils.pddl_utils import generate_obj_types
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
 parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
@@ -62,7 +63,7 @@ if agent is not None:
 
 env = NovelGridWorldSequentialEnv(
     config_dict=config_content, 
-    max_time_step=4000, 
+    max_time_step=1000, 
     time_limit=900, 
     run_name=exp_name
 )
@@ -72,6 +73,9 @@ for episode in range(num_episodes):
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
     print()
     env.reset(return_info=True, options={"episode": episode})
+    # add an object map to the dynamics so that the observation json of rapid_learn
+    # can be generated.
+    env.dynamic.all_objects = generate_obj_types(config_content)
     env.render()
 
     for agent in env.agent_iter():
