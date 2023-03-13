@@ -1,5 +1,4 @@
 {
-  "extends": "../../../config/polycraft_gym_main.json",
   "novelties": {
     "0": {
       "actions": {
