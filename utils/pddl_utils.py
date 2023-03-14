@@ -38,6 +38,10 @@ def generate_pddl(ng2_config, state: PolycraftState, dynamics: Dynamic):
     return pddl_domain, pddl_problem
 
 
+def generate_grounded_pddl(ng2_config, state: PolycraftState, dynamics: Dynamic):
+    pass
+
+
 def get_entities(ng2_config):
     entities = []
     for entity_nickname, entity in ng2_config["entities"].items():
@@ -82,7 +86,7 @@ def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic)
     
     # facing / holding
     main_facing = getBlockInFront(main_entity, state)
-    init_state.append(f"(facing {main_facing['name']} one)")
+    init_state.append(f"(facing_obj {main_facing['name']} one)")
     init_state.append(f"(holding {main_entity.selectedItem or 'air'})")
     return init_state
         
@@ -104,7 +108,7 @@ def generate_actions(ng2_config):
         
         ## check if the player is facing a crafting table if needed.
         if len(recipe["input"]) > 4:
-            action += "        (facing crafting_table one)\n"
+            action += "        (facing_obj crafting_table one)\n"
         
         ## check if the player has enough items
         input_dict = {}
@@ -141,7 +145,7 @@ def generate_actions(ng2_config):
         action += "    :precondition (and\n"
         
         ## check if facing the right entity
-        action += f"        (facing entity_{ trade['trader'][0] } one)\n"
+        action += f"        (facing_obj entity_{ trade['trader'][0] } one)\n"
         
         ## check if the player has enough items
         for key, count in trade["input"].items():
