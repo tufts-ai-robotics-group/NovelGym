@@ -31,7 +31,7 @@
 (:predicates ;todo: define predicates here
     (holding ?v0 - physobj)
     (floating ?v0 - physobj)
-    (facing ?v0 - physobj ?d - distance)
+    (facing_obj ?v0 - physobj ?d - distance)
     (next_to ?v0 - physobj ?v1 - physobj)
 )
 
@@ -47,34 +47,34 @@
     :parameters    (?physobj01 - physobj ?physobj02 - physobj )
     :precondition  (and
         (>= ( world ?physobj02) 1)
-        (facing ?physobj01 one)
+        (facing_obj ?physobj01 one)
     )
     :effect  (and
-        (facing ?physobj02 one)
-        (not (facing ?physobj01 one))
+        (facing_obj ?physobj02 one)
+        (not (facing_obj ?physobj01 one))
     )
 )
 
 (:action approach_actor
     :parameters    (?physobj01 - physobj ?physobj02 - actor )
     :precondition  (and
-        (facing ?physobj01 one)
+        (facing_obj ?physobj01 one)
     )
     :effect  (and
-        (facing ?physobj02 one)
-        (not (facing ?physobj01 one))
+        (facing_obj ?physobj02 one)
+        (not (facing_obj ?physobj01 one))
     )
 )
 
 (:action break
     :parameters    (?physobj - hand_breakable)
     :precondition  (and
-        (facing ?physobj one)
+        (facing_obj ?physobj one)
         (not (floating ?physobj))
     )
     :effect  (and
-        (facing air one)
-        (not (facing ?physobj one))
+        (facing_obj air one)
+        (not (facing_obj ?physobj one))
         (increase ( inventory ?physobj) 1)
         (increase ( world air) 1)
         (decrease ( world ?physobj) 1)
@@ -85,13 +85,13 @@
 (:action break_holding_iron_pickaxe
     :parameters    (?physobj - pickaxe_breakable ?iron_pickaxe - iron_pickaxe)
     :precondition  (and
-        (facing ?physobj one)
+        (facing_obj ?physobj one)
         (not (floating ?physobj))
         (holding ?iron_pickaxe)
     )
     :effect  (and
-        (facing air one)
-        (not (facing ?physobj one))
+        (facing_obj air one)
+        (not (facing_obj ?physobj one))
         (increase ( inventory ?physobj) 1)
         (increase ( world air) 1)
         (decrease ( world ?physobj) 1)
@@ -101,13 +101,13 @@
 (:action break_diamond_ore
     :parameters    (?iron_pickaxe - iron_pickaxe)
     :precondition  (and
-        (facing diamond_ore one)
+        (facing_obj diamond_ore one)
         (not (floating diamond_ore))
         (holding ?iron_pickaxe)
     )
     :effect  (and
-        (facing air one)
-        (not (facing diamond_ore one))
+        (facing_obj air one)
+        (not (facing_obj diamond_ore one))
         (increase ( inventory diamond) 9)
         (increase ( world air) 1)
         (decrease ( world diamond_ore) 1)
@@ -142,12 +142,12 @@
 (:action place
     :parameters   (?physobj01 - placeable)
     :precondition (and
-        (facing air one)
+        (facing_obj air one)
         (holding ?physobj01)
     )
     :effect (and 
-        (facing ?physobj01 one)
-        (not (facing air one))
+        (facing_obj ?physobj01 one)
+        (not (facing_obj air one))
         (increase ( world ?physobj01) 1)
         (decrease ( inventory ?physobj01) 1)
     )
@@ -158,7 +158,7 @@
 
     :precondition (and
         (holding tree_tap)
-        (facing ?log one)
+        (facing_obj ?log one)
     )
     :effect (and
         (increase ( inventory rubber) 1)
@@ -170,7 +170,7 @@
     :parameters (?actor - actor ?safe - safe)
 
     :precondition (and
-        (facing ?safe one)
+        (facing_obj ?safe one)
         (holding blue_key)
         (>= (container ?safe diamond) 18)
     )
@@ -184,7 +184,7 @@
 (:action collect_from_chest
     :parameters (?actor - actor ?chest - plastic_chest)
     :precondition (and 
-        (facing ?chest one)
+        (facing_obj ?chest one)
         (>= (container ?chest blue_key) 1)
     )
     :effect (and
@@ -199,7 +199,7 @@
 ;     :parameters (?actor - actor ?safe - safe)
 
 ;     :precondition (and
-;         (facing_obj ?actor ?safe one)
+;         (facing_obj_obj ?actor ?safe one)
 ;         (holding key)
 ;         (= (container ?safe diamond) 18)
 ;     )
