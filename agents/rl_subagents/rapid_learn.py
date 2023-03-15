@@ -26,6 +26,7 @@ class RapidLearnAgent(BaseRLAgent):
     
     def get_observation(self, state, dynamic):
         self.dynamic = dynamic
+        self.state = state
         if self.env is None:
             return [0]
         else:
@@ -55,6 +56,8 @@ class RapidLearnAgent(BaseRLAgent):
         if self.executor is not None:
             self.executor.end_episode(self.get_reward(reset=True, success=success), success=success)
             self.executor = None
+            self.effects_met = (False, False)
+            self.env = None
 
 
     def init_rl(self, failed_action, pddl_domain, pddl_plan):
@@ -64,10 +67,12 @@ class RapidLearnAgent(BaseRLAgent):
             "state": generate_diarc_json_from_state(self.id, self.state, self.dynamic, self.failed_action, True),
             "domain": self.pddl_domain,
             "plan": pddl_plan,
-            "novelActions": []
+            "novelActions": [],
+            "actionSet": [action[0] for action in self.action_set.actions],
         }
-        self.env = Polycraftv2Env(init_dict)
+        self.env = Polycraftv2Env(init_dict, RL_test=True)
         self.executor = DiscoverExecutor(**self.env.init_info())
+        # self.executor.reward_generator.RL_test = True
 
 
     def policy(self, observation):
@@ -83,4 +88,6 @@ class RapidLearnAgent(BaseRLAgent):
             return 0
         else:
             action = self.executor.step_episode(observation)
+            reward = self.get_reward(reset=False, success=False)
+            self.executor.end_step(reward)
             return action + 1

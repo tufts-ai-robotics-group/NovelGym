@@ -9,7 +9,7 @@ def generate_diarc_json_from_state(
         player_id: int, 
         state: PolycraftState, 
         dynamic: Dynamic, 
-        failed_action: str, 
+        failed_action: tuple, 
         success: bool
     ):
     entity: PolycraftEntity = state.get_entity_by_id(player_id)

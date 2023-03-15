@@ -4,6 +4,7 @@
             "agent": {
                 "module": "agents.planning_rl.PlanningRLAgent",
                 "rl_module": "agents.rl_subagents.rapid_learn.RapidLearnAgent",
+                "rl_module_test": "agents.rl_subagents.rl_test.RLTest",
                 "rl_module_params": {}
             }
         }

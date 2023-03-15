@@ -40,6 +40,7 @@ class PlanningRLAgent(BasePlanningAgent):
         self.rl = False
     
     def plan(self):
+        self.pddl_domain, self.pddl_problem = generate_pddl(get_config_json(), self.state, self.dynamic)
         with open(PDDL_DOMAIN, "w") as f:
             f.write(self.pddl_domain)
         with open(PDDL_PROBLEM, "w") as f:
@@ -47,7 +48,7 @@ class PlanningRLAgent(BasePlanningAgent):
         plan, translated = call_planner(PDDL_DOMAIN, PDDL_PROBLEM)
         if translated is not None:
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
-            self.action_buffer = deepcopy(translated)
+            self.action_buffer = list(zip(translated, plan))
             self.action_buffer.reverse()
             print("Found Plan:")
             for item in plan:
@@ -62,6 +63,7 @@ class PlanningRLAgent(BasePlanningAgent):
         if metadata["gameOver"]:
             self._reset()
         elif not self.rl and metadata["command_result"]["result"] != "SUCCESS":
+            # init rl here
             self._init_rl(self.last_action, self.pddl_domain, self.pddl_plan)
         self.rl_agent.update_metadata(metadata)
 
@@ -75,10 +77,8 @@ class PlanningRLAgent(BasePlanningAgent):
         For the planning agent, we don't have observation space.
         So the observation is just a wrapper around the RL observation func.
         """
-        if self.action_buffer == []:
-            pddl_domain, pddl_problem = generate_pddl(get_config_json(), state, dynamic)
-            self.pddl_domain = pddl_domain
-            self.pddl_problem = pddl_problem
+        self.state = state
+        self.dynamic = dynamic
         return self.rl_agent.get_observation(state, dynamic)
 
 
@@ -100,7 +100,7 @@ class PlanningRLAgent(BasePlanningAgent):
                     # if replan success, execute the plan.
                     self.rl = False
                     self.last_action = self.action_buffer.pop()
-                    return self.action_set.action_index[self.last_action]
+                    return self.action_set.action_index[self.last_action[0]]
                 else:
                     # if replan failed, continue to run RL.
                     action = None
@@ -110,10 +110,10 @@ class PlanningRLAgent(BasePlanningAgent):
 
 
     def _init_rl(self, failed_action, pddl_domain, pddl_plan):
-        print("Failed Action", self.last_action, "in the plan.")
+        print("Failed Action", self.last_action[0], "in the plan.")
         print("Entering RL Mode")
         self.rl = True
-        self.rl_agent.init_rl(failed_action, pddl_domain, pddl_plan)
+        self.rl_agent.init_rl("(" + " ".join(failed_action[1]) + ")", pddl_domain, pddl_plan)
 
 
     def policy(self, observation):
@@ -122,7 +122,7 @@ class PlanningRLAgent(BasePlanningAgent):
             return self._run_rl(observation)
         
         if self.done:
-            self.last_action = "nop"
+            self.last_action = ("nop", ("nop",))
             return self.action_set.action_index["nop"]
         elif self.action_buffer == []:
             plan_result = self.plan()
@@ -138,7 +138,7 @@ class PlanningRLAgent(BasePlanningAgent):
             # if len(self.action_buffer) == 0:
             #     self.done = True
             self.last_action = action
-            return self.action_set.action_index[action]
+            return self.action_set.action_index[action[0]]
 
         self.last_action = "nop"
         return self.action_set.action_index["nop"]

@@ -81,7 +81,10 @@ def parse_failed_action_statement(statement: str):
 
 class PolycraftRewardGenerator:
     # known bug: please don't reuse item_encoder among different Env / task!!!
-    def __init__(self, pddl_domain, initial_state, failed_action_exp, item_encoder, plan=None):
+    def __init__(self, pddl_domain, initial_state, failed_action_exp, item_encoder, plan=None, RL_test=False):
+        # compatibility layer for RL vs DIARC
+        self.RL_test = RL_test
+
         self.item_encoder = item_encoder
         # self.state = [None] # acts like a pointer so that the proper state can be captured.
         self.update_state(initial_state)
@@ -101,6 +104,7 @@ class PolycraftRewardGenerator:
         self.plan_tokens = None
         self.plannable_state = None
         self.plannable_state_met_checker = lambda a: False # default value
+
         if plan is not None:
             self.plan_tokens = scan_tokens(pddl_content=plan, allow_multiple_statements=True)
 
@@ -249,12 +253,16 @@ class PolycraftRewardGenerator:
                 
         raise KeyError(action_name + " not found")
     
-    @lru_cache(maxsize=500)
     def _transform_action(self, at: List[str]):
         """
         Transforms an action from the general domain into the RL Domain.
         at: action_tokens, an array of tokens
         """
+        # in the experiment, we don't need to transform the action
+        if self.RL_test:
+            return at
+        
+        # transformations
         if at[0] == "cannotplan":
             return at
         if at[0] in self.actions:
@@ -311,7 +319,7 @@ class PolycraftRewardGenerator:
 
                 # print("effects_tokens: ", transformed_effects)
                 return self._make_check_function(transformed_effects)
-        # print(statement[0], "action not found!")
+        print(statement[1], "action not found!")
         return self._maker_map['always_false']
     
     def get_state(self):
@@ -354,7 +362,12 @@ class PolycraftRewardGenerator:
     # def make_check_next_to(self, obj1, obj2):
     #     return lambda new_state: True
 
-    def _make_check_facing_object(self, _, actor, target_obj, distance):
+    def _make_check_facing_object(self, *args):
+        if self.RL_test:
+            _, target_obj, distance = args
+        else:
+            _, actor, target_obj, distance, _ = args
+        
         target_obj_id = self.item_encoder.get_id(target_obj)
         def check_facing_obj(new_state):
             x_diff, y_diff = facing_to_coord(new_state['facing'], distance)
@@ -378,6 +391,10 @@ class PolycraftRewardGenerator:
         # creates a function that given a state representation will return
         #    the corresponding quantity given the expression.
         val_int = int(val)
+        if 'air' in quantity_exp:
+            # do not check quantity of air in the world or in the inventory
+            return self._maker_map['always_true']
+
         get_quantity = self._make_get_quantity(*quantity_exp)
         if op == '>=':
             return lambda new_state: get_quantity(new_state) >= val_int

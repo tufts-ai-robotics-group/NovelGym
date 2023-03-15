@@ -76,6 +76,7 @@ class DiscoverExecutor(object):
         action = self.learning_agent.process_step(obs, exploring=True, timestep=self.steps)
         self.steps += 1
         print ("Executing step {}".format(self.steps))
+        print("action: {}".format(self.action_set[action]))
 
         # count the frequency of an action for debugging
         if action in self.action_hist:

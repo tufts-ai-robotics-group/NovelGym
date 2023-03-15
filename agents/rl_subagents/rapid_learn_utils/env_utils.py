@@ -89,7 +89,7 @@ class SimpleItemEncoder:
 
 
 class Polycraftv2Env(object):
-    def __init__(self, json_input: dict, items_lidar_disabled=[]) -> None:
+    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False) -> None:
         """
         The Env is instanciated using the first json input.
         """
@@ -128,11 +128,13 @@ class Polycraftv2Env(object):
             initial_state=self.get_state_for_evaluation(json_input['state']),
             failed_action_exp=json_input['state']['action'],
             item_encoder=self.item_encoder,
-            plan=json_input.get('plan')
+            plan=json_input.get('plan'),
+            RL_test=RL_test
         )
-        self.failed_action = json_input['state']['action'].split('(')[0]
+        self.failed_action = json_input['state']['action'][1:-1].replace(" ", "_")
         self.novel_action_set = json_input['novelActions']
-        print("actions: ", self.reward_generator.actions.keys())
+        self.action_set = json_input.get('actionSet') or list(self.reward_generator.actions.keys())
+        print("actions: ", self.action_set)
         print("Novel actions: ", self.novel_action_set)
     
     def init_info(self):
@@ -141,7 +143,7 @@ class Polycraftv2Env(object):
         """
         return {
             "failed_action": self.failed_action,
-            "action_set": self.reward_generator.action_name_set,
+            "action_set": self.action_set,
             "observation_space": self.observation_space.sample(),
             "novel_action_set": self.novel_action_set
         }
