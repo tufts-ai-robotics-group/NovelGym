@@ -22,7 +22,8 @@ class DiscoverExecutor(object):
         self.episode = 0
         self.R = []
         self.dones = []
-        self.action_hist = {}
+        self.action_count = {}
+        self.action_history = []
         self.action_set_dict = dict(zip(self.action_set, range(len(self.action_set))))  # convert the action set to a dictionary.
         self.novel_action_set_dict = {}
         # print ("failed action: {}".format(self.failed_action))
@@ -81,6 +82,7 @@ class DiscoverExecutor(object):
             print ("Executing step {}".format(self.steps))
             print("action: {}".format(self.action_set[action]))
         elif self.steps % self.log_every == 0:
+            print("obs: ", obs)
             cum_reward = np.sum(self.learning_agent._drs)
             print ("      step: {};  avg. reward: {}; cumulative reward: {}".format(
                 self.steps,
@@ -89,10 +91,11 @@ class DiscoverExecutor(object):
             ))
 
         # count the frequency of an action for debugging
-        if action in self.action_hist:
-            self.action_hist[action] += 1
+        if action in self.action_count:
+            self.action_count[action] += 1
         else:
-            self.action_hist[action] = 1
+            self.action_count[action] = 1
+        self.action_history.append(action)
         return action
 
     def end_step(self, reward, should_chop=False):
@@ -115,9 +118,9 @@ class DiscoverExecutor(object):
             self.learning_agent.give_reward(reward, should_chop)
             
         print ("total reward: {}".format(np.sum(self.learning_agent._drs)))
-
+        print("last 20 actions: {}".format([self.action_set[action] for action in self.action_history[-50:]]))
         print("action history:")
-        for action, count in sorted(self.action_hist.items(), key=lambda t: t[1], reverse=True):
+        for action, count in sorted(self.action_count.items(), key=lambda t: t[1], reverse=True):
             try:
                 action_name = self.action_set[action]
             except Exception:
