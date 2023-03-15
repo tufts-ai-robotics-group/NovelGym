@@ -1,0 +1,19 @@
+{
+  "novelties": {
+    "0": {
+      "actions": {
+        "trade": {
+          "module": "novelties.evaluation1.key_inventory_break_tree.trade.KeyTrade"
+        }
+      },
+      "entities": {
+        "main_1": {
+          "inventory": {
+          }
+        }
+      },
+      "objects": {
+      }
+    }
+  }
+}
