@@ -80,7 +80,7 @@ env = NovelGridWorldSequentialEnv(
     max_time_step=1000, 
     time_limit=900, 
     run_name=exp_name,
-    logged_agents=['main_1'],
+    # logged_agents=['main_1'],
 )
 
 for episode in range(num_episodes):

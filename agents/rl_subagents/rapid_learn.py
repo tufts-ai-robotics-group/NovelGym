@@ -6,7 +6,7 @@ from .rapid_learn_utils.env_utils import Polycraftv2Env
 from .rapid_learn_utils.discover_executor import DiscoverExecutor
 
 class RapidLearnAgent(BaseRLAgent):
-    def __init__(self, reward_dict=None, *args, **kwargs):
+    def __init__(self, reward_dict=None, log_every=100, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.failed_action = None
         self.new_episode = False
@@ -14,9 +14,10 @@ class RapidLearnAgent(BaseRLAgent):
         self.executor = None
         self.reward_dict = reward_dict or {
             "positive": 1000,
-            "step": 1,
+            "step": -1,
             "negative": -250
         }
+        self.log_every = log_every
     
     def get_observation_space(self, map_size: tuple, other_size: int):
         if self.env is None:
@@ -71,7 +72,7 @@ class RapidLearnAgent(BaseRLAgent):
             "actionSet": [action[0] for action in self.action_set.actions],
         }
         self.env = Polycraftv2Env(init_dict, RL_test=True)
-        self.executor = DiscoverExecutor(**self.env.init_info())
+        self.executor = DiscoverExecutor(**self.env.init_info(), log_every=self.log_every)
         # self.executor.reward_generator.RL_test = True
 
 

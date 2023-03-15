@@ -31,7 +31,9 @@ class RegularPolicyGradient(object):
     def __init__(self, num_actions, input_size, hidden_layer_size, learning_rate, gamma,
                  decay_rate, greedy_e_epsilon, actions_id, random_seed,
                   actions_to_be_bumped = None, guided_policy = None, exploration_mode = None,
-                     guided_action = None):
+                     guided_action = None, verbose=False):
+        self.verbose = verbose
+
         # store hyper-params
         self._A = num_actions
         self._D = input_size
@@ -234,11 +236,13 @@ class RegularPolicyGradient(object):
         """
         if self._tmp_x is None:
             # modify the reward
-            print("modified reward -->> {}".format(reward))
+            if self.verbose:
+                print("modified reward -->> {}".format(reward))
             self._drs[-1] = reward
         else:
             # store the reward in the list of rewards
-            print("appended reward -->> {}".format(reward))
+            if self.verbose:
+                print("appended reward -->> {}".format(reward))
             self._xs.append(self._tmp_x)
             self._hs.append(self._tmp_h)
             self._dlogps.append(self._tmp_dlogp)

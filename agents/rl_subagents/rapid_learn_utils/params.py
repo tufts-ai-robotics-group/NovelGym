@@ -16,13 +16,13 @@ SCORE_TO_CHECK = 750
 NO_OF_SUCCESSFUL_DONE = 15
 
 # remains same always
-UPDATE_RATE = 1 # network weights update rate
+UPDATE_RATE = 5 # network weights update rate
 MAX_EPISODES = 5000
 EPS_TO_EVAL = 10
 EVAL_INTERVAL = 10
-NUM_HIDDEN = 128
+NUM_HIDDEN = 512
 GAMMA = 0.98
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4
 DECAY_RATE = 0.99
 MIN_EPSILON = 0.05
 random_seed = random.randint(0, 199)

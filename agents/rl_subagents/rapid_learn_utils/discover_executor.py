@@ -11,8 +11,9 @@ import pathlib, os
 
 class DiscoverExecutor(object):
 
-    def __init__(self, failed_action, action_set, novel_action_set, observation_space) -> None:
+    def __init__(self, failed_action, action_set, novel_action_set, observation_space, log_every=100) -> None:
         self.log_dir = str(pathlib.Path(__file__).parent.resolve() / 'policies')
+        self.log_every = log_every
         self.action_set = action_set
         self.observation_space = observation_space
         self.failed_action = failed_action
@@ -43,7 +44,7 @@ class DiscoverExecutor(object):
                         learning_rate=LEARNING_RATE, gamma = GAMMA, decay_rate=DECAY_RATE,\
                             greedy_e_epsilon=MAX_EPSILON, actions_id=self.action_set_dict,\
                                 random_seed=random_seed, actions_to_be_bumped=self.novel_action_set_dict,\
-                                 exploration_mode='ucb', guided_action=True)
+                                 exploration_mode='ucb', guided_action=True, verbose=(log_every == 1))
         self.learning_agent.set_explore_epsilon(MAX_EPSILON)
         # print ("action set dict: {}".format(self.action_set_dict))
         # print ("novel action set dict: {}".format(self.novel_action_set_dict))
@@ -72,11 +73,20 @@ class DiscoverExecutor(object):
         # set the epsilon based on xthe episode number.
         epsilon = params.MIN_EPSILON + (params.MAX_EPSILON - params.MIN_EPSILON) * math.exp(-params.LAMBDA * self.episode)
         self.learning_agent._explore_eps = epsilon
-        print (" episode-> {} step--> {} epsilon: {}".format(self.episode, self.steps, round(epsilon, 2)))
+        if self.steps % self.log_every == 0:
+            print ("    episode-> {} step--> {} epsilon: {}".format(self.episode, self.steps, round(epsilon, 2)))
         action = self.learning_agent.process_step(obs, exploring=True, timestep=self.steps)
         self.steps += 1
-        print ("Executing step {}".format(self.steps))
-        print("action: {}".format(self.action_set[action]))
+        if self.log_every == 1:
+            print ("Executing step {}".format(self.steps))
+            print("action: {}".format(self.action_set[action]))
+        elif self.steps % self.log_every == 0:
+            cum_reward = np.sum(self.learning_agent._drs)
+            print ("      step: {};  avg. reward: {}; cumulative reward: {}".format(
+                self.steps,
+                cum_reward / len(self.learning_agent._drs),
+                cum_reward,
+            ))
 
         # count the frequency of an action for debugging
         if action in self.action_hist:
@@ -104,7 +114,8 @@ class DiscoverExecutor(object):
         if reward is not None:
             self.learning_agent.give_reward(reward, should_chop)
             
-        print ("total reward: {}".format(self.learning_agent._drs))
+        print ("total reward: {}".format(np.sum(self.learning_agent._drs)))
+
         print("action history:")
         for action, count in sorted(self.action_hist.items(), key=lambda t: t[1], reverse=True):
             try:
