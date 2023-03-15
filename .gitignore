@@ -164,3 +164,6 @@ planners/Metric-FF-v2.1/ff
 pddl_domain.pddl
 pddl_problem.pddl
 agents/rl_subagents/rapid_learn_utils/policies/*
+
+# PDDL files
+*.pddl
