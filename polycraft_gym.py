@@ -5,6 +5,7 @@ from gym_novel_gridworlds2.utils.game_report import report_game_result
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from gym_novel_gridworlds2.utils.game_report import get_game_time_str
 from utils.pddl_utils import generate_obj_types
+from shutil import rmtree
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
 parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
@@ -37,6 +38,13 @@ parser.add_argument(
     default=None
 )
 parser.add_argument(
+    '--reset_rl',
+    action=argparse.BooleanOptionalAction,
+    help="Whether to reset the RL agent and remove the existing models.",
+    required=False,
+    default=False
+)
+parser.add_argument(
     '--agent',
     type=str,
     help="The agent module of the first agent.",
@@ -52,10 +60,16 @@ config_file_paths = [
 exp_name = args.exp_name
 agent = args.agent
 seed = args.seed
-
+reset_rl = args.reset_rl
 
 json_parser = ConfigParser()
 config_content = load_json(config_json={"extends": config_file_paths})
+
+if reset_rl:
+    try:
+        rmtree(os.path.join(os.path.dirname(__file__), "agents", "rl_subagents", "rapid_learn_utils", "policies"))
+    except:
+        print("No existing RL policies to reset.")
 
 # change agent
 if agent is not None:
@@ -65,7 +79,8 @@ env = NovelGridWorldSequentialEnv(
     config_dict=config_content, 
     max_time_step=1000, 
     time_limit=900, 
-    run_name=exp_name
+    run_name=exp_name,
+    logged_agents=['main_1'],
 )
 
 for episode in range(num_episodes):
