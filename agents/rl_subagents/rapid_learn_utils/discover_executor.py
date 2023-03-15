@@ -82,7 +82,7 @@ class DiscoverExecutor(object):
             print ("Executing step {}".format(self.steps))
             print("action: {}".format(self.action_set[action]))
         elif self.steps % self.log_every == 0:
-            print("obs: ", obs)
+            # print("obs: ", obs)
             cum_reward = np.sum(self.learning_agent._drs)
             print ("      step: {};  avg. reward: {}; cumulative reward: {}".format(
                 self.steps,

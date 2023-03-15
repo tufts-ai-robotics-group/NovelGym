@@ -6,7 +6,7 @@ from .rapid_learn_utils.env_utils import Polycraftv2Env
 from .rapid_learn_utils.discover_executor import DiscoverExecutor
 
 class RapidLearnAgent(BaseRLAgent):
-    def __init__(self, reward_dict=None, log_every=100, *args, **kwargs):
+    def __init__(self, reward_dict=None, log_every=2000, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.failed_action = None
         self.new_episode = False
