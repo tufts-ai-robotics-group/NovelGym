@@ -161,3 +161,6 @@ novelty_log_*.csv
 
 planners/**/*.o
 planners/Metric-FF-v2.1/ff
+
+# PDDL files
+*.pddl
