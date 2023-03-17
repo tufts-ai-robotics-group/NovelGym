@@ -1,9 +1,7 @@
 import os
 import argparse
 from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
-from gym_novel_gridworlds2.utils.game_report import report_game_result
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
-from gym_novel_gridworlds2.utils.game_report import get_game_time_str
 from utils.pddl_utils import generate_obj_types
 from shutil import rmtree
 
