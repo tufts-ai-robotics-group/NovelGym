@@ -5,7 +5,7 @@ import random
 # MAX_EPSILON = 0.3
 
 # #Epsilon-greedy
-MAX_EPSILON = 0.4
+MAX_EPSILON = 0.1
 
 MAX_TIMESTEPS = 300
 MAX_RHO = 0.35
@@ -22,7 +22,8 @@ EPS_TO_EVAL = 10
 EVAL_INTERVAL = 10
 NUM_HIDDEN = 512
 GAMMA = 0.98
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 3e-5
+# LEARNING_RATE = 1e-3
 DECAY_RATE = 0.99
 MIN_EPSILON = 0.05
 random_seed = random.randint(0, 199)

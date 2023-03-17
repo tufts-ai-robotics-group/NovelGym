@@ -15,7 +15,7 @@ parser.add_argument(
     type=int,
     help="The number of episodes.",
     required=False,
-    default=100
+    default=1000
 )
 parser.add_argument(
     "--exp_name",
@@ -51,6 +51,8 @@ parser.add_argument(
     required=False
 )
 
+verbose = False
+
 args = parser.parse_args()
 num_episodes = args.episodes
 config_file_paths = [
@@ -77,7 +79,7 @@ if agent is not None:
 
 env = NovelGridWorldSequentialEnv(
     config_dict=config_content, 
-    max_time_step=1000, 
+    max_time_step=300, 
     time_limit=900, 
     run_name=exp_name,
     # logged_agents=['main_1'],
@@ -86,7 +88,6 @@ env = NovelGridWorldSequentialEnv(
 for episode in range(num_episodes):
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
-    print()
     env.reset(return_info=True, options={"episode": episode})
     # add an object map to the dynamics so that the observation json of rapid_learn
     # can be generated.
@@ -119,4 +120,5 @@ for episode in range(num_episodes):
 
             env.step(action, extra_params)
 
-            env.render()
+            if verbose:
+                env.render()

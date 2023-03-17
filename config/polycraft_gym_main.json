@@ -84,6 +84,9 @@
         "module": "gym_novel_gridworlds2.contrib.polycraft.actions.SmoothMove",
         "direction": "D",
         "step_cost": 27.906975
+      },
+      "give_up": {
+        "module": "gym_novel_gridworlds2.contrib.polycraft.actions.GiveUp"
       }
     },
     "action_sets": {
@@ -93,14 +96,16 @@
         "break_block",
         "approach_*",
         "interact_*",
-        "select_*",
+        "select_oak_log",
+        "select_iron_pickaxe",
+        "select_sapling",
+        "select_tree_tap",
         "deselect_item",
         "craft_*",
         "trade_*",
-        "rotate_*",
         "place",
-        "move_*",
-        "nop"
+        "nop",
+        "give_up"
       ],
       "pogoist": [
         "use",

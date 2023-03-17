@@ -70,7 +70,7 @@ class RegularPolicyGradient(object):
         #with cp.cuda.Device(0):
         self._model = {}
         np.random.seed(random_seed)
-        print("Initializing model with random seed -->> ", random_seed)
+        # print("Initializing model with random seed -->> ", random_seed)
         # weights from input to hidden layer   
         self._model['W1'] = np.random.randn(self._D,self._H) / np.sqrt(self._D) # "Xavier" initialization
        
@@ -295,7 +295,8 @@ class RegularPolicyGradient(object):
             path_to_save = self.log_dir + os.sep + self.env_id + '_' + operator_name + '.npz'
 
         np.savez(path_to_save, layer1 = self._model['W1'], layer2 = self._model['W2'])
-        print("saved to: ", path_to_save)
+        if self.verbose:
+            print("saved to: ", path_to_save)
 
 
     def load_model(self, operator_name, path_to_load=None):
@@ -316,5 +317,6 @@ class RegularPolicyGradient(object):
         
         self._model['W1'] = data['layer1']
         self._model['W2'] = data['layer2']
-        print("loaded model from", path_to_load)
+        if self.verbose:
+            print("loaded model from", path_to_load)
         return True

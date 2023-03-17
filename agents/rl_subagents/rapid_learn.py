@@ -6,7 +6,7 @@ from .rapid_learn_utils.env_utils import Polycraftv2Env
 from .rapid_learn_utils.discover_executor import DiscoverExecutor
 
 class RapidLearnAgent(BaseRLAgent):
-    def __init__(self, reward_dict=None, log_every=2000, *args, **kwargs):
+    def __init__(self, reward_dict=None, log_every=100, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.failed_action = None
         self.new_episode = False
@@ -39,23 +39,29 @@ class RapidLearnAgent(BaseRLAgent):
         gameover = metadata["gameOver"]
         goal_achieved = metadata["goal"]["goalAchieved"]
         if gameover:
-            self.end_episode(success=goal_achieved)
+            self.end_episode(success=goal_achieved, catastrophic=False)
         elif metadata["command_result"]["command"] == "replan":
-            self.end_episode(success=metadata["command_result"]["result"].upper() == "SUCCESS")
+            # TODO check can't plance case
+            success = metadata["command_result"]["result"].upper() == "SUCCESS"
+            self.end_episode(success=success, catastrophic=(not success))
 
 
-    def get_reward(self, reset, success):
-        if reset:
-            if success:
+    def get_reward(self, success, catastrophic):
+        if success:
                 return self.reward_dict["positive"]
-            else:
-                return self.reward_dict["negative"]
-        return self.reward_dict["step"]
+        elif catastrophic:
+            return self.reward_dict["negative"]
+        else:
+            return self.reward_dict["step"]
 
 
-    def end_episode(self, success):
+    def end_episode(self, success, catastrophic):
+        # 1. when reached the goal, positive reward
+        # 2. when failed to reach the goal, -1
+        # 3. when failed to plan, negative reward
         if self.executor is not None:
-            self.executor.end_episode(self.get_reward(reset=True, success=success), success=success)
+            reward = self.get_reward(success=success, catastrophic=catastrophic)
+            self.executor.end_episode(reward, success=success)
             self.executor = None
             self.effects_met = (False, False)
             self.env = None
@@ -83,12 +89,15 @@ class RapidLearnAgent(BaseRLAgent):
         """
         # TODO let 0 be the action to replan
         if self.executor is None:
-            self.executor = DiscoverExecutor()
+            # TODO deal with this issue
+            return 0
+            # self.executor = DiscoverExecutor()
         if self.effects_met[0] or self.effects_met[1]:
-            print("Effects met. Replan.")
+            if self.log_every <= 100:
+                print("Effects met. Replan.")
             return 0
         else:
             action = self.executor.step_episode(observation)
-            reward = self.get_reward(reset=False, success=False)
+            reward = self.get_reward(success=False, catastrophic=False)
             self.executor.end_step(reward)
             return action + 1

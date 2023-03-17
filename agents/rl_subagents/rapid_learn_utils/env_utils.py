@@ -134,8 +134,8 @@ class Polycraftv2Env(object):
         self.failed_action = json_input['state']['action'][1:-1].replace(" ", "_")
         self.novel_action_set = json_input['novelActions']
         self.action_set = json_input.get('actionSet') or list(self.reward_generator.actions.keys())
-        print("actions: ", self.action_set)
-        print("Novel actions: ", self.novel_action_set)
+        # print("actions: ", self.action_set)
+        # print("Novel actions: ", self.novel_action_set)
     
     def init_info(self):
         """

@@ -11,7 +11,15 @@ import pathlib, os
 
 class DiscoverExecutor(object):
 
-    def __init__(self, failed_action, action_set, novel_action_set, observation_space, log_every=100) -> None:
+    def __init__(
+            self, 
+            failed_action, 
+            action_set, 
+            novel_action_set, 
+            observation_space, 
+            RLModule=RegularPolicyGradient,
+            log_every=100
+        ) -> None:
         self.log_dir = str(pathlib.Path(__file__).parent.resolve() / 'policies')
         self.log_every = log_every
         self.action_set = action_set
@@ -31,21 +39,30 @@ class DiscoverExecutor(object):
         for key in self.action_set_dict.keys():
             if key in novel_action_set:
                 self.novel_action_set_dict.update({key: self.action_set_dict[key]})
-        print(self.novel_action_set_dict)
-        # print("action set dict:")
-        # print(json.dumps(self.action_set_dict))
+        # print(self.novel_action_set_dict)
+        print("action set dict:")
+        print(json.dumps(self.action_set_dict))
         # print("novel action set dict:")
         # print(json.dumps(self.novel_action_set_dict))
         # get the key,value pair for the failed action to be added to the novel action set dict
         # self.novel_action_set_dict.update({self.failed_action: self.action_set_dict[self.failed_action]})
         
         # initialize the agent
-        self.learning_agent = RegularPolicyGradient(int(len(self.action_set)),\
-                        int(self.observation_space.shape[0]), hidden_layer_size=NUM_HIDDEN,\
-                        learning_rate=LEARNING_RATE, gamma = GAMMA, decay_rate=DECAY_RATE,\
-                            greedy_e_epsilon=MAX_EPSILON, actions_id=self.action_set_dict,\
-                                random_seed=random_seed, actions_to_be_bumped=self.novel_action_set_dict,\
-                                 exploration_mode='ucb', guided_action=True, verbose=(log_every == 1))
+        self.learning_agent = RegularPolicyGradient(
+            num_actions=int(len(self.action_set)),
+            input_size=int(self.observation_space.shape[0]), 
+            hidden_layer_size=NUM_HIDDEN,
+            learning_rate=LEARNING_RATE, 
+            gamma=GAMMA, 
+            decay_rate=DECAY_RATE,
+            greedy_e_epsilon=MAX_EPSILON, 
+            actions_id=self.action_set_dict,
+            random_seed=random_seed, 
+            actions_to_be_bumped=self.novel_action_set_dict,
+            exploration_mode='ucb',
+            guided_action=True, 
+            verbose=(log_every == 1)
+        )
         self.learning_agent.set_explore_epsilon(MAX_EPSILON)
         # print ("action set dict: {}".format(self.action_set_dict))
         # print ("novel action set dict: {}".format(self.novel_action_set_dict))
@@ -60,7 +77,8 @@ class DiscoverExecutor(object):
             self.load_unconverged_params()
             self.play = False
         else:
-            print(f"saved model not found for operator \"{operator_name}\". initializing a new model")
+            if self.log_every <= 100:
+                print(f"saved model not found for operator \"{operator_name}\". initializing a new model")
             self.play = False
 
     def step_episode(self, obs):
@@ -74,14 +92,14 @@ class DiscoverExecutor(object):
         # set the epsilon based on xthe episode number.
         epsilon = params.MIN_EPSILON + (params.MAX_EPSILON - params.MIN_EPSILON) * math.exp(-params.LAMBDA * self.episode)
         self.learning_agent._explore_eps = epsilon
-        if self.steps % self.log_every == 0:
+        if (self.steps + 1) % self.log_every == 0:
             print ("    episode-> {} step--> {} epsilon: {}".format(self.episode, self.steps, round(epsilon, 2)))
         action = self.learning_agent.process_step(obs, exploring=True, timestep=self.steps)
         self.steps += 1
         if self.log_every == 1:
             print ("Executing step {}".format(self.steps))
             print("action: {}".format(self.action_set[action]))
-        elif self.steps % self.log_every == 0:
+        elif (self.steps + 1) % self.log_every == 0:
             # print("obs: ", obs)
             cum_reward = np.sum(self.learning_agent._drs)
             print ("      step: {};  avg. reward: {}; cumulative reward: {}".format(
@@ -116,21 +134,23 @@ class DiscoverExecutor(object):
         """
         if reward is not None:
             self.learning_agent.give_reward(reward, should_chop)
-            
-        print ("total reward: {}".format(np.sum(self.learning_agent._drs)))
-        print("last 20 actions: {}".format([self.action_set[action] for action in self.action_history[-50:]]))
-        print("action history:")
-        for action, count in sorted(self.action_count.items(), key=lambda t: t[1], reverse=True):
-            try:
-                action_name = self.action_set[action]
-            except Exception:
-                action_name = "unknown"
-            print ("   {:>3} {:>3} {} [{}]".format(
-                count, 
-                action, 
-                action_name, 
-                action_name in self.novel_action_set_dict
-            ))
+        
+        if self.log_every <= 100:
+            # log debugging info if verbose.
+            print ("total reward: {}".format(np.sum(self.learning_agent._drs)))
+            print("last 20 actions: {}".format([self.action_set[action] for action in self.action_history[-50:]]))
+            print("action history:")
+            for action, count in sorted(self.action_count.items(), key=lambda t: t[1], reverse=True):
+                try:
+                    action_name = self.action_set[action]
+                except Exception:
+                    action_name = "unknown"
+                print ("   {:>3} {:>3} {} [{}]".format(
+                    count, 
+                    action, 
+                    action_name, 
+                    action_name in self.novel_action_set_dict
+                ))
         self.R.append(int(np.sum(self.learning_agent._drs)))
 
         self.learning_agent.finish_episode()
@@ -189,11 +209,11 @@ class DiscoverExecutor(object):
     def check_convergence(self):
         # this checks if we have to stop learning and save a policy
         if np.mean(self.R[-NO_OF_EPS_TO_CHECK:]) > SCORE_TO_CHECK and np.mean(self.R[-10:]) > SCORE_TO_CHECK: # check the average reward for last 70 episodes
-                                # for future we can write an evaluation function here which runs a evaluation on the current policy.
-                                if  np.sum(self.dones[-NO_OF_DONES_TO_CHECK:]) > NO_OF_SUCCESSFUL_DONE and np.mean(self.dones[-10:]) > NO_OF_SUCCESSFUL_DONE/NO_OF_DONES_TO_CHECK: # and check the success percentage of the agent > 80%.
-                                    if abs(np.mean(self.dones[-NO_OF_DONES_TO_CHECK:]) - np.mean(self.dones[-10:])) < 0.05:
-                                        print ("The agent has learned to reach the subgoal")
-                                        return True
+            # for future we can write an evaluation function here which runs a evaluation on the current policy.
+            if  np.sum(self.dones[-NO_OF_DONES_TO_CHECK:]) > NO_OF_SUCCESSFUL_DONE and np.mean(self.dones[-10:]) > NO_OF_SUCCESSFUL_DONE/NO_OF_DONES_TO_CHECK: # and check the success percentage of the agent > 80%.
+                if abs(np.mean(self.dones[-NO_OF_DONES_TO_CHECK:]) - np.mean(self.dones[-10:])) < 0.05:
+                    print ("The agent has learned to reach the subgoal")
+                    return True
         else:
             return False
 

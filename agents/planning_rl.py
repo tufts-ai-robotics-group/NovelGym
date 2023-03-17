@@ -19,16 +19,30 @@ PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
 class PlanningRLAgent(BasePlanningAgent):
-    def __init__(self, rl_module=None, rl_module_params={}, **kwargs):
+    def __init__(self, rl_module=None, rl_module_params={}, verbose=False, **kwargs):
         super().__init__(**kwargs)
         self._reset()
+        self.verbose = verbose
+        self.failed_action = None
 
         # RL Agent: an agent inside an agent.
+        rl_actionset = self.action_set.create_sub_actionset(excluded_actions=["nop", "give_up"])
         if rl_module is not None:
             RLModule = import_module(rl_module)
-            self.rl_agent: BaseRLAgent = RLModule(id=self.id, action_set=self.action_set, state=self.state, entity_data=self.entity_data, **rl_module_params)
+            self.rl_agent: BaseRLAgent = RLModule(
+                id=self.id, 
+                action_set=rl_actionset, 
+                state=self.state, 
+                entity_data=self.entity_data, 
+                **rl_module_params
+            )
         else:
-            self.rl_agent: BaseRLAgent = RLRandom(self.id, self.action_set, self.state, self.entity_data)
+            self.rl_agent: BaseRLAgent = RLRandom(
+                id=self.id, 
+                action_set=rl_actionset, 
+                state=self.state, 
+                entity_data=self.entity_data
+            )
     
     def _reset(self):
         self.action_buffer = []
@@ -50,12 +64,14 @@ class PlanningRLAgent(BasePlanningAgent):
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
             self.action_buffer = list(zip(translated, plan))
             self.action_buffer.reverse()
-            print("Found Plan:")
-            for item in plan:
-                print("    ", item)
+            if self.verbose:
+                print("Found Plan:")
+                for item in plan:
+                    print("    ", item)
             return True
         else:
-            print("No Plan Found. Will run RL to rescue.")
+            if self.verbose:
+                print("No Plan Found. Will run RL to rescue.")
             return False
     
 
@@ -101,18 +117,27 @@ class PlanningRLAgent(BasePlanningAgent):
                     self.rl = False
                     self.last_action = self.action_buffer.pop()
                     return self.action_set.action_index[self.last_action[0]]
+                elif self.failed_action != "cannotplan":
+                    # if we failed an operator, and the rl policy tells us to replan:
+                    # we do want to make sure 
+                    self.rl = False
+                    return self.action_set.action_index["give_up"]
                 else:
-                    # if replan failed, continue to run RL.
+                    # if replan failed, continue to run RL if it failed to plan 
+                    # because it doesn't know when it's plannable
                     action = None
+
             else:
                 # if rl gives an action, run this action.
                 return action - 1
 
 
     def _init_rl(self, failed_action, pddl_domain, pddl_plan):
-        print("Failed Action", self.last_action[0], "in the plan.")
-        print("Entering RL Mode")
+        if self.verbose:
+            print("Failed Action", self.last_action[0], "in the plan.")
+            print("Entering RL Mode")
         self.rl = True
+        self.failed_action = failed_action
         self.rl_agent.init_rl("(" + " ".join(failed_action[1]) + ")", pddl_domain, pddl_plan)
 
 
