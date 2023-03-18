@@ -3,14 +3,17 @@ from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym_novel_gridworlds2.contrib.polycraft.objects import PolycraftEntity
 from .pddl_utils import generate_obj_types
 
+from typing import List, Tuple
+
 
 
 def generate_diarc_json_from_state(
         player_id: int, 
         state: PolycraftState, 
-        dynamic: Dynamic, 
+        dynamic: Dynamic,
         failed_action: tuple, 
-        success: bool
+        success: bool,
+        object_types: List[Tuple[str, str]] | None = None,
     ):
     entity: PolycraftEntity = state.get_entity_by_id(player_id)
 
@@ -19,6 +22,8 @@ def generate_diarc_json_from_state(
     inventory_dict = {}
 
     # initialize the dict with every known item, excepting for entities
+    if object_types is None:
+        object_types = dynamic.all_objects
     for item_name, item_type in dynamic.all_objects:
         if item_type not in ["agent", "trader", "pogoist"]:
             inventory_dict[item_name] = 0
