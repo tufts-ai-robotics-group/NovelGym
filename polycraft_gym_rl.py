@@ -85,8 +85,8 @@ for episode in range(num_episodes):
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
     obs = env.reset()
 
-    agent = env.env.agent_manager.agents["agent_0"]
-    policy = agent.agent.policy
+    agent = env.env.agent_manager.agents["agent_0"].agent.rl_agent
+    policy = agent.policy
 
     for step in range(1000):
         action = policy(obs)
@@ -94,7 +94,7 @@ for episode in range(num_episodes):
         
         if verbose:
             env.render()
-        if terminated:
+        if terminated or truncated:
             break
 
 print("Done!")

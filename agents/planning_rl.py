@@ -19,11 +19,9 @@ PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
 class PlanningRLAgent(BasePlanningAgent):
-    def __init__(self, rl_module=None, rl_module_params={}, verbose=False, **kwargs):
+    def __init__(self, rl_module=None, rl_module_params={}, **kwargs):
         super().__init__(**kwargs)
         self._reset()
-        self.verbose = verbose
-        self.failed_action = None
 
         # RL Agent: an agent inside an agent.
         rl_actionset = self.action_set.create_sub_actionset(excluded_actions=["nop", "give_up"])

@@ -1,0 +1,10 @@
+{
+    "entities": {
+        "main_1": {
+            "agent": {
+                "module": "agents.BasePlanningAgent"
+            }
+        }
+    },
+    "extends": "polycraft_gym_main.json"
+}

@@ -89,6 +89,9 @@ for episode in range(num_episodes):
     env.reset(return_info=True, options={"episode": episode})
     # add an object map to the dynamics so that the observation json of rapid_learn
     # can be generated.
+    env.dynamic.all_objects = generate_obj_types(config_content)
+    if verbose:
+        env.render()
 
     for agent in env.agent_iter():
         action = None
