@@ -30,7 +30,7 @@ class SAPolycraftRL(gym.Wrapper):
     def _fast_forward(self):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
-        while agent != self.agent_name:
+        while agent != self.agent_name or getattr(self.env.agent_manager.agents[agent].agent, "rl", False):
             if agent not in self.env.dones or self.env.dones[agent]:
                 # skips the process if agent is done.
                 self.env.step(0, {})
