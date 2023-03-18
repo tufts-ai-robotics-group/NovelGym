@@ -24,7 +24,7 @@ def generate_diarc_json_from_state(
     # initialize the dict with every known item, excepting for entities
     if object_types is None:
         object_types = dynamic.all_objects
-    for item_name, item_type in dynamic.all_objects:
+    for item_name, item_type in dynamic.all_objects.items():
         if item_type not in ["agent", "trader", "pogoist"]:
             inventory_dict[item_name] = 0
     # fill in the actual counts

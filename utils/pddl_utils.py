@@ -21,10 +21,10 @@ def generate_pddl(ng2_config, state: PolycraftState, dynamics: Dynamic):
     object_types = generate_obj_types(ng2_config)
     entities = get_entities(ng2_config)
     obj_types_pddl_content = "\n".join(
-        [f"    {obj_type} - {property}" for obj_type, property in object_types]
+        [f"    {obj_type} - {property}" for obj_type, property in object_types.items()]
     )
     pddl_domain = pddl_domain.replace(";{{object_types}}", obj_types_pddl_content)
-    all_objs = [f"{obj_type} - {obj_type}" for obj_type ,_ in object_types] + [f"{entity} - {t}" for entity, t in entities]
+    all_objs = [f"{obj_type} - {obj_type}" for obj_type in object_types.keys()] + [f"{entity} - {t}" for entity, t in entities]
     pddl_problem = pddl_problem.replace(";{{objects}}", "\n        ".join(all_objs))
     
     # actions
@@ -79,7 +79,7 @@ def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic)
     for item, count in objs_inventory.items():
         init_state.append(f"(= (inventory {item}) {count})")
     # set counter to 0 for every object in the world
-    for item, property in object_types:
+    for item in object_types.keys():
         if item not in objs_inventory:
             init_state.append(f"(= (inventory {item}) 0)")
 
@@ -168,8 +168,7 @@ def generate_actions(ng2_config):
 
 
 def generate_obj_types(ng2_config):
-    object_types = []
-    objs_set = set()
+    object_types = {}
 
     # add explicitly defined object types
     for obj_type, info in ng2_config["object_types"].items():
@@ -181,48 +180,42 @@ def generate_obj_types(ng2_config):
             Module = import_module(info["module"])
         
         # append object according to its type
-        if obj_type not in objs_set:
+        if obj_type not in object_types:
             obj_breakable_holding = getattr(Module, "breakable_holding", None)
 
             if getattr(Module, "breakable", False):
-                object_types.append((obj_type, "hand_breakable"))
+                object_types[obj_type] = "hand_breakable"
             elif type(obj_breakable_holding) == list and len(obj_breakable_holding) > 0:
                 # assume it's pickaxe breakable if it's breakable while holding something
-                object_types.append((obj_type, "pickaxe_breakable"))
+                object_types[obj_type] = "pickaxe_breakable"
             elif Module.placeable:
-                object_types.append((obj_type, "placeable"))
+                object_types[obj_type] = "placeable"
             else:
-                object_types.append((obj_type, "physobj"))
-            objs_set.add(obj_type)
+                object_types[obj_type] = "physobj"
     
     # add extra object types in the world
     ## generated objects
     for obj_type in ng2_config["objects"]:
-        if obj_type not in objs_set:
-            object_types.append((obj_type, "placeable"))
-            objs_set.add(obj_type)
-    
+        if obj_type not in object_types:
+            object_types[obj_type] = "placeable"
+
     ## output of the recipes and crafts
     for recipe in ng2_config["recipes"].values():
         for obj in recipe['input']:
-            if obj not in objs_set and obj != "0":
-                object_types.append((obj, "physobj"))
-                objs_set.add(obj)
+            if obj not in object_types and obj != "0":
+                object_types[obj] = "physobj"
         for obj in recipe['output']:
-            if obj not in objs_set:
-                object_types.append((obj, "physobj"))
-                objs_set.add(obj)
+            if obj not in object_types:
+                object_types[obj] = "physobj"
     
     for trade in ng2_config["trades"].values():
         for obj in trade['input']:
-            if obj not in objs_set:
-                object_types.append((obj, "physobj"))
-                objs_set.add(obj)
+            if obj not in object_types:
+                object_types[obj] = "physobj"
         for obj in trade['output']:
-            if obj not in objs_set:
-                object_types.append((obj, "physobj"))
-                objs_set.add(obj)
+            if obj not in object_types:
+                object_types[obj] = "physobj"
     
     ## extra objects custom defined
-    object_types.append(("blue_key", "physobj"))
+    object_types["blue_key"] = "physobj"
     return object_types
