@@ -5,7 +5,7 @@ from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from utils.pddl_utils import generate_obj_types
 
 class SAPolycraftRL(gym.Wrapper):
-    def __init__(self, config_file_paths, agent_name, task_name=""):
+    def __init__(self, config_file_paths, agent_name, task_name="", show_action_log=False):
         config_content = load_json(config_json={"extends": config_file_paths})
         self.config_content = config_content
 
@@ -15,7 +15,7 @@ class SAPolycraftRL(gym.Wrapper):
             max_time_step=None, 
             time_limit=None, 
             run_name=task_name,
-            logged_agents=[]
+            logged_agents=['main_1'] if show_action_log else []
         )
         self.env.dynamic.all_objects = generate_obj_types(self.config_content)
         self.agent_name = agent_name

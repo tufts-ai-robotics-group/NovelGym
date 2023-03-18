@@ -76,7 +76,8 @@ if reset_rl:
 env = SAPolycraftRL(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
-    task_name="main"
+    task_name="main",
+    show_action_log=True
 )
 
 
