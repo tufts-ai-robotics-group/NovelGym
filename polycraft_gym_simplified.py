@@ -77,21 +77,20 @@ env = SAPolycraftRL(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",
-    show_action_log=True
 )
 
 
 for episode in range(num_episodes):
+    obs = env.reset()
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
-    obs = env.reset()
 
     agent = env.env.agent_manager.agents["agent_0"]
     policy = agent.agent.policy
 
     for step in range(1000):
         action = policy(obs)
-        obs, reward, terminated, truncated, info = env.step(action)
+        obs, reward, terminated, truncated, info = env.step(1)
         
         if verbose:
             env.render()

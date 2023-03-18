@@ -23,14 +23,16 @@ class SAPolycraftRL(gym.Wrapper):
         self._observation_space = None
         self._action_space = None
         self.episode = 0
-        self._fast_forward()
-
 
     
     def _fast_forward(self):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
-        while agent != self.agent_name or getattr(self.env.agent_manager.agents[agent].agent, "rl", False):
+        while agent != self.agent_name or not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
+            if len(self.env.dones) == 0:
+                # episode is done, restart a new episode.
+                print("------Episode is complete without RL.------")
+                return False
             if agent not in self.env.dones or self.env.dones[agent]:
                 # skips the process if agent is done.
                 self.env.step(0, {})
@@ -48,7 +50,7 @@ class SAPolycraftRL(gym.Wrapper):
 
                 self.env.step(action, extra_params)
             agent = self.env.agent_selection
-
+        return True
 
     def step(self, action):
         # run the agent in interest
@@ -63,13 +65,16 @@ class SAPolycraftRL(gym.Wrapper):
 
     def reset(self):
         # reset the environment
-        self.episode += 1
-        self.env.reset(options={"episode": self.episode})
-        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
-        
-        # fast forward
-        self._agent_iter = self.env.agent_iter()
-        self._fast_forward()
+        needs_rl = False
+        while not needs_rl:
+            self.episode += 1
+            self.env.reset(options={"episode": self.episode})
+            self.env.dynamic.all_objects = generate_obj_types(self.config_content)
+            
+            # fast forward
+            self._agent_iter = self.env.agent_iter()
+
+            needs_rl = self._fast_forward()
         obs, reward, done, info = self.env.last()
         return obs
 
