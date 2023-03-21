@@ -60,7 +60,7 @@ class SAPolycraftRL(gym.Wrapper):
 
     @property
     def action_space(self):
-        return self.env.action_space("main_1")
+        return self.env.action_space("agent_0")
 
     
     def _fast_forward(self):
