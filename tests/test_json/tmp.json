@@ -1,0 +1,251 @@
+{
+  "inventory": {
+    "slots": [
+      {
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      {
+        "item": "wall",
+        "count": 0
+      },
+      {
+        "item": "tree_tap",
+        "count": 0
+      },
+      {
+        "item": "pogo_stick",
+        "count": 0
+      },
+      {
+        "item": "block_of_diamond",
+        "count": 0
+      },
+      {
+        "item": "diamond_ore",
+        "count": 0
+      },
+      {
+        "item": "stick",
+        "count": 0
+      },
+      {
+        "item": "oak_plank",
+        "count": 0
+      },
+      {
+        "item": "door",
+        "count": 0
+      },
+      {
+        "item": "sapling",
+        "count": 0
+      },
+      {
+        "item": "log",
+        "count": 0
+      },
+      {
+        "item": "minecraft_stained_hardened_clay",
+        "count": 0
+      },
+      {
+        "item": "key",
+        "count": 0
+      },
+      {
+        "item": "open_door",
+        "count": 0
+      },
+      {
+        "item": "crafting_table",
+        "count": 0
+      },
+      {
+        "item": "safe",
+        "count": 0
+      },
+      {
+        "item": "plank",
+        "count": 0
+      },
+      {
+        "item": "rubber",
+        "count": 0
+      },
+      {
+        "item": "air",
+        "count": 0
+      },
+      {
+        "item": "chest",
+        "count": 0
+      },
+      {
+        "item": "block_of_titanium",
+        "count": 0
+      },
+      {
+        "item": "oak_log",
+        "count": 1
+      },
+      {
+        "item": "block_of_platinum",
+        "count": 1
+      },
+      {
+        "item": "diamond",
+        "count": 9
+      }
+    ],
+    "selectedItem": "iron_pickaxe"
+  },
+  "player": {
+    "pos": [
+      62,
+      68
+    ],
+    "facing": "north"
+  },
+  "map": {
+    "61,40": "minecraft_stained_hardened_clay",
+    "60,71": "minecraft_stained_hardened_clay",
+    "54,71": "minecraft_stained_hardened_clay",
+    "78,40": "minecraft_stained_hardened_clay",
+    "77,71": "minecraft_stained_hardened_clay",
+    "55,40": "minecraft_stained_hardened_clay",
+    "48,64": "minecraft_stained_hardened_clay",
+    "48,65": "minecraft_stained_hardened_clay",
+    "48,62": "minecraft_stained_hardened_clay",
+    "48,63": "minecraft_stained_hardened_clay",
+    "48,60": "minecraft_stained_hardened_clay",
+    "48,61": "minecraft_stained_hardened_clay",
+    "75,40": "minecraft_stained_hardened_clay",
+    "69,40": "minecraft_stained_hardened_clay",
+    "74,71": "minecraft_stained_hardened_clay",
+    "68,71": "door",
+    "48,68": "minecraft_stained_hardened_clay",
+    "48,69": "minecraft_stained_hardened_clay",
+    "48,66": "minecraft_stained_hardened_clay",
+    "48,67": "minecraft_stained_hardened_clay",
+    "57,71": "door",
+    "58,40": "minecraft_stained_hardened_clay",
+    "50,40": "minecraft_stained_hardened_clay",
+    "48,53": "minecraft_stained_hardened_clay",
+    "48,54": "minecraft_stained_hardened_clay",
+    "70,40": "minecraft_stained_hardened_clay",
+    "48,51": "minecraft_stained_hardened_clay",
+    "48,52": "minecraft_stained_hardened_clay",
+    "48,50": "minecraft_stained_hardened_clay",
+    "69,50": "oak_log",
+    "63,71": "minecraft_stained_hardened_clay",
+    "48,59": "wall",
+    "64,40": "wall",
+    "48,57": "minecraft_stained_hardened_clay",
+    "48,58": "minecraft_stained_hardened_clay",
+    "48,55": "minecraft_stained_hardened_clay",
+    "48,56": "minecraft_stained_hardened_clay",
+    "53,40": "minecraft_stained_hardened_clay",
+    "76,40": "minecraft_stained_hardened_clay",
+    "70,56": "chest",
+    "52,71": "minecraft_stained_hardened_clay",
+    "48,42": "minecraft_stained_hardened_clay",
+    "48,43": "minecraft_stained_hardened_clay",
+    "73,40": "minecraft_stained_hardened_clay",
+    "48,40": "minecraft_stained_hardened_clay",
+    "48,41": "minecraft_stained_hardened_clay",
+    "66,71": "minecraft_stained_hardened_clay",
+    "67,40": "minecraft_stained_hardened_clay",
+    "72,71": "minecraft_stained_hardened_clay",
+    "48,48": "minecraft_stained_hardened_clay",
+    "48,49": "minecraft_stained_hardened_clay",
+    "48,46": "minecraft_stained_hardened_clay",
+    "48,47": "minecraft_stained_hardened_clay",
+    "48,44": "minecraft_stained_hardened_clay",
+    "48,45": "minecraft_stained_hardened_clay",
+    "62,47": "oak_log",
+    "56,40": "minecraft_stained_hardened_clay",
+    "61,71": "minecraft_stained_hardened_clay",
+    "55,71": "minecraft_stained_hardened_clay",
+    "69,71": "minecraft_stained_hardened_clay",
+    "75,71": "minecraft_stained_hardened_clay",
+    "62,40": "wall",
+    "59,40": "minecraft_stained_hardened_clay",
+    "79,50": "minecraft_stained_hardened_clay",
+    "79,52": "minecraft_stained_hardened_clay",
+    "79,51": "minecraft_stained_hardened_clay",
+    "58,71": "minecraft_stained_hardened_clay",
+    "79,54": "minecraft_stained_hardened_clay",
+    "79,53": "minecraft_stained_hardened_clay",
+    "79,56": "minecraft_stained_hardened_clay",
+    "50,71": "minecraft_stained_hardened_clay",
+    "79,55": "minecraft_stained_hardened_clay",
+    "79,58": "minecraft_stained_hardened_clay",
+    "79,57": "minecraft_stained_hardened_clay",
+    "51,40": "minecraft_stained_hardened_clay",
+    "79,59": "minecraft_stained_hardened_clay",
+    "70,71": "minecraft_stained_hardened_clay",
+    "71,40": "minecraft_stained_hardened_clay",
+    "49,71": "minecraft_stained_hardened_clay",
+    "65,40": "minecraft_stained_hardened_clay",
+    "64,71": "minecraft_stained_hardened_clay",
+    "62,66": "trader_103",
+    "60,40": "minecraft_stained_hardened_clay",
+    "62,68": "self",
+    "78,71": "minecraft_stained_hardened_clay",
+    "79,41": "minecraft_stained_hardened_clay",
+    "79,40": "minecraft_stained_hardened_clay",
+    "79,43": "minecraft_stained_hardened_clay",
+    "79,42": "minecraft_stained_hardened_clay",
+    "53,71": "minecraft_stained_hardened_clay",
+    "79,45": "minecraft_stained_hardened_clay",
+    "54,40": "minecraft_stained_hardened_clay",
+    "79,44": "minecraft_stained_hardened_clay",
+    "79,47": "minecraft_stained_hardened_clay",
+    "79,46": "minecraft_stained_hardened_clay",
+    "79,49": "minecraft_stained_hardened_clay",
+    "79,48": "wall",
+    "76,59": "diamond_ore",
+    "51,58": "oak_log",
+    "74,40": "minecraft_stained_hardened_clay",
+    "73,71": "minecraft_stained_hardened_clay",
+    "68,40": "minecraft_stained_hardened_clay",
+    "67,71": "minecraft_stained_hardened_clay",
+    "56,71": "minecraft_stained_hardened_clay",
+    "57,40": "minecraft_stained_hardened_clay",
+    "79,70": "minecraft_stained_hardened_clay",
+    "79,71": "minecraft_stained_hardened_clay",
+    "51,61": "block_of_platinum",
+    "54,51": "crafting_table",
+    "51,62": "block_of_platinum",
+    "77,59": "diamond_ore",
+    "62,71": "minecraft_stained_hardened_clay",
+    "63,40": "minecraft_stained_hardened_clay",
+    "79,61": "minecraft_stained_hardened_clay",
+    "79,60": "minecraft_stained_hardened_clay",
+    "79,63": "minecraft_stained_hardened_clay",
+    "79,62": "minecraft_stained_hardened_clay",
+    "76,71": "minecraft_stained_hardened_clay",
+    "59,71": "minecraft_stained_hardened_clay",
+    "79,65": "minecraft_stained_hardened_clay",
+    "77,40": "minecraft_stained_hardened_clay",
+    "57,58": "oak_log",
+    "79,64": "minecraft_stained_hardened_clay",
+    "52,40": "minecraft_stained_hardened_clay",
+    "79,67": "minecraft_stained_hardened_clay",
+    "79,66": "minecraft_stained_hardened_clay",
+    "51,71": "minecraft_stained_hardened_clay",
+    "79,69": "minecraft_stained_hardened_clay",
+    "79,68": "minecraft_stained_hardened_clay",
+    "54,65": "pogoist_102",
+    "71,71": "minecraft_stained_hardened_clay",
+    "72,40": "minecraft_stained_hardened_clay",
+    "48,71": "minecraft_stained_hardened_clay",
+    "49,40": "minecraft_stained_hardened_clay",
+    "65,71": "wall",
+    "48,70": "minecraft_stained_hardened_clay",
+    "66,40": "minecraft_stained_hardened_clay",
+    "60,64": "trader_104"
+  },
+  "actionSuccess": true
+}

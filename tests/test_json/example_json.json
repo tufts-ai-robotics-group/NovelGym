@@ -1,0 +1,311 @@
+{
+    "state": {
+        "inventory": {
+            "slots": [
+                {
+                    "item": "iron_pickaxe",
+                    "count": 1
+                },
+                {
+                    "item": "stick",
+                    "count": 0
+                },
+                {
+                    "item": "tree_tap",
+                    "count": 0
+                },
+                {
+                    "item": "pogo_stick",
+                    "count": 0
+                },
+                {
+                    "item": "air",
+                    "count": 0
+                },
+                {
+                    "item": "block_of_diamond",
+                    "count": 0
+                },
+                {
+                    "item": "chest",
+                    "count": 0
+                },
+                {
+                    "item": "diamond_ore",
+                    "count": 0
+                },
+                {
+                    "item": "key",
+                    "count": 0
+                },
+                {
+                    "item": "oak_plank",
+                    "count": 0
+                },
+                {
+                    "item": "rubber",
+                    "count": 0
+                },
+                {
+                    "item": "safe",
+                    "count": 0
+                },
+                {
+                    "item": "wall",
+                    "count": 0
+                },
+                {
+                    "item": "block_of_titanium",
+                    "count": 0
+                },
+                {
+                    "item": "door",
+                    "count": 0
+                },
+                {
+                    "item": "open_door",
+                    "count": 0
+                },
+                {
+                    "item": "sapling",
+                    "count": 0
+                },
+                {
+                    "item": "log",
+                    "count": 0
+                },
+                {
+                    "item": "plank",
+                    "count": 0
+                },
+                {
+                    "item": "diamond",
+                    "count": 9
+                },
+                {
+                    "item": "block_of_platinum",
+                    "count": 1
+                },
+                {
+                    "item": "oak_log",
+                    "count": 0
+                },
+                {
+                    "item": "crafting_table",
+                    "count": 1
+                }
+            ],
+            "selectedItem": "air"
+        },
+        "player": {
+            "pos": [
+                32,
+                28
+            ],
+            "facing": "east"
+        },
+        "map": {
+            "38,24": "wall",
+            "38,25": "wall",
+            "38,26": "wall",
+            "38,27": "wall",
+            "38,28": "wall",
+            "38,29": "wall",
+            "33,14": "wall",
+            "2,31": "wall",
+            "44,7": "wall",
+            "21,0": "wall",
+            "2,29": "oak_log",
+            "29,0": "wall",
+            "26,31": "wall",
+            "38,14": "wall",
+            "17,7": "trader_104",
+            "15,31": "wall",
+            "32,31": "wall",
+            "6,0": "wall",
+            "44,14": "wall",
+            "21,31": "wall",
+            "27,10": "oak_log",
+            "17,0": "wall",
+            "32,7": "wall",
+            "8,31": "wall",
+            "32,24": "wall",
+            "14,31": "wall",
+            "37,31": "wall",
+            "43,7": "wall",
+            "20,0": "wall",
+            "32,28": "self",
+            "20,31": "wall",
+            "28,0": "wall",
+            "3,31": "wall",
+            "37,24": "wall",
+            "9,10": "oak_log",
+            "39,7": "wall",
+            "31,5": "wall",
+            "31,4": "wall",
+            "31,3": "wall",
+            "31,2": "wall",
+            "31,1": "wall",
+            "31,0": "wall",
+            "32,14": "wall",
+            "5,0": "wall",
+            "31,9": "open_door",
+            "31,8": "wall",
+            "31,7": "wall",
+            "16,0": "wall",
+            "31,6": "wall",
+            "37,14": "wall",
+            "43,14": "wall",
+            "27,9": "pogoist_102",
+            "31,31": "wall",
+            "31,30": "wall",
+            "42,7": "wall",
+            "27,2": "diamond_ore",
+            "27,1": "diamond_ore",
+            "27,0": "wall",
+            "36,31": "wall",
+            "31,21": "wall",
+            "38,7": "wall",
+            "31,20": "wall",
+            "31,23": "wall",
+            "9,31": "wall",
+            "31,22": "wall",
+            "19,31": "wall",
+            "31,29": "wall",
+            "31,28": "open_door",
+            "31,25": "wall",
+            "31,24": "wall",
+            "30,0": "wall",
+            "31,27": "wall",
+            "31,26": "wall",
+            "4,0": "wall",
+            "15,7": "trader_103",
+            "25,31": "wall",
+            "15,0": "wall",
+            "31,10": "wall",
+            "31,12": "wall",
+            "31,11": "wall",
+            "36,24": "wall",
+            "4,31": "wall",
+            "18,31": "wall",
+            "31,18": "wall",
+            "24,31": "wall",
+            "41,7": "wall",
+            "31,17": "wall",
+            "31,19": "wall",
+            "31,14": "wall",
+            "31,13": "wall",
+            "31,16": "wall",
+            "31,15": "wall",
+            "26,1": "diamond_ore",
+            "26,0": "wall",
+            "13,31": "wall",
+            "42,14": "wall",
+            "30,31": "wall",
+            "36,14": "wall",
+            "14,0": "wall",
+            "3,0": "wall",
+            "37,7": "wall",
+            "12,31": "wall",
+            "18,17": "oak_log",
+            "0,13": "wall",
+            "0,14": "wall",
+            "0,11": "wall",
+            "0,12": "wall",
+            "0,10": "wall",
+            "35,31": "wall",
+            "25,0": "wall",
+            "40,8": "safe",
+            "30,29": "chest",
+            "25,4": "oak_log",
+            "40,7": "wall",
+            "0,24": "wall",
+            "0,25": "wall",
+            "0,22": "wall",
+            "0,23": "wall",
+            "35,24": "wall",
+            "0,20": "wall",
+            "5,31": "wall",
+            "0,21": "wall",
+            "13,0": "wall",
+            "0,19": "wall",
+            "24,24": "block_of_platinum",
+            "0,17": "wall",
+            "0,18": "wall",
+            "0,15": "wall",
+            "2,0": "wall",
+            "0,16": "wall",
+            "29,31": "wall",
+            "36,7": "wall",
+            "41,14": "wall",
+            "35,14": "wall",
+            "0,31": "wall",
+            "0,30": "wall",
+            "24,0": "wall",
+            "0,28": "wall",
+            "0,29": "wall",
+            "0,26": "wall",
+            "0,27": "wall",
+            "28,31": "wall",
+            "17,31": "wall",
+            "34,31": "wall",
+            "23,31": "wall",
+            "12,0": "wall",
+            "1,0": "wall",
+            "46,14": "wall",
+            "46,13": "wall",
+            "35,7": "wall",
+            "46,10": "wall",
+            "9,0": "wall",
+            "46,12": "wall",
+            "46,11": "wall",
+            "34,24": "wall",
+            "6,31": "wall",
+            "16,31": "wall",
+            "23,0": "wall",
+            "46,7": "wall",
+            "46,8": "wall",
+            "46,9": "wall",
+            "22,31": "wall",
+            "40,14": "wall",
+            "11,31": "wall",
+            "34,14": "wall",
+            "1,31": "wall",
+            "11,0": "wall",
+            "0,0": "wall",
+            "0,1": "wall",
+            "0,2": "wall",
+            "0,3": "wall",
+            "0,4": "wall",
+            "0,5": "wall",
+            "0,6": "wall",
+            "19,0": "wall",
+            "0,7": "wall",
+            "34,7": "wall",
+            "0,8": "wall",
+            "8,0": "wall",
+            "0,9": "wall",
+            "39,14": "wall",
+            "10,31": "wall",
+            "33,31": "wall",
+            "22,0": "wall",
+            "45,7": "wall",
+            "45,14": "wall",
+            "33,24": "wall",
+            "7,31": "wall",
+            "38,30": "wall",
+            "38,31": "wall",
+            "10,0": "wall",
+            "7,0": "wall",
+            "18,0": "wall",
+            "33,7": "wall",
+            "27,31": "wall"
+        },
+        "action": "cannotplan",
+        "actionSuccess": false,
+        "failedAction": "cannotplan"
+    },
+    "domain": "(define (domain diarcdomaindomain)\n(:requirements :strips :typing :fluents :negative-preconditions :equality)\n\n(:types\n\toak_log - log\n\tcoord distance action property - concept\n\tinteractable unlocked - property\n\tactor physobj - physical\n\tthief self trader pogoist - actor\n\topen_door diamond_ore key crafting_table log block_of_diamond stick safe tree_tap placeable block_of_titanium door pogo_stick wall block_of_platinum plank air breakable rubber diamond iron_pickaxe chest oak_log sapling - physobj\n\tcrafting_table log plank sapling tree_tap - placeable\n\ttree_tap plank block_of_platinum log diamond_ore crafting_table - breakable\n\toak_plank - plank\n\tconcept physical - object\n)\n\n(:constants\n\n)\n\n(:predicates\n\n)\n\n(:functions\n\t(container ?v0 - physical ?v1 - object)\n\t(world ?v0 - object)\n\t(inventory ?v0 - actor ?v1 - object)\n)\n\n(:action craft_plank\n\t:parameters (?actor - actor ?log - log)\n\n\t:precondition\n\t\t(\u003e\u003d (inventory ?actor ?log) 1)\n\n\t:effect (and\n\t\t(increase (inventory ?actor oak_plank) 4)\n\t\t(decrease (inventory ?actor ?log) 1)\n\t)\n)\n(:action get_sapling\n\t:parameters (?actor - actor ?facing_obj - physical ?facing_dist - distance)\n\n\t:precondition (and\n\t\t(\u003d (world oak_log) 0)\n\t\t(\u003d (inventory ?actor sapling) 0)\n\t\t(facing_obj ?actor ?facing_obj ?facing_dist)\n\t)\n\t:effect (and\n\t\t(not(facing_obj ?actor ?facing_obj ?facing_dist))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor sapling) 1)\n\t)\n)\n(:action trade_0\n\t:parameters (?actor - actor ?block_of_platinum - block_of_platinum)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?block_of_platinum) 1)\n\t\t(facing_obj ?actor trader_103 two)\n\t)\n\t:effect (and\n\t\t(decrease (inventory ?actor ?block_of_platinum) 1)\n\t\t(increase (inventory ?actor block_of_titanium) 1)\n\t)\n)\n(:action place_sapling\n\t:parameters (?actor - actor ?sapling - sapling)\n\n\t:precondition (and\n\t\t(facing_obj ?actor air one)\n\t\t(\u003e\u003d (inventory ?actor ?sapling) 1)\n\t\t(holding ?actor air)\n\t)\n\t:effect (and\n\t\t(increase (world oak_log) 1)\n\t\t(decrease (inventory ?actor ?sapling) 1)\n\t\t(not(facing_obj ?actor air one))\n\t\t(facing_obj ?actor oak_log one)\n\t)\n)\n(:action break_and_pickup_tree_tap\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d tree_tap diamond_ore))\n\t\t(not(\u003d tree_tap block_of_platinum))\n\t\t(facing_obj ?actor tree_tap one)\n\t\t(not(floating tree_tap))\n\t\t(not(\u003d tree_tap oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_crafting_table\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d crafting_table diamond_ore))\n\t\t(not(\u003d crafting_table block_of_platinum))\n\t\t(facing_obj ?actor crafting_table one)\n\t\t(not(floating crafting_table))\n\t\t(not(\u003d crafting_table oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_diamond_ore\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d diamond_ore diamond_ore))\n\t\t(not(\u003d diamond_ore block_of_platinum))\n\t\t(facing_obj ?actor diamond_ore one)\n\t\t(not(floating diamond_ore))\n\t\t(not(\u003d diamond_ore oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_oak_log\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d oak_log diamond_ore))\n\t\t(not(\u003d oak_log block_of_platinum))\n\t\t(facing_obj ?actor oak_log one)\n\t\t(not(floating oak_log))\n\t\t(not(\u003d oak_log oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_oak_plank\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d oak_plank diamond_ore))\n\t\t(not(\u003d oak_plank block_of_platinum))\n\t\t(facing_obj ?actor oak_plank one)\n\t\t(not(floating oak_plank))\n\t\t(not(\u003d oak_plank oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_block_of_platinum\n\t:parameters (?actor - actor)\n\n\t:precondition (and\n\t\t(not(\u003d block_of_platinum diamond_ore))\n\t\t(not(\u003d block_of_platinum block_of_platinum))\n\t\t(facing_obj ?actor block_of_platinum one)\n\t\t(not(floating block_of_platinum))\n\t\t(not(\u003d block_of_platinum oak_log))\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action pickup\n\t:parameters (?actor - actor ?obj - physobj)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?obj one)\n\t\t(floating ?obj)\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action break_and_pickup_diamond_ore\n\t:parameters (?actor - actor ?obj - diamond_ore)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?obj one)\n\t\t(not(floating ?obj))\n\t\t(holding ?actor iron_pickaxe)\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor diamond) 9)\n\t)\n)\n(:action craft_stick\n\t:parameters (?actor - actor ?plank - plank)\n\n\t:precondition\n\t\t(\u003e\u003d (inventory ?actor ?plank) 2)\n\n\t:effect (and\n\t\t(increase (inventory ?actor stick) 4)\n\t\t(decrease (inventory ?actor ?plank) 2)\n\t)\n)\n(:action open_door\n\t:parameters (?actor - actor ?door - door)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?door one)\n\t\t(holding ?actor air)\n\t)\n\t:effect (and\n\t\t(decrease (world ?door) 1)\n\t\t(increase (world open_door) 1)\n\t\t(not(facing_obj ?actor ?door one))\n\t\t(facing_obj ?actor air one)\n\t)\n)\n(:action collect_from_chest\n\t:parameters (?actor - actor ?chest - chest)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?chest one)\n\t\t(holding ?actor air)\n\t\t(\u003d (container chest key) 1)\n\t)\n\t:effect (and\n\t\t(decrease (container ?chest key) 1)\n\t\t(increase (inventory ?actor key) 1)\n\t\t(not(holding ?actor air))\n\t\t(holding ?actor key)\n\t)\n)\n(:action craft_tree_tap\n\t:parameters (?actor - actor ?plank - plank ?stick - stick)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?plank) 5)\n\t\t(\u003e\u003d (inventory ?actor ?stick) 1)\n\t\t(facing_obj ?actor crafting_table one)\n\t)\n\t:effect (and\n\t\t(increase (inventory ?actor tree_tap) 1)\n\t\t(decrease (inventory ?actor ?plank) 5)\n\t\t(decrease (inventory ?actor ?stick) 1)\n\t)\n)\n(:action trade_1\n\t:parameters (?actor - actor ?diamond - diamond)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?diamond) 18)\n\t\t(facing_obj ?actor trader_103 two)\n\t)\n\t:effect (and\n\t\t(decrease (inventory ?actor ?diamond) 18)\n\t\t(increase (inventory ?actor block_of_platinum) 1)\n\t)\n)\n(:action collect_from_tree_tap\n\t:parameters (?actor - actor ?tree_tap - tree_tap ?log - log)\n\n\t:precondition (and\n\t\t(next_to ?tree_tap ?log)\n\t\t(facing_obj ?actor ?tree_tap one)\n\t)\n\t:effect\n\t\t(increase (inventory ?actor rubber) 1)\n\n)\n(:action find_safe\n\t:parameters (?actor - actor ?facing_obj - physical ?facing_dist - distance)\n\n\t:precondition (and\n\t\t(\u003d ?actor self)\n\t\t(\u003d (world safe) 0)\n\t\t(facing_obj ?actor ?facing_obj ?facing_dist)\n\t\t(holding ?actor air)\n\t\t(\u003e\u003d (inventory ?actor key) 1)\n\t)\n\t:effect (and\n\t\t(increase (world safe) 1)\n\t\t(not(facing_obj ?actor ?facing_obj ?facing_dist))\n\t\t(facing_obj ?actor air one)\n\t\t(holding ?actor air)\n\t)\n)\n(:action trade_3\n\t:parameters (?actor - actor ?log - log)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?log) 10)\n\t\t(facing_obj ?actor trader_104 two)\n\t)\n\t:effect (and\n\t\t(decrease (inventory ?actor ?log) 10)\n\t\t(increase (inventory ?actor block_of_titanium) 1)\n\t)\n)\n(:action place_tree_tap\n\t:parameters (?actor - actor ?tree_tap - tree_tap ?log - log)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?log two)\n\t\t(\u003e\u003d (inventory ?actor ?tree_tap) 1)\n\t\t(holding ?actor air)\n\t)\n\t:effect (and\n\t\t(increase (world ?tree_tap) 1)\n\t\t(not(facing_obj ?actor ?log two))\n\t\t(facing_obj ?actor ?tree_tap one)\n\t\t(decrease (inventory ?actor ?tree_tap) 1)\n\t\t(next_to ?tree_tap ?log)\n\t)\n)\n(:action craft_block_of_diamond\n\t:parameters (?actor - actor ?diamond - diamond)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?diamond) 9)\n\t\t(facing_obj ?actor crafting_table one)\n\t)\n\t:effect (and\n\t\t(increase (inventory ?actor block_of_diamond) 1)\n\t\t(decrease (inventory ?actor ?diamond) 9)\n\t)\n)\n(:action collect_from_safe\n\t:parameters (?actor - actor ?safe - safe)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?safe one)\n\t\t(propertyOf ?safe unlocked)\n\t\t(\u003d (container ?safe diamond) 18)\n\t)\n\t:effect (and\n\t\t(decrease (container ?safe diamond) 18)\n\t\t(increase (inventory ?actor diamond) 18)\n\t)\n)\n(:action use_safe\n\t:parameters (?actor - actor ?safe - safe)\n\n\t:precondition (and\n\t\t(facing_obj ?actor ?safe one)\n\t\t(holding ?actor key)\n\t)\n\t:effect\n\t\t(propertyOf ?safe unlocked)\n\n)\n(:action trade_2\n\t:parameters (?actor - actor ?block_of_platinum - block_of_platinum)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?block_of_platinum) 2)\n\t\t(facing_obj ?actor trader_104 two)\n\t)\n\t:effect (and\n\t\t(decrease (inventory ?actor ?block_of_platinum) 2)\n\t\t(increase (inventory ?actor diamond) 9)\n\t)\n)\n(:action break_and_pickup_block_of_platinum\n\t:parameters (?actor - actor ?obj - block_of_platinum)\n\n\t:precondition (and\n\t\t(not(floating ?obj))\n\t\t(facing_obj ?actor ?obj one)\n\t\t(holding ?actor iron_pickaxe)\n\t)\n\t:effect (and\n\t\t(decrease (world ?obj) 1)\n\t\t(not(facing_obj ?actor ?obj one))\n\t\t(facing_obj ?actor air one)\n\t\t(increase (inventory ?actor ?obj) 1)\n\t)\n)\n(:action craft_pogo_stick\n\t:parameters (?actor - actor ?stick - stick ?rubber - rubber ?block_of_titanium - block_of_titanium ?block_of_diamond - block_of_diamond)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?stick) 2)\n\t\t(\u003e\u003d (inventory ?actor ?rubber) 1)\n\t\t(\u003e\u003d (inventory ?actor ?block_of_titanium) 2)\n\t\t(\u003e\u003d (inventory ?actor ?block_of_diamond) 2)\n\t\t(facing_obj ?actor crafting_table one)\n\t)\n\t:effect (and\n\t\t(increase (inventory ?actor pogo_stick) 1)\n\t\t(decrease (inventory ?actor ?stick) 2)\n\t\t(decrease (inventory ?actor ?rubber) 1)\n\t\t(decrease (inventory ?actor ?block_of_titanium) 2)\n\t\t(decrease (inventory ?actor ?block_of_diamond) 2)\n\t)\n)\n(:action deselect\n\t:parameters (?actor - actor ?obj - physobj)\n\n\t:precondition (and\n\t\t(\u003e\u003d (inventory ?actor ?obj) 1)\n\t\t(holding ?actor ?obj)\n\t)\n\t:effect (and\n\t\t(not(holding ?actor ?obj))\n\t\t(holding ?actor air)\n\t)\n)\n(:action interact_with_pogoist_102\n\t:parameters (?actor - actor)\n\n\t:precondition\n\t\t(facing_obj ?actor pogoist_102 two)\n\n\t:effect\n\t\t(facing_obj ?actor pogoist_102 two)\n\n)\n(:action interact_with_trader_103\n\t:parameters (?actor - actor)\n\n\t:precondition\n\t\t(facing_obj ?actor trader_103 two)\n\n\t:effect\n\t\t(facing_obj ?actor trader_103 two)\n\n)\n(:action interact_with_trader_104\n\t:parameters (?actor - actor)\n\n\t:precondition\n\t\t(facing_obj ?actor trader_104 two)\n\n\t:effect\n\t\t(facing_obj ?actor trader_104 two)\n\n)\n)",
+    "plan": "(approach_object self door one one air)\n",
+    "novelActions": []
+}
