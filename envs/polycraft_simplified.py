@@ -1,3 +1,4 @@
+from typing import Tuple
 import gymnasium as gym
 
 from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
@@ -44,7 +45,9 @@ class SAPolycraftRL(gym.Wrapper):
         self.rep_gen = None
         self.items_lidar_disabled = []
 
-        self.episode = 0
+        self._action_space = None
+
+        self.episode = -1
 
     
     @property
@@ -60,7 +63,11 @@ class SAPolycraftRL(gym.Wrapper):
 
     @property
     def action_space(self):
-        return self.env.action_space("agent_0")
+        if self._action_space is None:
+            action_set = self.env.agent_manager.agents['agent_0'].action_set
+            action_set_rl = [action for action, _ in action_set.actions if action not in ["nop", "give_up"]]
+            self._action_space = gym.spaces.Discrete(len(action_set_rl))
+        return self._action_space
 
     
     def _fast_forward(self):
@@ -89,8 +96,6 @@ class SAPolycraftRL(gym.Wrapper):
                 self.env.step(action, extra_params)
             agent = self.env.agent_selection
         
-        # initialize the observation generator
-        self._init_obs_gen()
         return True
 
 
@@ -98,10 +103,13 @@ class SAPolycraftRL(gym.Wrapper):
         """
         Initialize the observation generator.
         """
-        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
         failed_action = main_agent.failed_action
         action_set = self.env.agent_manager.agents['agent_0'].action_set
 
+        if type(failed_action) == tuple:
+            failed_action = "(" + " ".join(failed_action[1]) + ")"
+        
         diarc_json = generate_diarc_json_from_state(
             player_id=self.player_id,
             state=self.env.internal_state,
@@ -125,6 +133,7 @@ class SAPolycraftRL(gym.Wrapper):
         self.rep_gen = self.RepGeneratorModule(
             json_input=json_input, 
             items_lidar_disabled=self.items_lidar_disabled,
+            RL_test=True,
             **self.rep_gen_args
         )
 
@@ -145,11 +154,17 @@ class SAPolycraftRL(gym.Wrapper):
         return self.rep_gen.generate_observation(diarc_json)
 
 
-    def _gen_reward(self):
+    def _gen_reward(self) -> Tuple[bool, bool, float]:
+        """
+        done, truncated, reward
+        """
         # case 1: is done
-        is_done = self.env.dones["agent_0"]
-        if is_done:
-            return True, REWARDS["positive"]
+        if self.env.internal_state._goal_achieved:
+            return True, False, REWARDS["positive"]
+        elif self.env.internal_state._given_up:
+            return True, False, REWARDS["negative"]
+        elif self.env.dones["agent_0"]:
+            return False, True, REWARDS["step"]
         
         # not done, check if effects met
         main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
@@ -164,14 +179,14 @@ class SAPolycraftRL(gym.Wrapper):
         effects_met = self.rep_gen.check_if_effects_met(diarc_json)
         # case 2: effects not met, return step reward and continue
         if not (effects_met[0] or effects_met[1]):
-            return False, REWARDS['step']
+            return False, False, REWARDS['step']
         else:
             plan_found = main_agent.plan()
             if plan_found:
                 # case 3, effects met, plannable
-                return True, REWARDS['positive']
+                return True, False, REWARDS['positive']
             else:
-                return False, REWARDS['negative']
+                return True, False, REWARDS['negative']
 
     def step(self, action):
         # run the agent in interest
@@ -181,14 +196,14 @@ class SAPolycraftRL(gym.Wrapper):
         # until the agent in interest is reached again.
         self._fast_forward()
 
-        obs, reward, done, info = self.env.last()
+        obs, reward, env_done, info = self.env.last()
 
         # check if effects met and give the rewards
-        done, reward = self._gen_reward()
+        plannable_done, truncated, reward = self._gen_reward()
 
         # generate the observation
         obs = self._gen_obs()
-        return obs, reward, done, False, info
+        return obs, reward, env_done or plannable_done, truncated, info
 
     def reset(self):
         # reset the environment
@@ -203,6 +218,11 @@ class SAPolycraftRL(gym.Wrapper):
 
             needs_rl = self._fast_forward()
         obs, reward, done, info = self.env.last()
+
+        # initialize the observation generator
+        self._init_obs_gen()
+
+        # get the observation
         obs = self._gen_obs()
         return obs
 

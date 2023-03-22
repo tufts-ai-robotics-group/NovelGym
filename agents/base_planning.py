@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import List, Tuple
 from gym_novel_gridworlds2.agents.agent import Agent
 from gym_novel_gridworlds2.state import State
 from gym_novel_gridworlds2.state.dynamic import Dynamic
@@ -28,11 +29,11 @@ class BasePlanningAgent(Agent):
 
 
     def _reset(self):
-        self.action_buffer = []
+        self.action_buffer: List[tuple] = []
         self.done = False
-        self.last_action = None
-        self.failed_action = None
-        self.pddl_plan = []
+        self.last_action: Tuple[str, tuple] | None = None
+        self.failed_action: Tuple[str, tuple] | None = None
+        self.pddl_plan: List[tuple] = []
         
         # rl mode
         self.stuck = False
@@ -84,7 +85,7 @@ class BasePlanningAgent(Agent):
             # current agent does not include rl module, just do nop.
             return self.action_set.action_index["nop"]
         elif self.done:
-            self.last_action = "nop"
+            self.last_action = ("nop", ("nop",))
             return self.action_set.action_index["nop"]
         elif self.action_buffer == []:
             plan_result = self.plan()
@@ -98,7 +99,7 @@ class BasePlanningAgent(Agent):
         # if the plan exists, execute the first action
         if len(self.action_buffer) > 0:
             action = self.action_buffer.pop()
-            self.last_action = action[0]
+            self.last_action = action
             return self.action_set.action_index[action[0]]
 
         return self.action_set.action_index["nop"]

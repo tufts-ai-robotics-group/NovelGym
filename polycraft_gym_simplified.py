@@ -90,13 +90,20 @@ for episode in range(num_episodes):
     policy = agent.agent.policy
 
     for step in range(1000):
+        print("actions: ", "; ".join([
+            f"{i}: {action}" 
+            for i, (action, _) in 
+                enumerate(agent.action_set.actions)
+            ])
+        )
         # action = policy(obs)
-        action = env.action_space.sample()
+        # action = env.action_space.sample()
+        action = int(input("action: "))
         obs, reward, terminated, truncated, info = env.step(action)
         
         if verbose:
             env.render()
-        if terminated:
+        if terminated or truncated:
             break
 
 print("Done!")

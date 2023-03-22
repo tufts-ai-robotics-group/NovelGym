@@ -397,15 +397,17 @@ class PolycraftRewardGenerator:
 
         get_quantity = self._make_get_quantity(*quantity_exp)
         if op == '>=':
-            return lambda new_state: get_quantity(new_state) >= val_int
+            func = lambda new_state: get_quantity(new_state) >= val_int
         elif op == "decrease":
-            return lambda new_state: \
+            func = lambda new_state: \
                 get_quantity(new_state) - get_quantity(self.get_state()) >= -val_int
         elif op == "increase":
-            return lambda new_state: \
+            func = lambda new_state: \
                 get_quantity(new_state) - get_quantity(self.get_state()) >= val_int
         else:
-            return self._maker_map['always_true']
+            func = self._maker_map['always_true']
+        func.__name__ = f"check_quantity_{op}_{quantity_exp}_{val}"
+        return func
     
     def _make_get_quantity(self, quantity_of: str, *objs):
         # in the pddl the last argment is the item type in both world and inventory.
