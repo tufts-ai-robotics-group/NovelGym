@@ -16,6 +16,7 @@ REWARDS = {
 
 
 class SAPolycraftRL(gym.Wrapper):
+    metadata = {"render_modes": ["human"]}
     def __init__(
             self, 
             config_file_paths, 
@@ -46,6 +47,7 @@ class SAPolycraftRL(gym.Wrapper):
         self.items_lidar_disabled = []
 
         self._action_space = None
+        self._observation_space = None
 
         self.episode = -1
 
@@ -205,7 +207,7 @@ class SAPolycraftRL(gym.Wrapper):
         obs = self._gen_obs()
         return obs, reward, env_done or plannable_done, truncated, info
 
-    def reset(self):
+    def reset(self, seed=None, options={}):
         # reset the environment
         needs_rl = False
         while not needs_rl:
@@ -224,5 +226,5 @@ class SAPolycraftRL(gym.Wrapper):
 
         # get the observation
         obs = self._gen_obs()
-        return obs
+        return obs, {}
 

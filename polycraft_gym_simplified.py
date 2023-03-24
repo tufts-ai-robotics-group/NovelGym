@@ -82,7 +82,7 @@ env = SAPolycraftRL(
 
 
 for episode in range(num_episodes):
-    obs = env.reset()
+    obs, info = env.reset()
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
 
