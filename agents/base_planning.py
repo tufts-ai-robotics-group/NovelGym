@@ -11,6 +11,9 @@ from copy import deepcopy
 from utils.pddl_utils import generate_pddl
 from utils.plan_utils import call_planner
 
+import tempfile
+import os
+
 JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
 PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
@@ -51,12 +54,15 @@ class BasePlanningAgent(Agent):
         return [0]
 
     def plan(self):
-        self.pddl_domain, self.pddl_problem = generate_pddl(get_config_json(), self.state, self.dynamic)
-        with open(PDDL_DOMAIN, "w") as f:
-            f.write(self.pddl_domain)
-        with open(PDDL_PROBLEM, "w") as f:
-            f.write(self.pddl_problem)
-        plan, translated = call_planner(PDDL_DOMAIN, PDDL_PROBLEM)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            self.pddl_domain, self.pddl_problem = generate_pddl(get_config_json(), self.state, self.dynamic)
+            domain_path = os.path.join(tmpdir, PDDL_DOMAIN)
+            problem_path = os.path.join(tmpdir, PDDL_PROBLEM)
+            with open(domain_path, "w") as f:
+                f.write(self.pddl_domain)
+            with open(problem_path, "w") as f:
+                f.write(self.pddl_problem)
+            plan, translated = call_planner(domain_path, problem_path)
         if translated is not None:
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
             self.action_buffer = list(zip(translated, plan))
