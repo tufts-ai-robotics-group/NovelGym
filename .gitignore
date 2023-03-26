@@ -167,3 +167,4 @@ agents/rl_subagents/rapid_learn_utils/policies/*
 
 # PDDL files
 *.pddl
+events.out.tfevents*
