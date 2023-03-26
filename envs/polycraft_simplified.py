@@ -26,7 +26,7 @@ class SAPolycraftRL(gym.Wrapper):
             RepGenerator=LidarAll,
             rep_gen_args={},
         ):
-        config_content = load_json(config_json={"extends": config_file_paths})
+        config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
         self.config_content = config_content
 
         self.player_id = 0
@@ -34,7 +34,8 @@ class SAPolycraftRL(gym.Wrapper):
         self.env = NovelGridWorldSequentialEnv(
             config_dict=config_content, 
             max_time_step=None, 
-            time_limit=None, 
+            time_limit=None,
+            enable_render=False,
             run_name=task_name,
             logged_agents=['main_1'] if show_action_log else []
         )
