@@ -163,11 +163,11 @@ def set_train_eps(epoch, env_step):
 
 result = ts.trainer.offpolicy_trainer(
     policy, train_collector, test_collector,
-    max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
-    update_per_step=0.1, episode_per_test=100, batch_size=64,
+    max_epoch=100, step_per_epoch=1000, step_per_collect=10,
+    update_per_step=0.1, episode_per_test=50, batch_size=64,
     train_fn=set_train_eps,
     test_fn=lambda epoch, env_step: policy.set_eps(0.05),
-    stop_fn=lambda mean_rewards: mean_rewards >= env.spec.reward_threshold,
+    stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
     logger=logger
 )
 print(f'Finished training! Use {result["duration"]}')
