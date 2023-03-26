@@ -5,10 +5,10 @@ class BasicNet(nn.Module):
     def __init__(self, state_shape, action_shape):
         super().__init__()
         self.model = nn.Sequential(
-            nn.Linear(np.prod(state_shape), 128), nn.ReLU(inplace=True),
-            nn.Linear(128, 128), nn.ReLU(inplace=True),
-            nn.Linear(128, 128), nn.ReLU(inplace=True),
-            nn.Linear(128, np.prod(action_shape)),
+            nn.Linear(np.prod(state_shape), 256), nn.ReLU(inplace=True),
+            nn.Linear(256, 128), nn.ReLU(inplace=True),
+            nn.Linear(128, 64), nn.ReLU(inplace=True),
+            nn.Linear(64, np.prod(action_shape)),
         )
 
     def forward(self, obs, state=None, info={}):
