@@ -25,14 +25,14 @@ def call_planner(domain, problem):
     plan, game_action_set = _output_to_plan(output, {})
     return plan, game_action_set
 
-def _output_to_plan(output, action_map):
+def _output_to_plan(output, action_map, show_error=False):
     '''
     Helper function to perform regex on the output from the planner.
     ### I/P: Takes in the ffmetric output and
     ### O/P: converts it to a action sequence list.
     '''
 
-    if "unsolvable" in output:
+    if show_error and "unsolvable" in output:
         print ("Plan not found with FF! Error: {}".format(
             output))
         return None, None

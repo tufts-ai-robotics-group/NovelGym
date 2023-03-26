@@ -7,6 +7,8 @@ import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
 import torch
+from torch.utils.tensorboard import SummaryWriter
+from tianshou.utils import TensorboardLogger
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
 # parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
@@ -22,7 +24,8 @@ parser.add_argument(
     "--exp_name",
     type=str, 
     help="The name of the experiment.", 
-    required=False
+    required=False,
+    default="main"
 )
 parser.add_argument(
     '--rendering',
@@ -51,6 +54,13 @@ parser.add_argument(
     help="The agent module of the first agent.",
     required=False
 )
+parser.add_argument(
+    '--logdir',
+    type=str,
+    help="The directory to save the logs.",
+    required=False,
+    default="results"
+)
 
 verbose = False
 
@@ -61,6 +71,11 @@ exp_name = args.exp_name
 agent = args.agent
 seed = args.seed
 reset_rl = args.reset_rl
+
+log_path = os.path.join(args.logdir, args.exp_name, "dqn")
+writer = SummaryWriter(log_path)
+writer.add_text("args", str(args))
+logger = TensorboardLogger(writer)
 
 
 if reset_rl:
@@ -101,28 +116,41 @@ policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.9, estimation_step=3,
 train_collector = ts.data.Collector(policy, env, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
 test_collector = ts.data.Collector(policy, env, exploration_noise=True)
 
+# train_collector.collect(n_step=5000, random=True)
+# print("Done Collecting Experience. Starting Training...")
 
-train_collector.collect(n_step=5000, random=True)
-policy.set_eps(0.1)
+
+# policy.set_eps(0.1)
+
+# for i in range(int(1e6)):
+#     collect_result = train_collector.collect(n_step=10)
+
+#     # once if the collected episodes' mean returns reach the threshold,
+#     # or every 1000 steps, we test it on test_collector
+#     if collect_result['rews'].mean() >= env.spec.reward_threshold or i % 1000 == 0:
+#         policy.set_eps(0.05)
+#         result = test_collector.collect(n_episode=100)
+#         print("episode:", i, "  test_reward:", result['rews'].mean())
+#         if result['rews'].mean() >= env.spec.reward_threshold:
+#             print(f'Finished training! Test mean returns: {result["rews"].mean()}')
+#             break
+#         else:
+#             # back to training eps
+#             policy.set_eps(0.1)
+
+#     # train policy with a sampled batch data from buffer
+#     losses = policy.update(64, train_collector.buffer)
+
+result = ts.trainer.offpolicy_trainer(
+    policy, train_collector, test_collector,
+    max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
+    update_per_step=0.1, episode_per_test=100, batch_size=64,
+    train_fn=lambda epoch, env_step: policy.set_eps(0.1),
+    test_fn=lambda epoch, env_step: policy.set_eps(0.05),
+    stop_fn=lambda mean_rewards: mean_rewards >= env.spec.reward_threshold,
+    logger=logger
+)
+print(f'Finished training! Use {result["duration"]}')
 
 
-for i in range(int(1e6)):
-    collect_result = train_collector.collect(n_step=10)
-
-    # once if the collected episodes' mean returns reach the threshold,
-    # or every 1000 steps, we test it on test_collector
-    if collect_result['rews'].mean() >= env.spec.reward_threshold or i % 1000 == 0:
-        policy.set_eps(0.05)
-        result = test_collector.collect(n_episode=100)
-        if result['rews'].mean() >= env.spec.reward_threshold:
-            print(f'Finished training! Test mean returns: {result["rews"].mean()}')
-            break
-        else:
-            # back to training eps
-            policy.set_eps(0.1)
-
-    # train policy with a sampled batch data from buffer
-    losses = policy.update(64, train_collector.buffer)
-
-print("Done!")
 

@@ -71,7 +71,8 @@ class LidarAll():
             num_beams=NUM_BEAMS,
             max_beam_range=MAX_BEAM_RANGE
         ):
-        max_item_type_count = len(all_objects) + 2
+        # +1 since obj encoder has one extra error margin for unknown objects
+        max_item_type_count = len(all_objects) + 1
         # things to search for in lidar. only excludes disabled items
 
         # maximum of number of possible items
@@ -134,7 +135,7 @@ class LidarAll():
         # selected item
         selected_item = self._get_selected_item(state_json)
 
-        return np.concatenate((sensor_result, inventory_result, [selected_item]))
+        return np.concatenate((sensor_result, inventory_result, [selected_item]), dtype=int)
 
 
     def _encode_items(self, json_data):
@@ -200,7 +201,7 @@ class LidarAll():
                                   direction_radian[player_facing] + np.pi,
                                   self.num_beams + 1)[:-1]  # 0 and 360 degree is same, so removing 360
 
-        lidar_signals = np.zeros((len(self.items_id_lidar), len(angles_list)))
+        lidar_signals = np.zeros((len(self.items_id_lidar), len(angles_list)), dtype=int)
         x, y = player_pos
         for angle_idx, angle in enumerate(angles_list):
             x_ratio, y_ratio = np.round(np.cos(angle), 2), np.round((np.sin(angle)), 2)
@@ -247,7 +248,7 @@ class LidarAll():
         """
         inventory = input['inventory']['slots']
         # minus 1 to exclude air in the inventory. (0 = air for our encoder)
-        inventory_quantity_arr = np.zeros(self.max_item_type_count)
+        inventory_quantity_arr = np.zeros(self.max_item_type_count, dtype=int)
 
         for slot in inventory:
             item_id = self.item_encoder.get_id(slot['item'])
