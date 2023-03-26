@@ -12,18 +12,23 @@ import copy
 
 FF_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "planners", "Metric-FF-v2.1", "ff")
 
-def call_planner(domain, problem):
+def call_planner(domain, problem, timeout=30):
     '''
         Given a domain and a problem file
         This function return the ffmetric Planner output.
-        In the action format
+        In the action format.
+        timeout in seconds
     '''
     # run the planner.
     # using mode 0 because that's the most basic and stable mode.
-    run_script = f"{FF_PATH} -o {domain} -f {problem} -s 0"
-    output = subprocess.getoutput(run_script)
-    plan, game_action_set = _output_to_plan(output, {})
-    return plan, game_action_set
+    run_script = [FF_PATH, "-o", domain, "-f", problem, "-s", "0"]
+    try:
+        output = subprocess.check_output(run_script, timeout=timeout).decode('utf-8')
+        plan, game_action_set = _output_to_plan(output, {})
+        return plan, game_action_set
+    except subprocess.TimeoutExpired:
+        # planner timed out
+        return None, None
 
 def _output_to_plan(output, action_map, show_error=False):
     '''
