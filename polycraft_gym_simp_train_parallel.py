@@ -122,7 +122,7 @@ if __name__ == "__main__":
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     net = BasicNet(state_shape, action_shape)
-    optim = torch.optim.Adam(net.parameters(), lr=1e-4)
+    optim = torch.optim.Adam(net.parameters(), lr=1e-3)
     policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
 
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
@@ -153,14 +153,21 @@ if __name__ == "__main__":
     #     # train policy with a sampled batch data from buffer
     #     losses = policy.update(64, train_collector.buffer)
 
-    result = ts.trainer.offpolicy_trainer(
-        policy, train_collector, test_collector,
-        max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
-        update_per_step=0.1, episode_per_test=100, batch_size=64,
-        train_fn=lambda epoch, env_step: policy.set_eps(0.1),
-        test_fn=lambda epoch, env_step: policy.set_eps(0.05),
-        stop_fn=lambda mean_rewards: mean_rewards >= envs[0].spec.reward_threshold,
-        logger=logger
-    )
-    print(f'Finished training! Use {result["duration"]}')
+def set_train_eps(epoch, env_step):
+    max_eps = 0.4
+    min_eps = 0.1
+    if epoch > 10:
+        return min_eps
+    else:
+        return max_eps - (max_eps - min_eps) / 10 * epoch
 
+result = ts.trainer.offpolicy_trainer(
+    policy, train_collector, test_collector,
+    max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
+    update_per_step=0.1, episode_per_test=100, batch_size=64,
+    train_fn=set_train_eps,
+    test_fn=lambda epoch, env_step: policy.set_eps(0.05),
+    stop_fn=lambda mean_rewards: mean_rewards >= env.spec.reward_threshold,
+    logger=logger
+)
+print(f'Finished training! Use {result["duration"]}')

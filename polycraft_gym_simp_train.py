@@ -141,11 +141,19 @@ test_collector = ts.data.Collector(policy, env, exploration_noise=True)
 #     # train policy with a sampled batch data from buffer
 #     losses = policy.update(64, train_collector.buffer)
 
+def set_train_eps(epoch, env_step):
+    max_eps = 0.4
+    min_eps = 0.1
+    if epoch > 10:
+        return min_eps
+    else:
+        return max_eps - (max_eps - min_eps) / 10 * epoch
+
 result = ts.trainer.offpolicy_trainer(
     policy, train_collector, test_collector,
     max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
     update_per_step=0.1, episode_per_test=100, batch_size=64,
-    train_fn=lambda epoch, env_step: policy.set_eps(0.1),
+    train_fn=set_train_eps,
     test_fn=lambda epoch, env_step: policy.set_eps(0.05),
     stop_fn=lambda mean_rewards: mean_rewards >= env.spec.reward_threshold,
     logger=logger
