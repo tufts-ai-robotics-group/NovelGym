@@ -11,37 +11,41 @@ from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 from obs_convertion import LidarAll, OnlyFacingObs
 
+
+OBS_TYPES = {
+    "lidar_all": LidarAll,
+    "only_facing": OnlyFacingObs,
+}
+
+NOVELTIES = {
+    "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
+    "kibt": "novelties/evaluation1/key_inventory_break_tree/key_inventory_break_tree.json",
+    "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
+    "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
+}
+
+RL_ALGOS = {
+    "dqn": ts.policy.DQNPolicy,
+}
+
+
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
 # parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
-parser.add_argument(
-    "-n",
-    "--episodes",
-    type=int,
-    help="The number of episodes.",
-    required=False,
-    default=1000
-)
-parser.add_argument(
-    "--exp_name",
-    type=str, 
-    help="The name of the experiment.", 
-    required=False,
-    default="main"
-)
 parser.add_argument(
     "--novelty",
     type=str, 
     help="The name of the novelty.", 
     required=False,
-    default="kibt"
+    default="mi",
+    choices=NOVELTIES.keys()
 )
-parser.add_argument(
-    '--rendering',
-    type=str,
-    help="The rendering mode.",
-    required=False,
-    default="human"
-)
+# parser.add_argument(
+#     '--rendering',
+#     type=str,
+#     help="The rendering mode.",
+#     required=False,
+#     default="human"
+# )
 parser.add_argument(
     '--seed',
     type=str,
@@ -66,22 +70,20 @@ parser.add_argument(
 parser.add_argument(
     '--obs_type',
     type=str,
-    help="The directory to save the logs.",
+    help="Type of observation.",
     required=False,
-    default="lidar_all"
+    default="lidar_all",
+    choices=OBS_TYPES.keys()
+)
+parser.add_argument(
+    '--rl_algo',
+    type=str,
+    help="The algorithm for RL.",
+    required=False,
+    default="dqn",
+    choices=RL_ALGOS.keys()
 )
 
-obs_types = {
-    "lidar_all": LidarAll,
-    "only_facing": OnlyFacingObs,
-}
-
-novelties = {
-    "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
-    "kibt": "novelties/evaluation1/key_inventory_break_tree/key_inventory_break_tree.json",
-    "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
-    "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
-}
 
 verbose = False
 
@@ -101,17 +103,16 @@ def set_train_eps(epoch, env_step):
 if __name__ == "__main__":
     num_episodes = args.episodes
 
-    exp_name = args.exp_name
     seed = args.seed
 
     # novelty
     novelty_name = args.novelty
-    novelty_path = novelties[novelty_name]
+    novelty_path = NOVELTIES[novelty_name]
     config_file_paths = ["config/polycraft_gym_rl_single.json"]
     config_file_paths.append(novelty_path)
 
     # observation generator
-    RepGenerator = obs_types[args.obs_type]
+    RepGenerator = OBS_TYPES[args.obs_type]
 
     # env
     envs = [lambda: gym.make(
@@ -125,18 +126,23 @@ if __name__ == "__main__":
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
 
-    # logging
-    log_path = os.path.join(args.logdir, args.exp_name, "dqn")
-    writer = SummaryWriter(log_path)
-    writer.add_text("args", str(args))
-    logger = TensorboardLogger(writer)
-
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.95, estimation_step=3)
+
+    # logging
+    log_path = os.path.join(
+        args.logdir, 
+        args.novelty,
+        args.obs_type,
+        args.rl_algo
+    )
+    writer = SummaryWriter(log_path)
+    writer.add_text("args", str(args))
+    logger = TensorboardLogger(writer)
 
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
