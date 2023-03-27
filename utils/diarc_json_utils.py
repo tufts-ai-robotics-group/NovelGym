@@ -3,7 +3,7 @@ from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym_novel_gridworlds2.contrib.polycraft.objects import PolycraftEntity
 from .pddl_utils import generate_obj_types
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 
@@ -13,7 +13,7 @@ def generate_diarc_json_from_state(
         dynamic: Dynamic,
         failed_action: tuple, 
         success: bool,
-        object_types: List[Tuple[str, str]] | None = None,
+        object_types: Optional[List[Tuple[str, str]]] = None,
     ):
     entity: PolycraftEntity = state.get_entity_by_id(player_id)
 

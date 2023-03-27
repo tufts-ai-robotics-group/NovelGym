@@ -6,6 +6,8 @@ from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym.spaces import Discrete
 import json
 
+from typing import Optional
+
 from copy import deepcopy
 
 from utils.pddl_utils import generate_pddl
@@ -34,8 +36,8 @@ class BasePlanningAgent(Agent):
     def _reset(self):
         self.action_buffer: List[tuple] = []
         self.done = False
-        self.last_action: Tuple[str, tuple] | None = None
-        self.failed_action: Tuple[str, tuple] | None = None
+        self.last_action: Optional[Tuple[str, tuple]] = None
+        self.failed_action: Optional[Tuple[str, tuple]] = None
         self.pddl_plan: List[tuple] = []
         
         # rl mode
