@@ -9,6 +9,7 @@ from net.basic import BasicNet
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
+from obs_convertion import LidarAll, OnlyFacingObs
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
 # parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
@@ -26,6 +27,13 @@ parser.add_argument(
     help="The name of the experiment.", 
     required=False,
     default="main"
+)
+parser.add_argument(
+    "--novelty",
+    type=str, 
+    help="The name of the novelty.", 
+    required=False,
+    default="kibt"
 )
 parser.add_argument(
     '--rendering',
@@ -49,25 +57,31 @@ parser.add_argument(
     default=4
 )
 parser.add_argument(
-    '--reset_rl',
-    action=argparse.BooleanOptionalAction,
-    help="Whether to reset the RL agent and remove the existing models.",
-    required=False,
-    default=False
-)
-parser.add_argument(
-    '--agent',
-    type=str,
-    help="The agent module of the first agent.",
-    required=False
-)
-parser.add_argument(
     '--logdir',
     type=str,
     help="The directory to save the logs.",
     required=False,
     default="results"
 )
+parser.add_argument(
+    '--obs_type',
+    type=str,
+    help="The directory to save the logs.",
+    required=False,
+    default="lidar_all"
+)
+
+obs_types = {
+    "lidar_all": LidarAll,
+    "only_facing": OnlyFacingObs,
+}
+
+novelties = {
+    "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
+    "kibt": "novelties/evaluation1/key_inventory_break_tree/key_inventory_break_tree.json",
+    "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
+    "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
+}
 
 verbose = False
 
@@ -76,7 +90,7 @@ args = parser.parse_args()
 def set_train_eps(epoch, env_step):
     max_eps = 0.4
     min_eps = 0.1
-    length = 40
+    length = 30
     if epoch > length:
         epsilon = min_eps
     else:
@@ -88,53 +102,43 @@ if __name__ == "__main__":
     num_episodes = args.episodes
 
     exp_name = args.exp_name
-    agent = args.agent
     seed = args.seed
-    reset_rl = args.reset_rl
 
-    log_path = os.path.join(args.logdir, args.exp_name, "dqn")
-    writer = SummaryWriter(log_path)
-    writer.add_text("args", str(args))
-    logger = TensorboardLogger(writer)
-
-
-    if reset_rl:
-        try:
-            rmtree(os.path.join(os.path.dirname(__file__), "agents", "rl_subagents", "rapid_learn_utils", "policies"))
-        except:
-            print("No existing RL policies to reset.")
-
-    # change agent
-    # if agent is not None:
-    #     config_content["entities"]["main_1"]["agent"] = agent
-
-
-    # env = SAPolycraftRL(
-    #     config_file_paths=config_file_paths,
-    #     agent_name="agent_0",
-    #     task_name="main",
-    #     show_action_log=True
-    # )
-
+    # novelty
+    novelty_name = args.novelty
+    novelty_path = novelties[novelty_name]
     config_file_paths = ["config/polycraft_gym_rl_single.json"]
-    config_file_paths.append("novelties/evaluation1/multi_interact/multi_interact.json")
+    config_file_paths.append(novelty_path)
 
+    # observation generator
+    RepGenerator = obs_types[args.obs_type]
+
+    # env
     envs = [lambda: gym.make(
         "NG2-PolycraftMultiInteract-v0",
         config_file_paths=config_file_paths,
         agent_name="agent_0",
         task_name="main",
-        show_action_log=False
+        show_action_log=False,
+        RepGenerator=RepGenerator
     ) for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
 
+    # logging
+    log_path = os.path.join(args.logdir, args.exp_name, "dqn")
+    writer = SummaryWriter(log_path)
+    writer.add_text("args", str(args))
+    logger = TensorboardLogger(writer)
+
+    # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.95, estimation_step=3)
 
+    # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
@@ -164,12 +168,12 @@ if __name__ == "__main__":
     #     losses = policy.update(64, train_collector.buffer)
 
     result = ts.trainer.offpolicy_trainer(
-    policy, train_collector, test_collector,
-    max_epoch=500, step_per_epoch=1000, step_per_collect=10,
-    update_per_step=0.1, episode_per_test=50, batch_size=64,
-    train_fn=set_train_eps,
-    test_fn=lambda epoch, env_step: policy.set_eps(0.05),
-    stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
-    logger=logger
-)
+        policy, train_collector, test_collector,
+        max_epoch=500, step_per_epoch=1000, step_per_collect=12,
+        update_per_step=0.1, episode_per_test=50, batch_size=64,
+        train_fn=set_train_eps,
+        test_fn=lambda epoch, env_step: policy.set_eps(0.05),
+        # stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
+        logger=logger
+    )
     print(f'Finished training! Use {result["duration"]}')
