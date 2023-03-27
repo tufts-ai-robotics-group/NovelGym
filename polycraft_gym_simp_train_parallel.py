@@ -101,8 +101,6 @@ def set_train_eps(epoch, env_step):
 
 
 if __name__ == "__main__":
-    num_episodes = args.episodes
-
     seed = args.seed
 
     # novelty
