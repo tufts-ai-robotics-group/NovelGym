@@ -2,31 +2,49 @@
 import os
 import argparse
 from envs.polycraft_simplified import SAPolycraftRL
-from shutil import rmtree
+import tianshou as ts
+import gymnasium as gym
+from net.basic import BasicNet
+import torch
+from torch.utils.tensorboard import SummaryWriter
+from tianshou.utils import TensorboardLogger
+from obs_convertion import LidarAll, OnlyFacingObs
+
+
+OBS_TYPES = {
+    "lidar_all": LidarAll,
+    "only_facing": OnlyFacingObs,
+}
+
+NOVELTIES = {
+    "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
+    "kibt": "novelties/evaluation1/key_inventory_break_tree/key_inventory_break_tree.json",
+    "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
+    "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
+}
+
+RL_ALGOS = {
+    "dqn": ts.policy.DQNPolicy,
+}
+
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
-parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
+# parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
 parser.add_argument(
-    "-n",
-    "--episodes",
-    type=int,
-    help="The number of episodes.",
-    required=False,
-    default=1000
-)
-parser.add_argument(
-    "--exp_name",
+    "--novelty",
     type=str, 
-    help="The name of the experiment.", 
-    required=False
-)
-parser.add_argument(
-    '--rendering',
-    type=str,
-    help="The rendering mode.",
+    help="The name of the novelty.", 
     required=False,
-    default="human"
+    default="mi",
+    choices=NOVELTIES.keys()
 )
+# parser.add_argument(
+#     '--rendering',
+#     type=str,
+#     help="The rendering mode.",
+#     required=False,
+#     default="human"
+# )
 parser.add_argument(
     '--seed',
     type=str,
@@ -35,54 +53,61 @@ parser.add_argument(
     default=None
 )
 parser.add_argument(
-    '--reset_rl',
-    action=argparse.BooleanOptionalAction,
-    help="Whether to reset the RL agent and remove the existing models.",
+    '--num_threads',
+    type=int,
+    help="Number of sub threads used to run the env.",
     required=False,
-    default=False
+    default=4
 )
 parser.add_argument(
-    '--agent',
+    '--logdir',
     type=str,
-    help="The agent module of the first agent.",
-    required=False
+    help="The directory to save the logs.",
+    required=False,
+    default="results"
+)
+parser.add_argument(
+    '--obs_type',
+    type=str,
+    help="Type of observation.",
+    required=False,
+    default="lidar_all",
+    choices=OBS_TYPES.keys()
+)
+parser.add_argument(
+    '--rl_algo',
+    type=str,
+    help="The algorithm for RL.",
+    required=False,
+    default="dqn",
+    choices=RL_ALGOS.keys()
 )
 
-verbose = False
+
+verbose = True
 
 args = parser.parse_args()
-num_episodes = args.episodes
-config_file_paths = [
-    os.path.join(os.path.dirname(__file__), file_name) 
-        for file_name in args.filename
-]
 
-exp_name = args.exp_name
-agent = args.agent
-seed = args.seed
-reset_rl = args.reset_rl
+# novelty
+novelty_name = args.novelty
+novelty_path = NOVELTIES[novelty_name]
+config_file_paths = ["config/polycraft_gym_rl_single.json"]
+config_file_paths.append(novelty_path)
 
 
-if reset_rl:
-    try:
-        rmtree(os.path.join(os.path.dirname(__file__), "agents", "rl_subagents", "rapid_learn_utils", "policies"))
-    except:
-        print("No existing RL policies to reset.")
-
-# change agent
-# if agent is not None:
-#     config_content["entities"]["main_1"]["agent"] = agent
 
 env = SAPolycraftRL(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",
-    show_action_log=True
+    show_action_log=True,
+    enable_render=True
 )
 
 
-for episode in range(num_episodes):
+for episode in range(1000):
     obs, info = env.reset()
+    env.render()
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
 
@@ -100,6 +125,7 @@ for episode in range(num_episodes):
         # action = env.action_space.sample()
         action = int(input("action: "))
         obs, reward, terminated, truncated, info = env.step(action)
+        print("reward: ", reward)
         
         if verbose:
             env.render()
