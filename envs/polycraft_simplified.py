@@ -25,6 +25,7 @@ class SAPolycraftRL(gym.Wrapper):
             show_action_log=False, 
             RepGenerator=LidarAll,
             rep_gen_args={},
+            enable_render=False
         ):
         config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
         self.config_content = config_content
@@ -35,7 +36,7 @@ class SAPolycraftRL(gym.Wrapper):
             config_dict=config_content, 
             max_time_step=None, 
             time_limit=None,
-            enable_render=False,
+            enable_render=enable_render,
             run_name=task_name,
             logged_agents=['main_1'] if show_action_log else []
         )
@@ -211,6 +212,10 @@ class SAPolycraftRL(gym.Wrapper):
     def reset(self, seed=None, options={}):
         # reset the environment
         needs_rl = False
+        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        main_agent._reset()
+
+
         while not needs_rl:
             self.episode += 1
             self.env.reset(options={"episode": self.episode})
