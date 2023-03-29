@@ -1,5 +1,5 @@
 from .lidar_all import LidarAll
-from .no_lidar import OnlyFacingObs
+from .only_facing import OnlyFacingObs
 __all__ = [
     "LidarAll",
     "OnlyFacingObs"
