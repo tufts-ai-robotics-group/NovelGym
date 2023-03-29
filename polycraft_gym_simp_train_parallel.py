@@ -128,7 +128,7 @@ if __name__ == "__main__":
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-    policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.95, estimation_step=3)
+    policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
 
     # logging
     log_path = os.path.join(
@@ -142,8 +142,8 @@ if __name__ == "__main__":
     logger = TensorboardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
-    test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
+    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=False)
+    test_collector = ts.data.Collector(policy, venv, exploration_noise=False)
 
     # train_collector.collect(n_step=5000, random=True)
     # print("Done Collecting Experience. Starting Training...")
