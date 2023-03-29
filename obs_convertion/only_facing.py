@@ -11,7 +11,9 @@ class OnlyFacingObs(LidarAll):
     @staticmethod
     def get_observation_space(
             all_objects, 
-            items_lidar_disabled=[]
+            items_lidar_disabled=[],
+            *args,
+            **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
         max_item_type_count = len(all_objects) + 1

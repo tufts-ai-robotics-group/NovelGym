@@ -7,36 +7,42 @@ from typing import Tuple
 
 class OnlyHinted(LidarAll):
     def __init__(self, hints="", *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.max_beam_range = 8
-        self.hinted_objects = get_hinted_items(kwargs['all_objects'], hints, split_words=True)
+        # encoder for automatically encoding new objects
+        self.item_encoder = SimpleItemEncoder({"air": 0})
+        self.max_item_type_count = self._encode_items(kwargs['json_input']['state'])
+        self.hinted_objects = get_hinted_items(self.item_encoder.item_list, hints, split_words=True)
         # self.hinted_item_encoder = SimpleItemEncoder(item_list=self.hinted_objects)
         self.items_id_hinted = {self.item_encoder.get_id(keys): item_idx for item_idx, keys in enumerate(self.hinted_objects)}
+        super().__init__(*args, **kwargs)
+        self.max_beam_range = 8
 
     @staticmethod
     def get_observation_space(
             all_objects, 
             items_lidar_disabled=[],
-            hints: str=""
+            hints: str="",
+            *args,
+            **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
         max_item_type_count = len(all_objects) + 1
         # # things to search for in lidar. only excludes disabled items
 
         hinted_objects = get_hinted_items(all_objects, hints, split_words=True)
+        num_hinted_objects = len(hinted_objects)
 
         # maximum of number of possible items
-        lidar_items_max_count = hinted_objects - len(items_lidar_disabled)
+        lidar_items_max_count = num_hinted_objects - len(items_lidar_disabled)
 
         # limits
         low = np.array(
             [0] * (lidar_items_max_count) + 
-            [0] * hinted_objects + 
+            [0] * num_hinted_objects + 
             [0]
         )
         high = np.array(
             [1] * (lidar_items_max_count) + 
-            [40] * hinted_objects + 
+            [40] * num_hinted_objects + 
             [max_item_type_count] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
         )
         observation_space = spaces.Box(low, high, dtype=int)
@@ -77,7 +83,7 @@ class OnlyHinted(LidarAll):
         return lidar_signals
 
 
-    def _generate_inventory(self, input: dict) -> np.ndarray:
+    def _generate_obs_inventory(self, input: dict) -> np.ndarray:
         """
         Generates the inventory part of the state representation.
         """
@@ -104,7 +110,7 @@ class OnlyHinted(LidarAll):
         player_pos = np.array(state_json["player"]["pos"]) - min_coord
         sensor_result = self._lidar_sensors(tuple(player_pos), state_json['player']['facing'], world_map)
         # inventory
-        inventory_result = self._generate_inventory(state_json)
+        inventory_result = self._generate_obs_inventory(state_json)
         # selected item
         selected_item = self._get_selected_item(state_json)
 

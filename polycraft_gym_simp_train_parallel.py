@@ -8,12 +8,13 @@ from net.basic import BasicNet
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
-from obs_convertion import LidarAll, OnlyFacingObs
+from obs_convertion import LidarAll, OnlyFacingObs, OnlyHinted
 
 
 OBS_TYPES = {
     "lidar_all": LidarAll,
     "only_facing": OnlyFacingObs,
+    "only_hinted": OnlyHinted,
 }
 
 NOVELTIES = {
@@ -22,6 +23,18 @@ NOVELTIES = {
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
     "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
 }
+
+
+HINTS = {
+    "mi": "",
+    "kibt": str([
+        "Sorry, you need a key to trade with me.",
+        "(trade_block_of_titanium_1)"
+    ]),
+    "rdb": "",
+    "space_ar": "",
+}
+
 
 RL_ALGOS = {
     "dqn": ts.policy.DQNPolicy,
@@ -118,7 +131,10 @@ if __name__ == "__main__":
         agent_name="agent_0",
         task_name="main",
         show_action_log=False,
-        RepGenerator=RepGenerator
+        RepGenerator=RepGenerator,
+        rep_gen_args={
+            "hints": HINTS[novelty_name],
+        }
     ) for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)

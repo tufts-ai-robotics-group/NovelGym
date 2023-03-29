@@ -69,7 +69,9 @@ class LidarAll():
             all_objects, 
             items_lidar_disabled=[], 
             num_beams=NUM_BEAMS,
-            max_beam_range=MAX_BEAM_RANGE
+            max_beam_range=MAX_BEAM_RANGE,
+            *args,
+            **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
         max_item_type_count = len(all_objects) + 1
