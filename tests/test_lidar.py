@@ -16,4 +16,4 @@ def test_observation_space():
     obs_space = LidarAll.get_observation_space(all_objects)
     print(obs_space)
     print(obs_space.shape)
-    assert obs_space.shape == ((len(all_objects.items()) + 2) * (8 + 1) + 1,)
+    assert obs_space.shape == ((len(all_objects.items()) + 1) * (8 + 1) + 1,)
