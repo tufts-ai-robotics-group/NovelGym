@@ -15,7 +15,7 @@ MAX_BEAM_RANGE=40
 
 
 class LidarAll():
-    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False) -> None:
+    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, *args, **kwargs) -> None:
         """
         The Env is instanciated using the first json input.
         """
