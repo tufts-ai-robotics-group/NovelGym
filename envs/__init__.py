@@ -1,5 +1,6 @@
 from gymnasium.envs.registration import register
 from .polycraft_simplified import SAPolycraftRL
+from .diarc_env import DiarcRapidLearn
 
 register(
     id='NG2-PolycraftMultiInteract-v0', # use id to pass to gym.make(id)
@@ -8,3 +9,10 @@ register(
     max_episode_steps=1000
     # reward_threshold =
 )
+register(
+    id="Polycraft-DiarcSocketSimulated-v0",
+    entry_point="envs:DiarcRapidLearn",
+    reward_threshold=980
+)
+
+__all__ = ["SAPolycraftRL", "DiarcRapidLearn"]
