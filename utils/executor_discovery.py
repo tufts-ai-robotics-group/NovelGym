@@ -12,6 +12,7 @@ class ExecutorRep:
     executor: ts.policy.BasePolicy
     action_set: tuple
     observation_space: gym.spaces.Space
+    episode: int = 0
 
 class ExecutorDiscoverer:
     def __init__(
@@ -29,17 +30,17 @@ class ExecutorDiscoverer:
         self.Network = Network
         self.Policy = Policy
 
-    def _create_executor(self, failed_action, action_set, observation_space):
+    def _create_executor(self, failed_action, action_set, observation_space) -> ExecutorRep:
         """ Create an executor for the given failed action. """
         action_set_rl = [action for action, _ in action_set.actions if action not in ["nop", "give_up"]]
         action_space = gym.spaces.Discrete(len(action_set_rl))
         model = self.Network(observation_space.get("n") or observation_space.shape, action_space.get("n") or action_set.shape)
         optim = torch.optim.Adam(model.parameters(), lr=self.lr)
         policy = self.Policy(model, optim, action_space, **self.policy_hyperparams)
-        executor_rep = ExecutorRep(failed_action, policy, action_set, observation_space)
+        executor_rep = ExecutorRep(failed_action, policy, action_set, observation_space, episode=0)
         return executor_rep
 
-    def get_executor(self, failed_action, action_set, observation_space):
+    def get_executor(self, failed_action, action_set, observation_space) -> ts.policy.BasePolicy:
         executor_rep = self.executors.get(failed_action)
         if executor_rep is None or executor_rep.action_set != action_set or executor_rep.observation_space != observation_space:
             print("Creating new executor for failed action:", failed_action)

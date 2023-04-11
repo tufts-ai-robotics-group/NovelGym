@@ -11,7 +11,9 @@ from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 
 from args import args, NOVELTIES, OBS_TYPES, HINTS
-
+from policies import BiasedDQN
+from utils.hint_utils import get_novel_action_indices
+from utils.pddl_utils import get_all_actions
 
 seed = args.seed
 
@@ -20,6 +22,9 @@ novelty_name = args.novelty
 novelty_path = NOVELTIES[novelty_name]
 config_file_paths = ["config/polycraft_gym_rl_single.json"]
 config_file_paths.append(novelty_path)
+
+# action list
+all_actions = get_all_actions(config_file_paths)
 
 # observation generator
 RepGenerator = OBS_TYPES[args.obs_type]
@@ -42,7 +47,15 @@ state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
 action_shape = venv.action_space[0].shape or venv.action_space[0].n
 net = BasicNet(state_shape, action_shape)
 optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
+# policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
+policy = BiasedDQN(
+    model=net, 
+    optim=optim, 
+    discount_factor=0.99, 
+    estimation_step=3, 
+    novel_action_indices=get_novel_action_indices(all_actions, ["interact_103", "interact_104"])
+)
+
 
 # logging
 log_path = os.path.join(
@@ -56,8 +69,8 @@ writer.add_text("args", str(args))
 logger = TensorboardLogger(writer)
 
 # collector
-train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=False)
-test_collector = ts.data.Collector(policy, venv, exploration_noise=False)
+train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
+test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
 # train_collector.collect(n_step=5000, random=True)
 # print("Done Collecting Experience. Starting Training...")
@@ -94,11 +107,11 @@ def set_train_eps(epoch, env_step):
 
 result = ts.trainer.offpolicy_trainer(
     policy, train_collector, test_collector,
-    max_epoch=100, step_per_epoch=1000, step_per_collect=1000,
+    max_epoch=100, step_per_epoch=1000, step_per_collect=1,
     update_per_step=0.1, episode_per_test=100, batch_size=64,
     train_fn=set_train_eps,
     test_fn=lambda epoch, env_step: policy.set_eps(0.05),
-    stop_fn=lambda mean_rewards: mean_rewards >= env.spec.reward_threshold,
+    stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
     logger=logger
 )
 print(f'Finished training! Use {result["duration"]}')

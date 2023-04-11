@@ -12,3 +12,10 @@ def get_hinted_items(all_objects, hints, split_words=False):
                 hinted_items.append(obj)
                 break
     return hinted_items
+
+def get_novel_action_indices(actions: list, novel_actions: list):
+    novel_action_indices = []
+    for i, action in enumerate(actions):
+        if action in novel_actions:
+            novel_action_indices.append(i)
+    return novel_action_indices

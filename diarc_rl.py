@@ -4,6 +4,7 @@ import tianshou as ts
 import gymnasium as gym
 import socket
 import json
+from typing import Type
 
 from net.basic import BasicNet
 from config import NOVELTIES, OBS_TYPES, HINTS, RL_ALGOS, NETS
@@ -11,6 +12,7 @@ from diarc.utils import save_pddl
 from diarc.utils import recv_socket_data, send_socket_data, error_recovery
 
 from envs.diarc_env import DiarcRapidLearn
+from obs_convertion.base import ObservationGenerator
 from utils.executor_discovery import ExecutorDiscoverer
 
 parser = argparse.ArgumentParser(description="Rapid-Learn Diarc Socket Interface")
@@ -26,7 +28,11 @@ args = parser.parse_args()
 DEBUG_DIARC = False
 
 @error_recovery
-def handle_rl_task(conn: socket.socket, executor_discoverer: ExecutorDiscoverer):
+def handle_rl_task(
+    conn: socket.socket, 
+    executor_discoverer: ExecutorDiscoverer,
+    RepGenerator: Type[ObservationGenerator]
+):
     """
     Handle a single RL task.
     """
@@ -56,8 +62,21 @@ def handle_rl_task(conn: socket.socket, executor_discoverer: ExecutorDiscoverer)
             pass
     
     failed_action = state_dict['state']['action'][1:-1].replace(" ", "_")
-    novel_action_set = json_input['novelActions']
-    policy = executor_discoverer.get_executor(data_dict.get)
+    env = DiarcRapidLearn( 
+        mode=mode,
+        conn=conn,
+        RepGenerator=RepGenerator,
+        rep_gen_args={},
+        init_json=data_dict,
+        episode=0
+    )
+    policy = executor_discoverer.get_executor(
+        failed_action=env.rep_gen.failed_action,
+        action_set=env.rep_gen.action_set,
+        observation_space=env.observation_space
+    )
+    
+    
 
 if __name__ == "__main__":
     # observation generator

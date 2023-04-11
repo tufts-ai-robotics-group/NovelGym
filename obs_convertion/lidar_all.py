@@ -14,7 +14,7 @@ NUM_BEAMS=8
 MAX_BEAM_RANGE=40
 
 
-class LidarAll():
+class LidarAll(ObservationGenerator):
     def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, *args, **kwargs) -> None:
         """
         The Env is instanciated using the first json input.

@@ -68,8 +68,8 @@ if __name__ == "__main__":
     logger = TensorboardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=False)
-    test_collector = ts.data.Collector(policy, venv, exploration_noise=False)
+    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
+    test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
     # train_collector.collect(n_step=5000, random=True)
     # print("Done Collecting Experience. Starting Training...")

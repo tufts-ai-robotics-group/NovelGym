@@ -43,6 +43,8 @@ class DiarcRapidLearn(gym.Env):
             return self.last_obs, *reset_results
 
         obs, reward, done, truncated, info = self._parse_receive_replan_result(self.conn)
+        return obs, reward, done, truncated, info
+
 
     # TODO
     def _parse_receive_replan_result(self, conn) -> Tuple[int, bool, Tuple[bool, str]]:
@@ -193,7 +195,7 @@ class DiarcRapidLearn(gym.Env):
         return obs, reward, is_done, is_truncated, {}
 
     def reset(self, seed=None, options={}):
-        self.episode += 1
+        self.episode = options.get('epidose') or self.episode + 1
         return self.last_obs, {}
 
 

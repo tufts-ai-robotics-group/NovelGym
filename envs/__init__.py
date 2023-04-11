@@ -10,7 +10,7 @@ register(
     # reward_threshold =
 )
 register(
-    id="Polycraft-DiarcSocketSimulated-v0",
+    id="DiarcSocketSimulated-v0",
     entry_point="envs:DiarcRapidLearn",
     reward_threshold=980
 )

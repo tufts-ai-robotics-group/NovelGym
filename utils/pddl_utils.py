@@ -48,6 +48,15 @@ def get_entities(ng2_config):
         entities.append((f"entity_{entity['id']}", entity["type"]))
     return entities
 
+def get_all_actions(ng2_config):
+    if type(ng2_config) == str:
+        ng2_config = load_json(ng2_config)
+    else:
+        ng2_config = load_json(config_json={"extends": ng2_config})
+    actions = []
+    for action_nickname, action in ng2_config["actions"].items():
+        actions.append(action_nickname)
+    return actions
 
 def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic):
     entity_id = ng2_config["entities"]["main_1"]["id"]
