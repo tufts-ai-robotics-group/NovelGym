@@ -10,7 +10,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 
-from args import args, NOVELTIES, OBS_TYPES, HINTS
+from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS
 from policies import BiasedDQN
 from utils.hint_utils import get_novel_action_indices
 from utils.pddl_utils import get_all_actions
@@ -42,19 +42,31 @@ venv = ts.env.DummyVectorEnv([lambda: gym.make(
     }
 )])
 
+PolicyModule = POLICIES[args.rl_algo]
+policy_props = POLICY_PROPS.get(args.rl_algo) or {}
+
 # net
 state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
 action_shape = venv.action_space[0].shape or venv.action_space[0].n
 net = BasicNet(state_shape, action_shape)
 optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-# policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
-policy = BiasedDQN(
-    model=net, 
-    optim=optim, 
-    discount_factor=0.99, 
-    estimation_step=3, 
-    novel_action_indices=get_novel_action_indices(all_actions, ["interact_103", "interact_104"])
-)
+if args.rl_algo == "dqn":
+    policy = PolicyModule(
+        model=net, 
+        optim=optim, 
+        discount_factor=0.99, 
+        estimation_step=3,
+    )
+else:
+    policy = PolicyModule(
+        model=net, 
+        optim=optim, 
+        discount_factor=0.99, 
+        estimation_step=3, 
+        novel_action_indices=get_novel_action_indices(all_actions, ["interact_103", "interact_104"]),
+        num_actions=len(all_actions),
+        **policy_props
+    )
 
 
 # logging

@@ -1,5 +1,6 @@
 from obs_convertion import LidarAll, OnlyFacingObs, OnlyHinted
 import tianshou as ts
+from policies import BiasedDQN
 from net.basic import BasicNet
 from net.norm_net import NormalizedNet
 
@@ -14,6 +15,18 @@ NOVELTIES = {
     "kibt": "novelties/evaluation1/key_inventory_break_tree/key_inventory_break_tree.json",
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
     "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
+}
+
+POLICIES = {
+    "dqn": ts.policy.DQNPolicy,
+    "novel_boost": BiasedDQN
+}
+
+POLICY_PROPS = {
+    "dqn": {},
+    "novel_boost": {
+        "novel_boost": 2
+    }
 }
 
 

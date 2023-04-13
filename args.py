@@ -1,6 +1,6 @@
 import argparse
 
-from config import NOVELTIES, OBS_TYPES, HINTS, RL_ALGOS
+from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS
 
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
@@ -55,7 +55,7 @@ parser.add_argument(
     help="The algorithm for RL.",
     required=False,
     default="dqn",
-    choices=RL_ALGOS.keys()
+    choices=POLICIES.keys()
 )
 
 
