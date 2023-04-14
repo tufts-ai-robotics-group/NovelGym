@@ -11,7 +11,7 @@ class BiasedDQN(DQNPolicy):
             self, 
             num_actions: int, 
             novel_action_indices: List[int],
-            novel_boost: 2,
+            novel_boost: 1.3,
             *args, 
             **kwargs
         ):

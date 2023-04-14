@@ -10,6 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 from args import args, NOVELTIES, OBS_TYPES, HINTS
 
+from train import policy
 
 def set_train_eps(epoch, env_step):
     max_eps = 0.4
@@ -54,7 +55,6 @@ if __name__ == "__main__":
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-    policy = ts.policy.DQNPolicy(net, optim, discount_factor=0.99, estimation_step=3)
 
     # logging
     log_path = os.path.join(
