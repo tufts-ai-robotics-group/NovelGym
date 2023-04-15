@@ -44,7 +44,7 @@ class LidarAll(ObservationGenerator):
         high = np.array(
             [self.max_beam_range] * (lidar_items_max_count * self.num_beams) + 
             [40] * self.max_item_type_count + 
-            [0] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
+            [self.max_item_type_count] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
         )
         self.observation_space = spaces.Box(low, high, dtype=int)
 

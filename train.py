@@ -43,11 +43,7 @@ venv = ts.env.DummyVectorEnv([lambda: gym.make(
 )])
 
 hints = str(HINTS.get(args.novelty))
-print(all_actions)
 novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_items(all_actions, hints, True)
-
-print("hints:", hints)
-print("Novel actions: ", novel_actions)
 
 PolicyModule = POLICIES[args.rl_algo]
 policy_props = POLICY_PROPS.get(args.rl_algo) or {}
@@ -74,6 +70,20 @@ else:
         num_actions=action_shape,
         **policy_props
     )
+
+if args.metadata:
+    print("----------- metadata -----------")
+    print("Novelty:", novelty_name)
+    print("Algorithm:", args.rl_algo)
+    print("Observation type:", args.obs_type)
+    print("hints:", hints)
+    print()
+    print("Novel actions: ", novel_actions)
+    print("State space: ", state_shape)
+    print("Action space: ", action_shape)
+    print("--------------------------------")
+    print()
+    exit(0)
 
 
 def set_train_eps(epoch, env_step):

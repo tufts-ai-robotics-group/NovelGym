@@ -53,8 +53,6 @@ if __name__ == "__main__":
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
-    print("State space: ", state_shape)
-    print("Action space: ", action_shape)
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
 
