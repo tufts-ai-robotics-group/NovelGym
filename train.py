@@ -10,9 +10,9 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 
-from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS
+from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS
 from policies import BiasedDQN
-from utils.hint_utils import get_novel_action_indices
+from utils.hint_utils import get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions
 
 seed = args.seed
@@ -42,6 +42,13 @@ venv = ts.env.DummyVectorEnv([lambda: gym.make(
     }
 )])
 
+hints = str(HINTS.get(args.novelty))
+print(all_actions)
+novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_items(all_actions, hints, True)
+
+print("hints:", hints)
+print("Novel actions: ", novel_actions)
+
 PolicyModule = POLICIES[args.rl_algo]
 policy_props = POLICY_PROPS.get(args.rl_algo) or {}
 
@@ -63,8 +70,8 @@ else:
         optim=optim, 
         discount_factor=0.99, 
         estimation_step=3, 
-        novel_action_indices=get_novel_action_indices(all_actions, ["approach_plastic_chest", "collect"]),
-        num_actions=len(all_actions),
+        novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
+        num_actions=action_shape,
         **policy_props
     )
 

@@ -53,6 +53,8 @@ if __name__ == "__main__":
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
+    print("State space: ", state_shape)
+    print("Action space: ", action_shape)
     net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
 
@@ -70,31 +72,6 @@ if __name__ == "__main__":
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
-
-    # train_collector.collect(n_step=5000, random=True)
-    # print("Done Collecting Experience. Starting Training...")
-
-
-    # policy.set_eps(0.1)
-
-    # for i in range(int(1e6)):
-    #     collect_result = train_collector.collect(n_step=10)
-
-    #     # once if the collected episodes' mean returns reach the threshold,
-    #     # or every 1000 steps, we test it on test_collector
-    #     if collect_result['rews'].mean() >= env.spec.reward_threshold or i % 1000 == 0:
-    #         policy.set_eps(0.05)
-    #         result = test_collector.collect(n_episode=100)
-    #         print("episode:", i, "  test_reward:", result['rews'].mean())
-    #         if result['rews'].mean() >= env.spec.reward_threshold:
-    #             print(f'Finished training! Test mean returns: {result["rews"].mean()}')
-    #             break
-    #         else:
-    #             # back to training eps
-    #             policy.set_eps(0.1)
-
-    #     # train policy with a sampled batch data from buffer
-    #     losses = policy.update(64, train_collector.buffer)
 
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,

@@ -17,6 +17,24 @@ NOVELTIES = {
     "space_ar": "novelties/evaluation1/space_around_crafting_table/space_around_crafting_table.json",
 }
 
+HINTS = {
+    "mi": "",
+    "kibt": str([
+        "Sorry, you need a key to trade with me.",
+        "Find the key in the chest.",
+        "(trade_block_of_titanium_1)"
+    ]),
+    "rdb": "",
+    "space_ar": "",
+}
+
+NOVEL_ACTIONS = {
+    "mi": [],
+    "kibt": ["approach_plastic_chest", "select"],
+    "rdb": [],
+    "space_ar": [],
+}
+
 POLICIES = {
     "dqn": ts.policy.DQNPolicy,
     "novel_boost": BiasedDQN
@@ -27,17 +45,6 @@ POLICY_PROPS = {
     "novel_boost": {
         "novel_boost": 2
     }
-}
-
-
-HINTS = {
-    "mi": "",
-    "kibt": str([
-        "Sorry, you need a key to trade with me.",
-        "(trade_block_of_titanium_1)"
-    ]),
-    "rdb": "",
-    "space_ar": "",
 }
 
 

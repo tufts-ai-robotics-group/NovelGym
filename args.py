@@ -1,6 +1,6 @@
 import argparse
 
-from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS
+from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS
 
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
