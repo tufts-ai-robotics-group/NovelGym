@@ -1,4 +1,4 @@
-from gym_novel_gridworlds2.utils.json_parser import import_module, load_json
+from gym_novel_gridworlds2.utils.json_parser import import_module, load_json, ConfigParser
 from gym_novel_gridworlds2.contrib.polycraft.states import PolycraftState
 from gym_novel_gridworlds2.contrib.polycraft.utils.map_utils import getBlockInFront
 from gym_novel_gridworlds2.state.dynamic import Dynamic
@@ -48,15 +48,14 @@ def get_entities(ng2_config):
         entities.append((f"entity_{entity['id']}", entity["type"]))
     return entities
 
-def get_all_actions(ng2_config):
+def get_all_actions(ng2_config, agent_name="agent_0"):
     if type(ng2_config) == str:
         ng2_config = load_json(ng2_config)
     else:
         ng2_config = load_json(config_json={"extends": ng2_config})
-    actions = []
-    for action_nickname, action in ng2_config["actions"].items():
-        actions.append(action_nickname)
-    return actions
+    parser = ConfigParser()
+    _, _, agent_manager = parser.parse_json(json_content=ng2_config, rendering=False)
+    return [action for action, _ in agent_manager.agents[agent_name].action_set.actions]
 
 def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic):
     entity_id = ng2_config["entities"]["main_1"]["id"]
