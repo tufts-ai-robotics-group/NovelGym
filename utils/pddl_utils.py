@@ -69,6 +69,8 @@ class KnowledgeBase:
         
         # check if there are new objects in the world, which are placable.
         for idx, objs in state._objects.items():
+            if len(objs) == 0:
+                continue
             obj_type = objs[0].type
             if obj_type not in self.default_obj_types and obj_type not in self.additional_items:
                 self.additional_items[obj_type] = "placable"
