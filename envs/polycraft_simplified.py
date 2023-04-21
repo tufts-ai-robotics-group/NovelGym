@@ -40,6 +40,7 @@ class SAPolycraftRL(gym.Wrapper):
             run_name=task_name,
             logged_agents=['main_1'] if show_action_log else []
         )
+        self.show_action_log = show_action_log
         self.env.dynamic.all_objects = generate_obj_types(self.config_content)
         self.agent_name = agent_name
 
@@ -108,6 +109,7 @@ class SAPolycraftRL(gym.Wrapper):
         Initialize the observation generator.
         """
         main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
+        main_agent.verbose = True
         failed_action = main_agent.failed_action
         action_set = self.env.agent_manager.agents['agent_0'].action_set
 
@@ -121,7 +123,7 @@ class SAPolycraftRL(gym.Wrapper):
             failed_action=failed_action,
             success=False,
         )
-        pddl_domain, pddl_problem = generate_pddl(
+        self.pddl_domain, self.pddl_problem = generate_pddl(
             ng2_config=self.config_content,
             state=self.env.internal_state,
             dynamics=self.env.dynamic,
@@ -129,7 +131,7 @@ class SAPolycraftRL(gym.Wrapper):
         
         json_input = {
             "state": diarc_json,
-            "domain": pddl_domain,
+            "domain": self.pddl_domain,
             "plan": main_agent.pddl_plan,
             "novelActions": [],
             "actionSet": [action[0] for action in action_set.actions if action not in ["nop", "give_up"]],
@@ -202,6 +204,15 @@ class SAPolycraftRL(gym.Wrapper):
 
         obs, reward, env_done, info = self.env.last()
 
+        # get relevant info
+        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        info = {
+            "pddl_domain": self.pddl_domain,
+            "pddl_problem": self.pddl_problem,
+            "pddl_plan": main_agent.pddl_plan,
+            **info
+        }
+
         # check if effects met and give the rewards
         plannable_done, truncated, reward = self._gen_reward()
 
@@ -214,6 +225,8 @@ class SAPolycraftRL(gym.Wrapper):
         needs_rl = False
         main_agent = self.env.agent_manager.agents["agent_0"].agent
         main_agent._reset()
+        if self.show_action_log:
+            main_agent.verbose = True
 
 
         while not needs_rl:
@@ -226,6 +239,12 @@ class SAPolycraftRL(gym.Wrapper):
 
             needs_rl = self._fast_forward()
         obs, reward, done, info = self.env.last()
+        info = {
+            "pddl_domain": getattr(self, "pddl_domain", ""),
+            "pddl_problem": getattr(self, "pddl_problem", ""),
+            "pddl_plan": getattr(main_agent, "pddl_plan", ""),
+            **info
+        }
 
         # initialize the observation generator
         self._init_obs_gen()

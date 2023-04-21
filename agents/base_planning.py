@@ -64,7 +64,7 @@ class BasePlanningAgent(Agent):
                 f.write(self.pddl_domain)
             with open(problem_path, "w") as f:
                 f.write(self.pddl_problem)
-            plan, translated = call_planner(domain_path, problem_path)
+            plan, translated = call_planner(domain_path, problem_path, verbose=self.verbose)
         if translated is not None:
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
             self.action_buffer = list(zip(translated, plan))

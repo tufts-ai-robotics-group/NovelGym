@@ -12,7 +12,7 @@ import copy
 
 FF_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "planners", "Metric-FF-v2.1", "ff")
 
-def call_planner(domain, problem, timeout=15):
+def call_planner(domain, problem, timeout=15, verbose=True):
     '''
         Given a domain and a problem file
         This function return the ffmetric Planner output.
@@ -28,6 +28,16 @@ def call_planner(domain, problem, timeout=15):
         return plan, game_action_set
     except subprocess.TimeoutExpired:
         # planner timed out
+        if verbose:
+            print("Planner timed out")
+        return None, None
+    except subprocess.CalledProcessError as e:
+        # planner failed
+        if verbose:
+            print("--------------------")
+            print("Encountered Planner Error:::")
+            print(e.output.decode('utf-8'))
+            print("--------------------")
         return None, None
 
 def _output_to_plan(output, action_map, show_error=False):
