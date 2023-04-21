@@ -97,7 +97,7 @@
         "approach_*",
         "interact_*",
         "select_oak_log",
-        "select_iron_pickaxe",
+        "select_*axe",
         "select_sapling",
         "select_tree_tap",
         "deselect_item",

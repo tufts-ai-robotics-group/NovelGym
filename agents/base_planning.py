@@ -64,8 +64,14 @@ class BasePlanningAgent(Agent):
             problem_path = os.path.join(tmpdir, PDDL_PROBLEM)
             with open(domain_path, "w") as f:
                 f.write(self.pddl_domain)
+            if self.verbose:
+                print("PDDL Domain:")
+                print(self.pddl_domain)
             with open(problem_path, "w") as f:
                 f.write(self.pddl_problem)
+            if self.verbose:
+                print("PDDL Problem:")
+                print(self.pddl_problem)
             plan, translated = call_planner(domain_path, problem_path, verbose=self.verbose)
         if translated is not None:
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
