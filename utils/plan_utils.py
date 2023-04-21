@@ -12,7 +12,7 @@ import copy
 
 FF_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "planners", "Metric-FF-v2.1", "ff")
 
-def call_planner(domain, problem, timeout=15, verbose=True):
+def call_planner(domain, problem, timeout=15, verbose=False):
     '''
         Given a domain and a problem file
         This function return the ffmetric Planner output.

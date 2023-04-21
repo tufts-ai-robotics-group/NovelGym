@@ -109,7 +109,8 @@ class SAPolycraftRL(gym.Wrapper):
         Initialize the observation generator.
         """
         main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
-        main_agent.verbose = True
+        if self.show_action_log:
+            main_agent.verbose = True
         failed_action = main_agent.failed_action
         action_set = self.env.agent_manager.agents['agent_0'].action_set
 
