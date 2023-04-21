@@ -5,7 +5,7 @@ from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from agents.base_planning import BasePlanningAgent
 from utils.diarc_json_utils import generate_diarc_json_from_state
-from utils.pddl_utils import generate_obj_types, generate_pddl
+from utils.pddl_utils import generate_obj_types
 from obs_convertion import LidarAll
 
 REWARDS = {
@@ -123,15 +123,10 @@ class SAPolycraftRL(gym.Wrapper):
             failed_action=failed_action,
             success=False,
         )
-        self.pddl_domain, self.pddl_problem = generate_pddl(
-            ng2_config=self.config_content,
-            state=self.env.internal_state,
-            dynamics=self.env.dynamic,
-        )
         
         json_input = {
             "state": diarc_json,
-            "domain": self.pddl_domain,
+            "domain": main_agent.pddl_domain,
             "plan": main_agent.pddl_plan,
             "novelActions": [],
             "actionSet": [action[0] for action in action_set.actions if action not in ["nop", "give_up"]],
@@ -207,8 +202,8 @@ class SAPolycraftRL(gym.Wrapper):
         # get relevant info
         main_agent = self.env.agent_manager.agents["agent_0"].agent
         info = {
-            "pddl_domain": self.pddl_domain,
-            "pddl_problem": self.pddl_problem,
+            "pddl_domain": main_agent.pddl_domain,
+            "pddl_problem": main_agent.pddl_problem,
             "pddl_plan": main_agent.pddl_plan,
             **info
         }

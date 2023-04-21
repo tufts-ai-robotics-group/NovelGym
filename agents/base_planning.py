@@ -10,7 +10,7 @@ from typing import Optional
 
 from copy import deepcopy
 
-from utils.pddl_utils import generate_pddl
+from utils.pddl_utils import KnowledgeBase
 from utils.plan_utils import call_planner
 
 import tempfile
@@ -21,7 +21,7 @@ PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
 @lru_cache(maxsize=32)
-def get_config_json():
+def get_base_config_json():
     with open(JSON_CONFIG_PATH) as f:
         config_json = json.load(f)
     return config_json
@@ -31,6 +31,7 @@ class BasePlanningAgent(Agent):
         super().__init__(**kwargs)
         self.verbose = verbose
         self._reset()
+        self.kb = None
 
 
     def _reset(self):
@@ -48,7 +49,8 @@ class BasePlanningAgent(Agent):
     
     def get_observation(self, state, dynamic):
         # raise NotImplementedError("Get observation for " + self.name + " is not implemented.")
-        pddl_domain, pddl_problem = generate_pddl(get_config_json(), state, dynamic)
+        self.kb = KnowledgeBase(get_base_config_json())
+        pddl_domain, pddl_problem = self.kb.generate_pddl(state, dynamic)
         self.state = state
         self.dynamic = dynamic
         self.pddl_domain = pddl_domain
@@ -57,7 +59,7 @@ class BasePlanningAgent(Agent):
 
     def plan(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            self.pddl_domain, self.pddl_problem = generate_pddl(get_config_json(), self.state, self.dynamic)
+            self.pddl_domain, self.pddl_problem = self.kb.generate_pddl(self.state, self.dynamic)
             domain_path = os.path.join(tmpdir, PDDL_DOMAIN)
             problem_path = os.path.join(tmpdir, PDDL_PROBLEM)
             with open(domain_path, "w") as f:

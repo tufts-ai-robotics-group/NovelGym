@@ -1,3 +1,4 @@
+from typing import List, Mapping, Tuple
 from gym_novel_gridworlds2.utils.json_parser import import_module, load_json, ConfigParser
 from gym_novel_gridworlds2.contrib.polycraft.states import PolycraftState
 from gym_novel_gridworlds2.contrib.polycraft.utils.map_utils import getBlockInFront
@@ -13,39 +14,79 @@ with open(PDDL_TEMPLATE_PATH, 'r') as f:
 with open(PDDL_PROBLEM_TEMPLATE_PATH, 'r') as f:
     PDDL_PROBLEM_TEMPLATE = f.read()
 
-def generate_pddl(ng2_config, state: PolycraftState, dynamics: Dynamic):
-    pddl_domain = PDDL_TEMPLATE
-    pddl_problem = PDDL_PROBLEM_TEMPLATE
+class KnowledgeBase:
+    def __init__(self, config):
+        self.config = config
+        self.default_obj_types = generate_obj_types(config)
+        self.default_entities = get_entities(config)
 
-    # generate the object types and the entities
-    object_types = generate_obj_types(ng2_config)
-    entities = get_entities(ng2_config)
-    obj_types_pddl_content = "\n".join(
-        [f"    {obj_type} - {property}" for obj_type, property in object_types.items()]
-    )
-    pddl_domain = pddl_domain.replace(";{{object_types}}", obj_types_pddl_content)
-    all_objs = [f"{obj_type} - {obj_type}" for obj_type in object_types.keys()] + [f"{entity} - {t}" for entity, t in entities]
-    pddl_problem = pddl_problem.replace(";{{objects}}", "\n        ".join(all_objs))
-    
-    # actions
-    actions = generate_actions(ng2_config)
-    pddl_domain = pddl_domain.replace(";{{additional_actions}}", "\n\n".join(actions))
+        self.additional_items = {}
+        self.additional_entities = {}
 
-    # initial state
-    initial_state = generate_initial_state(ng2_config, state, dynamics)
-    pddl_problem = pddl_problem.replace(";{{init}}", "\n        ".join(initial_state))
+    def generate_pddl(self, state: PolycraftState, dynamics: Dynamic):
+        pddl_domain = PDDL_TEMPLATE
+        pddl_problem = PDDL_PROBLEM_TEMPLATE
 
-    return pddl_domain, pddl_problem
+        obj_types, entities = self._process_additional_items(state, dynamics)
+
+        # generate the object types and the entities
+        obj_types_pddl_content = "\n".join(
+            [f"    {obj_type} - {property}" for obj_type, property in obj_types.items()]
+        )
+        pddl_domain = pddl_domain.replace(";{{object_types}}", obj_types_pddl_content)
+        all_objs = [f"{obj_type} - {obj_type}" for obj_type in obj_types.keys()] + [f"{entity} - {t}" for entity, t in entities.items()]
+        pddl_problem = pddl_problem.replace(";{{objects}}", "\n        ".join(all_objs))
+        
+        # actions
+        actions = generate_actions(self.config)
+        pddl_domain = pddl_domain.replace(";{{additional_actions}}", "\n\n".join(actions))
+
+        # initial state
+        initial_state = generate_initial_state(self.config, state, dynamics)
+        pddl_problem = pddl_problem.replace(";{{init}}", "\n        ".join(initial_state))
+
+        return pddl_domain, pddl_problem
 
 
-def generate_grounded_pddl(ng2_config, state: PolycraftState, dynamics: Dynamic):
-    pass
+    def _process_additional_items(self, state: PolycraftState, dynamics: Dynamic) -> Tuple[Mapping[str, str], Mapping[str, str]]:
+        """
+        Takes in the current state and the dynamics,
+        implicitly adding the additional items, and returns 
+        the new list of all items in the world.
+        """
+        # check if there are new entities in the world
+        all_entities: List[PolycraftEntity] = state.get_all_entities()
+        for entity in all_entities:
+            entity_name = "entity_" + str(entity.id)
+            if entity_name not in self.default_entities and entity_name not in self.additional_entities:
+                self.additional_entities[entity_name] = "actor"
+        
+        # check if there are new objects in the inventory
+        for entity in all_entities:
+            for obj_type in entity.inventory.keys():
+                if obj_type not in self.default_obj_types and obj_type not in self.additional_items:
+                    self.additional_items[obj_type] = "physobj"
+        
+        # check if there are new objects in the world, which are placable.
+        for idx, objs in state._objects.items():
+            obj_type = objs[0].type
+            if obj_type not in self.default_obj_types and obj_type not in self.additional_items:
+                self.additional_items[obj_type] = "placable"
+            elif obj_type in self.additional_items and self.additional_items[obj_type] == "physobj":
+                # if we inferred the object to be a physobj, 
+                # we got more precise information that it is actually a placable object
+                self.additional_items[obj_type] = "placable"
+
+        return (
+            {**self.additional_items, **self.default_obj_types},
+            {**self.additional_entities, **self.default_entities}
+        )
 
 
 def get_entities(ng2_config):
-    entities = []
+    entities = {}
     for entity_nickname, entity in ng2_config["entities"].items():
-        entities.append((f"entity_{entity['id']}", entity["type"]))
+        entities[f"entity_{entity['id']}"] = entity["type"]
     return entities
 
 def get_all_actions(ng2_config, agent_name="agent_0"):
