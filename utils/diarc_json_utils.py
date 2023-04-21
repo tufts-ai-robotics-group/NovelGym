@@ -1,7 +1,7 @@
 from gym_novel_gridworlds2.contrib.polycraft.states import PolycraftState
 from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym_novel_gridworlds2.contrib.polycraft.objects import PolycraftEntity
-from .pddl_utils import generate_obj_types
+from .pddl_utils import generate_obj_types, simplified_name_convert
 
 from typing import List, Tuple, Optional
 
@@ -54,7 +54,10 @@ def generate_diarc_json_from_state(
 
     map_info = {
         loc.replace(",17,", ","): obj['name'] \
-            for loc, obj in state.get_map_rep_in_range([room_coord]).items() \
+            for loc, obj in state.get_map_rep_in_range(
+                            [room_coord], 
+                            conversion_func=simplified_name_convert
+                        ).items() \
             if obj['name'] != "air" and obj['name'] != "minecraft:air"
     }
     return {

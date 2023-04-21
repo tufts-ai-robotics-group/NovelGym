@@ -5,7 +5,7 @@ from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 from agents.base_planning import BasePlanningAgent
 from utils.diarc_json_utils import generate_diarc_json_from_state
-from utils.pddl_utils import generate_obj_types
+from utils.pddl_utils import generate_obj_types, get_entities
 from obs_convertion import LidarAll
 
 REWARDS = {
@@ -42,6 +42,7 @@ class SAPolycraftRL(gym.Wrapper):
         )
         self.show_action_log = show_action_log
         self.env.dynamic.all_objects = generate_obj_types(self.config_content)
+        self.env.dynamic.all_entities = get_entities(self.config_content)
         self.agent_name = agent_name
 
         self.RepGeneratorModule = RepGenerator
@@ -60,6 +61,7 @@ class SAPolycraftRL(gym.Wrapper):
         if self._observation_space is None:
             return self.RepGeneratorModule.get_observation_space(
                 self.env.dynamic.all_objects,
+                self.env.dynamic.all_entities,
                 **self.rep_gen_args
             )
         else:
@@ -229,6 +231,7 @@ class SAPolycraftRL(gym.Wrapper):
             self.episode += 1
             self.env.reset(options={"episode": self.episode})
             self.env.dynamic.all_objects = generate_obj_types(self.config_content)
+            self.env.dynamic.all_entities = get_entities(self.config_content)
             
             # fast forward
             self._agent_iter = self.env.agent_iter()

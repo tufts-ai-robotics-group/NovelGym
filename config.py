@@ -1,4 +1,4 @@
-from obs_convertion import LidarAll, OnlyFacingObs, OnlyHinted
+from obs_convertion import LidarAll, OnlyFacingObs, NovelOnlyObs
 import tianshou as ts
 from policies import BiasedDQN
 from net.basic import BasicNet
@@ -7,7 +7,7 @@ from net.norm_net import NormalizedNet
 OBS_TYPES = {
     "lidar_all": LidarAll,
     "only_facing": OnlyFacingObs,
-    "only_hinted": OnlyHinted,
+    "only_hinted": NovelOnlyObs,
 }
 
 NOVELTIES = {

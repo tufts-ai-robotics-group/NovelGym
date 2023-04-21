@@ -1,6 +1,6 @@
 from gym_novel_gridworlds2.utils.json_parser import load_json, ConfigParser
 from utils.diarc_json_utils import generate_diarc_json_from_state
-from utils.pddl_utils import generate_obj_types
+from utils.pddl_utils import generate_obj_types, get_entities
 import json
 
 from utils.plan_utils import call_planner
@@ -12,6 +12,7 @@ def test_diarc_str():
     state, dynamics, agent_manager = parser.parse_json(None, config_json, 100)
 
     dynamics.all_objects = generate_obj_types(config_json)
+    dynamics.all_entities = get_entities(config_json)
     diarc_json = generate_diarc_json_from_state(0, state, dynamics, "cannotplan", False)
     print(json.dumps(diarc_json))
     assert diarc_json["failedAction"] == "cannotplan"
@@ -28,6 +29,7 @@ def test_init_json():
     state, dynamics, agent_manager = parser.parse_json(None, config_json, 100)
 
     dynamics.all_objects = generate_obj_types(config_json)
+    dynamics.all_entities = get_entities(config_json)
     diarc_json = generate_diarc_json_from_state(0, state, dynamics, "(break oak_log)", False)
 
     action_set = agent_manager.agents['agent_0'].action_set

@@ -100,6 +100,12 @@ def get_all_actions(ng2_config, agent_name="agent_0"):
     _, _, agent_manager = parser.parse_json(json_content=ng2_config, rendering=False)
     return [action for action, _ in agent_manager.agents[agent_name].action_set.actions]
 
+def simplified_name_convert(name, item=None):
+    if isinstance(item, PolycraftEntity):
+        return f"entity_{item.id}", {}
+    else:
+        return name, {}
+
 def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic):
     entity_id = ng2_config["entities"]["main_1"]["id"]
     main_entity: PolycraftEntity = state.get_entity_by_id(entity_id)
@@ -114,7 +120,7 @@ def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic)
                 continue
 
             # there's something at the cell
-            obj_type, info = cell.get_map_rep()
+            obj_type, info = cell.get_map_rep(conversion_func=simplified_name_convert)
             if obj_type in objs_world:
                 objs_world[obj_type] += 1
             else:

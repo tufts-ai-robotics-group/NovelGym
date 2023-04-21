@@ -1,6 +1,6 @@
 from utils.item_encoder import SimpleItemEncoder
 from utils.env_reward_utils import PolycraftRewardGenerator, parse_failed_action_statement
-from utils.pddl_utils import generate_obj_types
+from utils.pddl_utils import generate_obj_types, get_entities
 
 import json
 from obs_convertion import LidarAll
@@ -13,7 +13,8 @@ JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
 def test_observation_space():
     config_json = load_json(JSON_CONFIG_PATH)
     all_objects = generate_obj_types(config_json)
-    obs_space = LidarAll.get_observation_space(all_objects)
+    all_entities = get_entities(config_json)
+    obs_space = LidarAll.get_observation_space(all_objects, all_entities)
     print(obs_space)
     print(obs_space.shape)
-    assert obs_space.shape == ((len(all_objects.items()) + 1) * (8 + 1) + 1,)
+    assert obs_space.shape == ((len(all_objects.items()) + len(all_entities.items()) + 1) * (8 + 1) + 1,)

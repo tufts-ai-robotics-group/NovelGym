@@ -5,31 +5,37 @@ import numpy as np
 from gymnasium import spaces
 from typing import Tuple
 
-class OnlyHinted(LidarAll):
-    def __init__(self, hints="", *args, **kwargs):
+class NovelOnlyObs(LidarAll):
+    def __init__(self, 
+            novel_objects=[],
+            hinted_objects=[], 
+            *args, 
+            **kwargs
+        ):
         # encoder for automatically encoding new objects
         self.item_encoder = SimpleItemEncoder({"air": 0})
         self.max_item_type_count = self._encode_items(kwargs['json_input']['state'])
-        self.hinted_objects = get_hinted_items(self.item_encoder.item_list, hints, split_words=True)
+        self.novel_objects = hinted_objects + novel_objects
         # self.hinted_item_encoder = SimpleItemEncoder(item_list=self.hinted_objects)
-        self.items_id_hinted = {self.item_encoder.get_id(keys): item_idx for item_idx, keys in enumerate(self.hinted_objects)}
+        self.items_id_hinted = {self.item_encoder.get_id(keys): item_idx for item_idx, keys in enumerate(self.novel_objects)}
         super().__init__(*args, **kwargs)
         self.max_beam_range = 8
 
     @staticmethod
     def get_observation_space(
             all_objects, 
+            all_entities,
             items_lidar_disabled=[],
-            hints: str="",
+            novel_objects=[],
+            hinted_objects=[],
             *args,
             **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
-        max_item_type_count = len(all_objects) + 1
+        max_item_type_count = len(all_objects) + len(all_entities) + 1
         # # things to search for in lidar. only excludes disabled items
 
-        hinted_objects = get_hinted_items(all_objects, hints, split_words=True)
-        num_hinted_objects = len(hinted_objects)
+        num_hinted_objects = len(hinted_objects) + len(novel_objects)
 
         # maximum of number of possible items
         lidar_items_max_count = num_hinted_objects - len(items_lidar_disabled)

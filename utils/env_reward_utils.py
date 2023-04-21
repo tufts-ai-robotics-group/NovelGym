@@ -7,6 +7,7 @@ from functools import lru_cache
 from .env_condition_set import ConditionSet
 
 # from env_utils import SimpleItemEncoder
+from .item_encoder import SimpleItemEncoder
 
 """
 state = {
@@ -318,7 +319,10 @@ class PolycraftRewardGenerator:
                 transformed_effects = self._substitute_params(effects, param_mapping=mapping)
 
                 # print("effects_tokens: ", transformed_effects)
-                return self._make_check_function(transformed_effects)
+                try:
+                    return self._make_check_function(transformed_effects)
+                except SimpleItemEncoder.TooManyItemTypes as e:
+                    raise Exception("Error while creating effect function for (" + ",".join(statement) + ")") from e
         print(statement[1], "action not found!")
         return self._maker_map['always_false']
     

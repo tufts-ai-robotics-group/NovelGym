@@ -66,7 +66,8 @@ class LidarAll(ObservationGenerator):
 
     @staticmethod
     def get_observation_space(
-            all_objects, 
+            all_objects,
+            all_entities,
             items_lidar_disabled=[], 
             num_beams=NUM_BEAMS,
             max_beam_range=MAX_BEAM_RANGE,
@@ -74,7 +75,7 @@ class LidarAll(ObservationGenerator):
             **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
-        max_item_type_count = len(all_objects) + 1
+        max_item_type_count = len(all_objects) + len(all_entities) + 1
         # things to search for in lidar. only excludes disabled items
 
         # maximum of number of possible items
