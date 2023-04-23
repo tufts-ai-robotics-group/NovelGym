@@ -106,7 +106,7 @@ class PolycraftRewardGenerator:
         self.plannable_state = None
         self.plannable_state_met_checker = lambda a: False # default value
 
-        if plan is not None:
+        if plan is not None and len(plan) > 0:
             self.plan_tokens = scan_tokens(pddl_content=plan, allow_multiple_statements=True)
 
             # plannable state.
@@ -301,6 +301,8 @@ class PolycraftRewardGenerator:
 
 
     def load_check_effect_func(self, tokens, action_params):
+        if action_params[0] == "cannotplan":
+            return self._maker_map['always_true']
         for statement in tokens:
             if isinstance(statement, list) and \
                                 statement[0] == ":action" and \
@@ -323,7 +325,7 @@ class PolycraftRewardGenerator:
                     return self._make_check_function(transformed_effects)
                 except SimpleItemEncoder.TooManyItemTypes as e:
                     raise Exception("Error while creating effect function for (" + ",".join(statement) + ")") from e
-        print(statement[1], "action not found!")
+        print(action_params[0], "action not found!")
         return self._maker_map['always_false']
     
     def get_state(self):
