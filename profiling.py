@@ -9,6 +9,8 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 from obs_convertion import LidarAll, OnlyFacingObs
+import numpy as np
+from datetime import datetime
 
 from args import args, NOVELTIES
 import cProfile
@@ -31,25 +33,29 @@ env = SAPolycraftRL(
     enable_render=False
 )
 
+space = env.action_space.n
+
 def run():
-    for episode in range(5):
+    for episode in range(10000000):
         obs, info = env.reset()
         print()
         print("++++++++++++++ Running episode", episode, "+++++++++++++++")
+        begin_time = datetime.now()
 
         agent = env.env.agent_manager.agents["agent_0"]
 
         for step in range(1000):
-            action = env.action_space.sample()
+            action = np.random.randint(space - 2)
             obs, reward, terminated, truncated, info = env.step(action)
             
             if verbose:
                 env.render()
             if terminated or truncated:
-                print("terminated at step", step)
+                print("terminated at step", step, "with reward", reward)
                 break
 
-    print("Done!")
+        print("Done at", datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"))
+        print("Time Used:", str(datetime.now() - begin_time))
 
-cProfile.run('run()', 'results/profile.txt')
-
+# cProfile.run('run()', 'results/profile.txt')
+run()

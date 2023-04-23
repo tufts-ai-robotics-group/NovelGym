@@ -47,9 +47,10 @@ def _output_to_plan(output, action_map, show_error=False):
     ### O/P: converts it to a action sequence list.
     '''
 
-    if show_error and "unsolvable" in output:
-        print ("Plan not found with FF! Error: {}".format(
-            output))
+    if "unsolvable" in output:
+        if show_error:
+            print ("Plan not found with FF! Error: {}".format(
+                output))
         return None, None
 
     ff_plan = re.findall(r"\d+?: (.+)", output.lower()) # matches the string to find the plan bit from the ffmetric output.
