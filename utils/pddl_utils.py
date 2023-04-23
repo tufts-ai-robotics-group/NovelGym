@@ -42,7 +42,7 @@ class KnowledgeBase:
         pddl_domain = pddl_domain.replace(";{{additional_actions}}", "\n\n".join(actions))
 
         # initial state
-        initial_state = generate_initial_state(self.config, state, dynamics)
+        initial_state = generate_initial_state(self.config, state, dynamics, obj_types)
         pddl_problem = pddl_problem.replace(";{{init}}", "\n        ".join(initial_state))
 
         return pddl_domain, pddl_problem
@@ -106,10 +106,9 @@ def simplified_name_convert(name, item=None):
     else:
         return name, {}
 
-def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic):
+def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic, object_types: Mapping[str, str]):
     entity_id = ng2_config["entities"]["main_1"]["id"]
     main_entity: PolycraftEntity = state.get_entity_by_id(entity_id)
-    object_types = generate_obj_types(ng2_config)
 
     ## generated objects
     objs_world = {"air": 0}
@@ -125,6 +124,11 @@ def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic)
                 objs_world[obj_type] += 1
             else:
                 objs_world[obj_type] = 1
+    # everything placable but not in the world should also be on the list, but with quantity 0.
+    for obj, type in object_types.items():
+        if (type == "placable" or "breakable" in type) and obj not in objs_world:
+            objs_world[obj] = 0
+     
 
     # inventory
     objs_inventory = main_entity.inventory

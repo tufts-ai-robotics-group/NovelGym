@@ -1,0 +1,21 @@
+{
+  "novelties": {
+    "0": {
+      "entities": {
+        "trader_joe": {
+          "entity": "novelties.evaluation1.multi_interact.entity_trader.EntityTraderMultInteract"
+        },
+        "trader_bob": {
+          "entity": "novelties.evaluation1.multi_interact.entity_trader.EntityTraderMultInteract"
+        }
+      },
+      "objects": {
+        "oak_log": {
+          "quantity": 0,
+          "room": 2,
+          "chunked": "False"
+        }
+      }
+    }
+  }
+}

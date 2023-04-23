@@ -10,7 +10,7 @@ parser.add_argument(
     type=str, 
     help="The name of the novelty.", 
     required=False,
-    default="axe",
+    default="mi_cantplan",
     choices=NOVELTIES.keys()
 )
 # parser.add_argument(

@@ -12,6 +12,7 @@ OBS_TYPES = {
 
 NOVELTIES = {
     "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
+    "mi_cantplan": "novelties/evaluation1/multi_interact/multi_interact_cant_plan.json",
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.json",
     "axe": "novelties/evaluation1/axe_to_break/axe_to_break.json",
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
@@ -20,6 +21,7 @@ NOVELTIES = {
 
 HINTS = {
     "mi": "",
+    "mi_cantplan": "",
     "kibt": str([
         "Sorry, you need a key to trade with me.",
         "Find the key in the chest.",
@@ -32,6 +34,7 @@ HINTS = {
 
 NOVEL_ACTIONS = {
     "mi": [],
+    "mi_cantplan": [],
     "kibt": ["approach_plastic_chest", "collect"],
     "axe": [],
     "rdb": [],
