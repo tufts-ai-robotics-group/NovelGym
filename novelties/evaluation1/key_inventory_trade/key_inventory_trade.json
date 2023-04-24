@@ -3,7 +3,7 @@
     "0": {
       "actions": {
         "trade": {
-          "module": "novelties.evaluation1.key_inventory_break_tree.trade.KeyTrade"
+          "module": "novelties.evaluation1.key_inventory_trade.trade.KeyTrade"
         }
       },
       "entities": {
