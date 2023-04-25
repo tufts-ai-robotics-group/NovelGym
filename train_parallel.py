@@ -7,7 +7,7 @@ import gymnasium as gym
 from net.basic import BasicNet
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from tianshou.utils import TensorboardLogger
+from ts_extensions.custom_logger import CustomTensorBoardLogger
 from args import args, NOVELTIES, OBS_TYPES, HINTS
 
 from train import policy
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     )
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
-    logger = TensorboardLogger(writer)
+    logger = CustomTensorBoardLogger(writer)
 
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=1000, step_per_epoch=1000, step_per_collect=args.num_threads * 2,
+        max_epoch=1000, step_per_epoch=300, step_per_collect=args.num_threads * 2,
         update_per_step=0.1, episode_per_test=50, batch_size=64,
         train_fn=set_train_eps,
         test_fn=lambda epoch, env_step: policy.set_eps(0.05),

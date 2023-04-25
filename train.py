@@ -8,7 +8,7 @@ import gymnasium as gym
 from net.basic import BasicNet
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from tianshou.utils import TensorboardLogger
+from ts_extensions.custom_logger import CustomTensorBoardLogger
 
 from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS
 from policies import BiasedDQN
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     )
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
-    logger = TensorboardLogger(writer)
+    logger = CustomTensorBoardLogger(writer)
 
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
