@@ -7,8 +7,8 @@ from net.norm_net import NormalizedNet
 OBS_TYPES = {
     "lidar_all": LidarAll,
     "lidar_lite": LidarAll,
-    "only_facing": OnlyFacingObs,
-    "only_hinted": NovelOnlyObs,
+    "facing_only": OnlyFacingObs,
+    "hinted_only": NovelOnlyObs,
 }
 
 OBS_GEN_ARGS = {
@@ -28,8 +28,8 @@ NOVELTIES = {
 }
 
 HINTS = {
-    "mi": "",
-    "mi_cantplan": "",
+    "mi": "The trader will reward you for interacting with him.",
+    "mi_cantplan": "The trader will reward you for interacting with him.",
     "kibt": str([
         "Sorry, you need a key to trade with me.",
         "Find the key in the chest.",
