@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=1000, step_per_epoch=300, step_per_collect=args.num_threads * 2,
+        max_epoch=1000, step_per_epoch=300, step_per_collect=12,
         update_per_step=0.1, episode_per_test=50, batch_size=64,
         train_fn=set_train_eps,
         test_fn=lambda epoch, env_step: policy.set_eps(0.05),

@@ -135,11 +135,11 @@ if __name__ == "__main__":
     #             policy.set_eps(0.1)
 
     #     # train policy with a sampled batch data from buffer
-    #     losses = policy.update(64, train_collector.buffer)
+    #     losses = policy.update(64, train_collector.buffer)  
 
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=100, step_per_epoch=1000, step_per_collect=1,
+        max_epoch=100, step_per_epoch=1000, step_per_collect=12,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
         train_fn=set_train_eps,
         test_fn=lambda epoch, env_step: policy.set_eps(0.05),
