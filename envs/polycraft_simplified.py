@@ -215,15 +215,6 @@ class SAPolycraftRL(gym.Wrapper):
 
         obs, reward, env_done, info = self.env.last()
 
-        # get relevant info
-        main_agent = self.env.agent_manager.agents["agent_0"].agent
-        info = {
-            "pddl_domain": main_agent.pddl_domain,
-            "pddl_problem": main_agent.pddl_problem,
-            "pddl_plan": main_agent.pddl_plan,
-            **info
-        }
-
         # check if effects met and give the rewards
         plannable_done, truncated, reward = self._gen_reward()
 
@@ -251,12 +242,12 @@ class SAPolycraftRL(gym.Wrapper):
 
             needs_rl = self._fast_forward()
         obs, reward, done, info = self.env.last()
-        info = {
-            "pddl_domain": getattr(self, "pddl_domain", ""),
-            "pddl_problem": getattr(self, "pddl_problem", ""),
-            "pddl_plan": getattr(main_agent, "pddl_plan", ""),
-            **info
-        }
+        # info = {
+        #     "pddl_domain": getattr(self, "pddl_domain", ""),
+        #     "pddl_problem": getattr(self, "pddl_problem", ""),
+        #     "pddl_plan": getattr(main_agent, "pddl_plan", ""),
+        #     **info
+        # }
 
         # initialize the observation generator
         self._init_obs_gen()
