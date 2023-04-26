@@ -93,20 +93,18 @@ if __name__ == "__main__":
             **policy_props
         )
 
-    if args.metadata:
-        print("----------- metadata -----------")
-        print("Novelty:", novelty_name)
-        print("Algorithm:", args.rl_algo)
-        print("Observation type:", args.obs_type)
-        print("hints:", hints)
-        print()
-        print("Novel actions: ", novel_actions)
-        print("Hinted Objects: ", hinted_objects)
-        print("State space: ", state_shape)
-        print("Action space: ", action_shape)
-        print("--------------------------------")
-        print()
-        exit(0)
+    print("----------- metadata -----------")
+    print("Novelty:", novelty_name)
+    print("Algorithm:", args.rl_algo)
+    print("Observation type:", args.obs_type)
+    print("hints:", hints)
+    print()
+    print("Novel actions: ", novel_actions)
+    print("Hinted Objects: ", hinted_objects)
+    print("State space: ", state_shape)
+    print("Action space: ", action_shape)
+    print("--------------------------------")
+    print()
 
     # logging
     log_path = os.path.join(
