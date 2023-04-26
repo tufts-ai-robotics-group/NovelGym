@@ -6,8 +6,16 @@ from net.norm_net import NormalizedNet
 
 OBS_TYPES = {
     "lidar_all": LidarAll,
+    "lidar_lite": LidarAll,
     "only_facing": OnlyFacingObs,
     "only_hinted": NovelOnlyObs,
+}
+
+OBS_GEN_ARGS = {
+    "lidar_lite": {
+        "num_beams": 4,
+        "max_beam_range": 2
+    }
 }
 
 NOVELTIES = {

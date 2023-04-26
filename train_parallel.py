@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 from args import args, NOVELTIES, OBS_TYPES, HINTS
 
-from train import policy
+from train import policy, rep_gen_args
 
 def set_train_eps(epoch, env_step):
     max_eps = 0.4
@@ -45,6 +45,7 @@ if __name__ == "__main__":
         RepGenerator=RepGenerator,
         rep_gen_args={
             "hints": HINTS[novelty_name],
+            **rep_gen_args
         }
     ) for _ in range(args.num_threads)]
     # tianshou env

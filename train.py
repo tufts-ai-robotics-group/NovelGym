@@ -10,7 +10,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
-from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS
+from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
 from policies import BiasedDQN
 from utils.hint_utils import get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions
@@ -28,6 +28,7 @@ all_actions = get_all_actions(config_file_paths)
 
 # observation generator
 RepGenerator = OBS_TYPES[args.obs_type]
+rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
 # tianshou env
 venv = ts.env.DummyVectorEnv([lambda: gym.make(
@@ -39,6 +40,7 @@ venv = ts.env.DummyVectorEnv([lambda: gym.make(
     RepGenerator=RepGenerator,
     rep_gen_args={
         "hints": HINTS[novelty_name],
+        **rep_gen_args
     }
 )])
 

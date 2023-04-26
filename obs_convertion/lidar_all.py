@@ -15,7 +15,7 @@ MAX_BEAM_RANGE=40
 
 
 class LidarAll(ObservationGenerator):
-    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, *args, **kwargs) -> None:
+    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, num_beams=8, max_beam_range=40, *args, **kwargs) -> None:
         """
         The Env is instanciated using the first json input.
         """
@@ -24,8 +24,8 @@ class LidarAll(ObservationGenerator):
         self.max_item_type_count = self._encode_items(json_input['state'])
 
         # rep of beams
-        self.num_beams = 8
-        self.max_beam_range = 40
+        self.num_beams = num_beams
+        self.max_beam_range = max_beam_range
 
         # things to search for in lidar. only excludes disabled items
         self.items_lidar_disabled = items_lidar_disabled
