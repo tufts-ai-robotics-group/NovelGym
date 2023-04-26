@@ -6,6 +6,7 @@ from shutil import rmtree
 import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
+from net.basic_small import BasicNetSmall
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
@@ -73,7 +74,10 @@ if __name__ == "__main__":
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
-    net = BasicNet(state_shape, action_shape)
+    if state_shape[0] < 50 and action_shape < 40:
+        net = BasicNetSmall(state_shape, action_shape)
+    else:
+        net = BasicNet(state_shape, action_shape)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     if args.rl_algo == "dqn":
         policy = PolicyModule(
@@ -103,8 +107,11 @@ if __name__ == "__main__":
     print("Hinted Objects: ", hinted_objects)
     print("State space: ", state_shape)
     print("Action space: ", action_shape)
+    print("Network:", net.__class__.__name__)
     print("--------------------------------")
     print()
+    if args.metadata:
+        exit(0)
 
     # logging
     log_path = os.path.join(
@@ -123,7 +130,7 @@ if __name__ == "__main__":
 
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=100, step_per_epoch=1000, step_per_collect=12,
+        max_epoch=1000, step_per_epoch=300, step_per_collect=12,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
         train_fn=set_train_eps,
         test_fn=lambda epoch, env_step: policy.set_eps(0.05),
