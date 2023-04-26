@@ -16,12 +16,24 @@ with open(PDDL_PROBLEM_TEMPLATE_PATH, 'r') as f:
 
 class KnowledgeBase:
     def __init__(self, config):
+        if type(config) == str:
+            config = load_json(config)
+        elif isinstance(config, list):
+            config = load_json(config_json={"extends": config})
+    
         self.config = config
         self.default_obj_types = generate_obj_types(config)
         self.default_entities = get_entities(config)
 
         self.additional_items = {}
         self.additional_entities = {}
+    
+    def get_all_objects(self):
+        return {
+            **self.default_obj_types,
+            **self.default_entities,
+            **self.additional_items,
+        }
 
     def generate_pddl(self, state: PolycraftState, dynamics: Dynamic):
         pddl_domain = PDDL_TEMPLATE

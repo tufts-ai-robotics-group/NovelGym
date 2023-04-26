@@ -12,80 +12,8 @@ from ts_extensions.custom_logger import CustomTensorBoardLogger
 
 from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
 from policies import BiasedDQN
-from utils.hint_utils import get_novel_action_indices, get_hinted_items
-from utils.pddl_utils import get_all_actions
-
-seed = args.seed
-
-# novelty
-novelty_name = args.novelty
-novelty_path = NOVELTIES[novelty_name]
-config_file_paths = ["config/polycraft_gym_rl_single.json"]
-config_file_paths.append(novelty_path)
-
-# action list
-all_actions = get_all_actions(config_file_paths)
-
-# observation generator
-RepGenerator = OBS_TYPES[args.obs_type]
-rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
-
-# tianshou env
-venv = ts.env.DummyVectorEnv([lambda: gym.make(
-    "NG2-PolycraftMultiInteract-v0",
-    config_file_paths=config_file_paths,
-    agent_name="agent_0",
-    task_name="main",
-    show_action_log=False,
-    RepGenerator=RepGenerator,
-    rep_gen_args={
-        "hints": HINTS[novelty_name],
-        **rep_gen_args
-    }
-)])
-
-hints = str(HINTS.get(args.novelty))
-novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_items(all_actions, hints, True)
-
-PolicyModule = POLICIES[args.rl_algo]
-policy_props = POLICY_PROPS.get(args.rl_algo) or {}
-
-# net
-state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
-action_shape = venv.action_space[0].shape or venv.action_space[0].n
-net = BasicNet(state_shape, action_shape)
-optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-if args.rl_algo == "dqn":
-    policy = PolicyModule(
-        model=net, 
-        optim=optim, 
-        discount_factor=0.99, 
-        estimation_step=3,
-    )
-else:
-    policy = PolicyModule(
-        model=net, 
-        optim=optim, 
-        discount_factor=0.99, 
-        estimation_step=3, 
-        novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
-        num_actions=action_shape,
-        **policy_props
-    )
-
-if args.metadata:
-    print("----------- metadata -----------")
-    print("Novelty:", novelty_name)
-    print("Algorithm:", args.rl_algo)
-    print("Observation type:", args.obs_type)
-    print("hints:", hints)
-    print()
-    print("Novel actions: ", novel_actions)
-    print("State space: ", state_shape)
-    print("Action space: ", action_shape)
-    print("--------------------------------")
-    print()
-    exit(0)
+from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_hinted_items
+from utils.pddl_utils import get_all_actions, KnowledgeBase
 
 
 def set_train_eps(epoch, env_step):
@@ -97,6 +25,89 @@ def set_train_eps(epoch, env_step):
         return max_eps - (max_eps - min_eps) / 10 * epoch
 
 if __name__ == "__main__":
+    seed = args.seed
+
+    # novelty
+    novelty_name = args.novelty
+    novelty_path = NOVELTIES[novelty_name]
+    config_file_paths = ["config/polycraft_gym_rl_single.json"]
+    config_file_paths.append(novelty_path)
+
+    # object list
+    kb_tmp = KnowledgeBase(config=config_file_paths)
+    all_objects = kb_tmp.get_all_objects()
+    hinted_objects = get_hinted_items(all_objects, HINTS[novelty_name], True)
+
+    # action list
+    all_actions = get_all_actions(config_file_paths)
+
+    # observation generator
+    RepGenerator = OBS_TYPES[args.obs_type]
+    rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
+
+
+    # env
+    envs = [lambda: gym.make(
+        "NG2-PolycraftMultiInteract-v0",
+        config_file_paths=config_file_paths,
+        agent_name="agent_0",
+        task_name="main",
+        show_action_log=False,
+        RepGenerator=RepGenerator,
+        rep_gen_args={
+            "hints": HINTS[novelty_name],
+            "hinted_objects": hinted_objects,
+            "novel_objects": [], # TODO
+            **rep_gen_args
+        }
+    ) for _ in range(args.num_threads)]
+    # tianshou env
+    venv = ts.env.SubprocVectorEnv(envs)
+
+    hints = str(HINTS.get(args.novelty))
+    novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
+
+    PolicyModule = POLICIES[args.rl_algo]
+    policy_props = POLICY_PROPS.get(args.rl_algo) or {}
+
+    # net
+    state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
+    action_shape = venv.action_space[0].shape or venv.action_space[0].n
+    net = BasicNet(state_shape, action_shape)
+    optim = torch.optim.Adam(net.parameters(), lr=1e-4)
+    if args.rl_algo == "dqn":
+        policy = PolicyModule(
+            model=net, 
+            optim=optim, 
+            discount_factor=0.99, 
+            estimation_step=3,
+        )
+    else:
+        policy = PolicyModule(
+            model=net, 
+            optim=optim, 
+            discount_factor=0.99, 
+            estimation_step=3, 
+            novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
+            num_actions=action_shape,
+            **policy_props
+        )
+
+    if args.metadata:
+        print("----------- metadata -----------")
+        print("Novelty:", novelty_name)
+        print("Algorithm:", args.rl_algo)
+        print("Observation type:", args.obs_type)
+        print("hints:", hints)
+        print()
+        print("Novel actions: ", novel_actions)
+        print("Hinted Objects: ", hinted_objects)
+        print("State space: ", state_shape)
+        print("Action space: ", action_shape)
+        print("--------------------------------")
+        print()
+        exit(0)
+
     # logging
     log_path = os.path.join(
         args.logdir, 
@@ -112,31 +123,6 @@ if __name__ == "__main__":
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
-    # train_collector.collect(n_step=5000, random=True)
-    # print("Done Collecting Experience. Starting Training...")
-
-
-    # policy.set_eps(0.1)
-
-    # for i in range(int(1e6)):
-    #     collect_result = train_collector.collect(n_step=10)
-
-    #     # once if the collected episodes' mean returns reach the threshold,
-    #     # or every 1000 steps, we test it on test_collector
-    #     if collect_result['rews'].mean() >= env.spec.reward_threshold or i % 1000 == 0:
-    #         policy.set_eps(0.05)
-    #         result = test_collector.collect(n_episode=100)
-    #         print("episode:", i, "  test_reward:", result['rews'].mean())
-    #         if result['rews'].mean() >= env.spec.reward_threshold:
-    #             print(f'Finished training! Test mean returns: {result["rews"].mean()}')
-    #             break
-    #         else:
-    #             # back to training eps
-    #             policy.set_eps(0.1)
-
-    #     # train policy with a sampled batch data from buffer
-    #     losses = policy.update(64, train_collector.buffer)  
-
     result = ts.trainer.offpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=100, step_per_epoch=1000, step_per_collect=12,
@@ -147,6 +133,4 @@ if __name__ == "__main__":
         logger=logger
     )
     print(f'Finished training! Use {result["duration"]}')
-
-
 
