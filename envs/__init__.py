@@ -6,7 +6,7 @@ register(
     id='NG2-PolycraftMultiInteract-v0', # use id to pass to gym.make(id)
     entry_point='envs:SAPolycraftRL',
     reward_threshold=980,
-    max_episode_steps=1000
+    max_episode_steps=300
     # reward_threshold =
 )
 register(
