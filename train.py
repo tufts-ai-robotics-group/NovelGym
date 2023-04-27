@@ -55,7 +55,6 @@ if __name__ == "__main__":
         task_name="main",
         show_action_log=False,
         RepGenerator=RepGenerator,
-        seed=seed,
         rep_gen_args={
             "hints": HINTS[novelty_name],
             "hinted_objects": hinted_objects,
@@ -65,7 +64,8 @@ if __name__ == "__main__":
     ) for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
-    venv.seed(seed)
+    if seed is not None:
+        venv.reset(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
