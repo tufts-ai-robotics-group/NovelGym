@@ -52,7 +52,7 @@ class NovelOnlyObs(LidarAll):
             [0]
         )
         high = np.array(
-            [1] * (lidar_items_max_count * num_beams) + 
+            [max_beam_range] * (lidar_items_max_count * num_beams) + 
             [40] * max_item_type_count + 
             [max_item_type_count] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
         )
