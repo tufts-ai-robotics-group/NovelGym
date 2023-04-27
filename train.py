@@ -79,7 +79,7 @@ if __name__ == "__main__":
         net = BasicNetSmall(state_shape, action_shape)
     else:
         net = BasicNet(state_shape, action_shape)
-    optim = torch.optim.Adam(net.parameters(), lr=1e-3)
+    optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     if args.rl_algo == "dqn":
         policy = PolicyModule(
             model=net, 
