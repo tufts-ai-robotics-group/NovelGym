@@ -46,7 +46,6 @@ if __name__ == "__main__":
     RepGenerator = OBS_TYPES[args.obs_type]
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
-
     # env
     envs = [lambda: gym.make(
         "NG2-PolycraftMultiInteract-v0",
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
     if seed is not None:
-        venv.reset(seed=[seed + i * 112 for i in range(args.num_threads)])
+        venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
@@ -116,8 +115,10 @@ if __name__ == "__main__":
         exit(0)
 
     # logging
+    exp_name = args.exp_name
     log_path = os.path.join(
         args.logdir, 
+        exp_name or "default_exp",
         args.novelty,
         args.obs_type,
         args.rl_algo

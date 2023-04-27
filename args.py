@@ -63,6 +63,11 @@ parser.add_argument(
     default=False,
     action='store_true'
 )
+parser.add_argument(
+    '--exp_name',
+    help="The name of the experiment, used to save results.",
+    default=None
+)
 
 
 verbose = False
