@@ -22,7 +22,7 @@ parser.add_argument(
 # )
 parser.add_argument(
     '--seed', '-s',
-    type=str,
+    type=int,
     help="The seed.",
     required=False,
     default=None

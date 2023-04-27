@@ -233,7 +233,7 @@ class SAPolycraftRL(gym.Wrapper):
 
         while not needs_rl:
             self.episode += 1
-            self.env.reset(options={"episode": self.episode})
+            self.env.reset(seed=seed, options={"episode": self.episode})
             self.env.dynamic.all_objects = generate_obj_types(self.config_content)
             self.env.dynamic.all_entities = get_entities(self.config_content)
             

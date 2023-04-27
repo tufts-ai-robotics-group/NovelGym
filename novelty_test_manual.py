@@ -21,16 +21,16 @@ novelty_path = NOVELTIES[novelty_name]
 config_file_paths = ["config/polycraft_gym_rl_single.json"]
 config_file_paths.append(novelty_path)
 
-
+seed = int(args.seed)
 
 env = SAPolycraftRL(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",
     show_action_log=True,
-    enable_render=True
+    enable_render=True,
 )
-
+env.reset(seed=seed)
 
 for episode in range(1000):
     obs, info = env.reset()
@@ -42,6 +42,7 @@ for episode in range(1000):
     policy = agent.agent.policy
 
     for step in range(1000):
+        print(obs)
         print("actions: ", "; ".join([
             f"{i}: {action}" 
             for i, (action, _) in 
