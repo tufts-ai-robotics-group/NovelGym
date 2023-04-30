@@ -253,11 +253,11 @@
         "room": 2
       },
       "pogoist_1": {
-        "agent": "gym_novel_gridworlds2.agents.Pogoist",
+        "agent": "gym_novel_gridworlds2.agents.RandomAgent",
         "name": "entity.polycraft.Pogoist.name",
         "type": "pogoist",
         "entity": "gym_novel_gridworlds2.contrib.polycraft.objects.EntityPogoist",
-        "action_set": "pogoist",
+        "action_set": "trader",
         "inventory": {
           "iron_pickaxe": 1
         },
