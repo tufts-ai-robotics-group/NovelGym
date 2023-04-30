@@ -168,20 +168,10 @@
     },
     "map_size": [
       16,
-      21
+      16
     ],
     "seed": 23,
     "rooms": {
-      "1": {
-        "start": [
-          7,
-          15
-        ],
-        "end": [
-          14,
-          20
-        ]
-      },
       "2": {
         "start": [
           0,
@@ -207,11 +197,6 @@
       "crafting_table": {
         "quantity": 1,
         "room": 2,
-        "chunked": "False"
-      },
-      "safe": {
-        "quantity": 1,
-        "room": 1,
         "chunked": "False"
       },
       "plastic_chest": {
