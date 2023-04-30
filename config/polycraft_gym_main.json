@@ -167,8 +167,8 @@
       "sapling": "gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject"
     },
     "map_size": [
-      32,
-      47
+      16,
+      21
     ],
     "seed": 23,
     "rooms": {

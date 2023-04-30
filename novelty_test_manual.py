@@ -21,7 +21,7 @@ novelty_path = NOVELTIES[novelty_name]
 config_file_paths = ["config/polycraft_gym_rl_single.json"]
 config_file_paths.append(novelty_path)
 
-seed = int(args.seed)
+seed = args.seed
 
 env = SAPolycraftRL(
     config_file_paths=config_file_paths,
