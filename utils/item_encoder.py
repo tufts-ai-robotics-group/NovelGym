@@ -1,10 +1,13 @@
+from typing import Mapping
+import json
+
 class SimpleItemEncoder:
     class TooManyItemTypes(Exception):
         pass
 
     def __init__(self, item_list=None, initial_id=1, id_limit=0):
         self.curr_id = initial_id - 1
-        self.item_list = {}
+        self.item_list: Mapping[str, int] = {}
         self.reverse_look_up_table = {}
         self.id_limit = id_limit
         if item_list is not None:

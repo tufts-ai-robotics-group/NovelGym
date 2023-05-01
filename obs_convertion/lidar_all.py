@@ -152,6 +152,10 @@ class LidarAll(ObservationGenerator):
         
         for slot in json_data['inventory']['slots']:
             self.item_encoder.get_id(slot['item'])
+        
+        all_items_keys = sorted(self.item_encoder.item_list)
+        # create a new one with sorted keys
+        self.item_encoder = SimpleItemEncoder({key: idx for idx, key in enumerate(all_items_keys)})
 
         # prevent new items from being encoded since we made the 
         #     assumption that no new items will be discovered after the first run.
