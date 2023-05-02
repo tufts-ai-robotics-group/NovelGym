@@ -20,23 +20,25 @@ Run `train.py` for testing, and for a parallel environment, Run `train_parallel.
 
 The command line options are:
 ```
-usage: train.py [-h] [--novelty {mi,kibt,rdb,space_ar}] [--seed SEED] [--num_threads NUM_THREADS] [--logdir LOGDIR]
-                [--obs_type {lidar_all,only_facing,only_hinted}] [--rl_algo {dqn,novel_boost}]
+usage: train.py [-h] [--novelty {mi,mi_cantplan,kibt,axe,rdb,space_ar,fence}] [--seed SEED] [--num_threads NUM_THREADS] [--logdir LOGDIR] [--obs_type {lidar_all,lidar_lite,facing_only,hinted_only}] [--rl_algo {dqn,novel_boost}] [--metadata] [--exp_name EXP_NAME]
 
 Polycraft Gym Environment
 
 options:
   -h, --help            show this help message and exit
-  --novelty {mi,kibt,rdb,space_ar}
+  --novelty {mi,mi_cantplan,kibt,axe,rdb,space_ar,fence}, -n {mi,mi_cantplan,kibt,axe,rdb,space_ar,fence}
                         The name of the novelty.
-  --seed SEED           The seed.
-  --num_threads NUM_THREADS
+  --seed SEED, -s SEED  The seed.
+  --num_threads NUM_THREADS, -j NUM_THREADS
                         Number of sub threads used to run the env.
-  --logdir LOGDIR       The directory to save the logs.
-  --obs_type {lidar_all,only_facing,only_hinted}
+  --logdir LOGDIR, -o LOGDIR
+                        The directory to save the logs.
+  --obs_type {lidar_all,lidar_lite,facing_only,hinted_only}, -b {lidar_all,lidar_lite,facing_only,hinted_only}
                         Type of observation.
-  --rl_algo {dqn,novel_boost}
+  --rl_algo {dqn,novel_boost}, -a {dqn,novel_boost}
                         The algorithm for RL.
+  --metadata            Print metadata about the training and quit.
+  --exp_name EXP_NAME   The name of the experiment, used to save results.
 ```
 
 The results of the run will be saved in the "results" folder.
