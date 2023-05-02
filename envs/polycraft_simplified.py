@@ -25,7 +25,8 @@ class SAPolycraftRL(gym.Wrapper):
             show_action_log=False, 
             RepGenerator=LidarAll,
             rep_gen_args={},
-            enable_render=False
+            enable_render=False,
+            seed=None
         ):
         config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
         self.config_content = config_content
@@ -41,8 +42,6 @@ class SAPolycraftRL(gym.Wrapper):
             logged_agents=['main_1'] if show_action_log else []
         )
         self.show_action_log = show_action_log
-        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
-        self.env.dynamic.all_entities = get_entities(self.config_content)
         self.agent_name = agent_name
 
         self.RepGeneratorModule = RepGenerator
@@ -50,10 +49,15 @@ class SAPolycraftRL(gym.Wrapper):
         self.rep_gen = None
         self.items_lidar_disabled = []
 
+        self.episode = -1
+
+        if seed is not None:
+            self.env.reset(seed=seed)
+        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
+        self.env.dynamic.all_entities = get_entities(self.config_content)
+
         self._action_space = None
         self._observation_space = None
-
-        self.episode = -1
 
     
     @property

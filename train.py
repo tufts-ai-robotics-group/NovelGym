@@ -18,9 +18,9 @@ from utils.pddl_utils import get_all_actions, KnowledgeBase
 
 
 def set_train_eps(epoch, env_step):
-    max_eps = 0.4
-    min_eps = 0.1
-    if epoch > 10:
+    max_eps = 0.2
+    min_eps = 0.05
+    if epoch > 20:
         return min_eps
     else:
         return max_eps - (max_eps - min_eps) / 10 * epoch
@@ -59,12 +59,13 @@ if __name__ == "__main__":
             "hinted_objects": hinted_objects,
             "novel_objects": [], # TODO
             **rep_gen_args
-        }
-    ) for _ in range(args.num_threads)]
+        },
+        seed=i + seed * 190112
+    ) for i in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
-    if seed is not None:
-        venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
+    # if seed is not None:
+    #     venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
@@ -131,10 +132,11 @@ if __name__ == "__main__":
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
-    result = ts.trainer.offpolicy_trainer(
+    result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=1000, step_per_epoch=300, step_per_collect=12,
+        max_epoch=1000, step_per_epoch=1000, step_per_collect=12,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
+        repeat_per_collect=2,
         train_fn=set_train_eps,
         test_fn=lambda epoch, env_step: policy.set_eps(0.05),
         stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
