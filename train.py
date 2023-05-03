@@ -7,6 +7,8 @@ import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet, BasicCriticNet
 from net.basic_small import BasicNetSmall
+from tianshou.utils.net.common import Net
+from tianshou.utils.net.discrete import Actor, Critic
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
@@ -76,9 +78,9 @@ if __name__ == "__main__":
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     if state_shape[0] < 50 and action_shape < 40:
-        net = BasicNetSmall(state_shape, action_shape)
+        net = Net(state_shape, action_shape, hidden_sizes=[128, 64])
     else:
-        net = BasicNet(state_shape, action_shape)
+        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     if args.rl_algo == "dqn":
         policy = PolicyModule(
@@ -98,22 +100,25 @@ if __name__ == "__main__":
             **policy_props
         )
     elif args.rl_algo == "ppo":
-        critic_net = BasicCriticNet(state_shape, 1)
+        net_c = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        critic = Critic(net_c, last_size=action_shape)
         policy = ts.policy.PPOPolicy(
             actor=net,
-            critic=critic_net,
+            critic=critic,
             optim=optim,
             dist_fn=torch.distributions.Categorical,
         )
     elif args.rl_algo == "dsac":
-        critic1_net = BasicCriticNet(state_shape, 1)
-        critic2_net = BasicCriticNet(state_shape, 1)
-        critic1_optim = torch.optim.Adam(critic1_net.parameters(), lr=1e-4)
-        critic2_optim = torch.optim.Adam(critic2_net.parameters(), lr=1e-4)
+        net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        critic1 = Critic(net_c1, last_size=action_shape)
+        critic2 = Critic(net_c2, last_size=action_shape)
+        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=1e-3)
+        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=1e-3)
         policy = ts.policy.DiscreteSACPolicy(
             actor=net,
-            critic1=critic1_net,
-            critic2=critic2_net,
+            critic1=critic1,
+            critic2=critic2,
             actor_optim=optim,
             critic1_optim=critic1_optim,
             critic2_optim=critic2_optim,
