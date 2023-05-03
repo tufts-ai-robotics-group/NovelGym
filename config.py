@@ -52,7 +52,9 @@ NOVEL_ACTIONS = {
 
 POLICIES = {
     "dqn": ts.policy.DQNPolicy,
-    "novel_boost": BiasedDQN
+    "novel_boost": BiasedDQN,
+    "ppo": ts.policy.PPOPolicy, 
+    "dsac": ts.policy.DiscreteSACPolicy
 }
 
 POLICY_PROPS = {

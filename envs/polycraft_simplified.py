@@ -226,6 +226,11 @@ class SAPolycraftRL(gym.Wrapper):
         obs = self._gen_obs()
         return obs, reward, env_done or plannable_done, truncated, info
 
+    def seed(self, seed=None):
+        self.env.reset(seed=seed)
+        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
+        self.env.dynamic.all_entities = get_entities(self.config_content)
+
     def reset(self, seed=None, options={}):
         # reset the environment
         needs_rl = False

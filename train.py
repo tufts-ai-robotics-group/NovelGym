@@ -5,7 +5,7 @@ from envs.polycraft_simplified import SAPolycraftRL
 from shutil import rmtree
 import tianshou as ts
 import gymnasium as gym
-from net.basic import BasicNet
+from net.basic import BasicNet, BasicCriticNet
 from net.basic_small import BasicNetSmall
 import torch
 from torch.utils.tensorboard import SummaryWriter
@@ -59,13 +59,12 @@ if __name__ == "__main__":
             "hinted_objects": hinted_objects,
             "novel_objects": [], # TODO
             **rep_gen_args
-        },
-        seed=i + seed * 190112
-    ) for i in range(args.num_threads)]
+        }
+    ) for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
-    # if seed is not None:
-    #     venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
+    if seed is not None:
+        venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
@@ -88,7 +87,7 @@ if __name__ == "__main__":
             discount_factor=0.99, 
             estimation_step=3,
         )
-    else:
+    elif args.rl_algo == "novel_boost":
         policy = PolicyModule(
             model=net, 
             optim=optim, 
@@ -97,6 +96,27 @@ if __name__ == "__main__":
             novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
             num_actions=action_shape,
             **policy_props
+        )
+    elif args.rl_algo == "ppo":
+        critic_net = BasicCriticNet(state_shape, 1)
+        policy = ts.policy.PPOPolicy(
+            actor=net,
+            critic=critic_net,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical,
+        )
+    elif args.rl_algo == "dsac":
+        critic1_net = BasicCriticNet(state_shape, 1)
+        critic2_net = BasicCriticNet(state_shape, 1)
+        critic1_optim = torch.optim.Adam(critic1_net.parameters(), lr=1e-4)
+        critic2_optim = torch.optim.Adam(critic2_net.parameters(), lr=1e-4)
+        policy = ts.policy.DiscreteSACPolicy(
+            actor=net,
+            critic1=critic1_net,
+            critic2=critic2_net,
+            actor_optim=optim,
+            critic1_optim=critic1_optim,
+            critic2_optim=critic2_optim,
         )
 
     print("----------- metadata -----------")
@@ -134,11 +154,11 @@ if __name__ == "__main__":
 
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=1000, step_per_epoch=1000, step_per_collect=12,
+        max_epoch=1000, step_per_epoch=1200, step_per_collect=12,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
-        repeat_per_collect=2,
-        train_fn=set_train_eps,
-        test_fn=lambda epoch, env_step: policy.set_eps(0.05),
+        repeat_per_collect=4,
+        train_fn=set_train_eps if args.rl_algo == "dqn" else None,
+        test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
         logger=logger
     )
