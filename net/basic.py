@@ -8,7 +8,7 @@ class BasicNet(nn.Module):
             nn.Linear(np.prod(state_shape), 256), nn.ReLU(inplace=True),
             nn.Linear(256, 128), nn.ReLU(inplace=True),
             nn.Linear(128, 64), nn.ReLU(inplace=True),
-            nn.Linear(64, np.prod(action_shape)), nn.Sigmoid(),
+            nn.Linear(64, np.prod(action_shape)),
         )
 
     def forward(self, obs, state=None, info={}):
@@ -25,7 +25,7 @@ class BasicCriticNet(nn.Module):
             nn.Linear(np.prod(state_shape), 256), nn.ReLU(inplace=True),
             nn.Linear(256, 128), nn.ReLU(inplace=True),
             nn.Linear(128, 64), nn.ReLU(inplace=True),
-            nn.Linear(64, np.prod(action_shape)), nn.Sigmoid(),
+            nn.Linear(64, np.prod(action_shape)),
         )
 
     def forward(self, obs, state=None, info={}):

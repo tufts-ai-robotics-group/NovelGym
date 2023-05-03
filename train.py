@@ -78,9 +78,9 @@ if __name__ == "__main__":
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     if state_shape[0] < 50 and action_shape < 40:
-        net = Net(state_shape, action_shape, hidden_sizes=[128, 64])
+        net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True)
     else:
-        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
     optim = torch.optim.Adam(net.parameters(), lr=1e-4)
     if args.rl_algo == "dqn":
         policy = PolicyModule(
@@ -100,8 +100,7 @@ if __name__ == "__main__":
             **policy_props
         )
     elif args.rl_algo == "ppo":
-        net_c = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-        critic = Critic(net_c, last_size=action_shape)
+        critic = BasicCriticNet(state_shape, 1)
         policy = ts.policy.PPOPolicy(
             actor=net,
             critic=critic,
