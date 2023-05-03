@@ -113,8 +113,8 @@ if __name__ == "__main__":
         net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
         critic1 = Critic(net_c1, last_size=action_shape)
         critic2 = Critic(net_c2, last_size=action_shape)
-        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=1e-3)
-        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=1e-3)
+        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=1e-4)
+        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=1e-4)
         policy = ts.policy.DiscreteSACPolicy(
             actor=net,
             critic1=critic1,
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         policy, train_collector, test_collector,
         max_epoch=1000, step_per_epoch=1200, step_per_collect=12,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
-        repeat_per_collect=4,
+        repeat_per_collect=1,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
