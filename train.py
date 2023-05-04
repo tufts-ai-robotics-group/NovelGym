@@ -29,11 +29,19 @@ def set_train_eps(epoch, env_step):
     else:
         return max_eps - (max_eps - min_eps) / 10 * epoch
 
-# def generate_stop_fn(mean_reward):
-#     result_hist = [0] * 10
-#     sum_result = 0
-#     def stop_fn(mean_reward):
-#         result_hist.append(mean_reward)
+def generate_stop_fn(length, threshold):
+    result_hist = [0] * length
+    result_index = 0
+    sum_result = 0
+    def stop_fn(mean_reward):
+        nonlocal sum_result
+        nonlocal result_index
+        sum_result -= result_hist[result_index]
+        result_hist[result_index] = mean_reward
+        result_index = (result_index + 1) % len(result_hist)
+        sum_result += mean_reward
+        return sum_result / len(result_hist) >= threshold
+    return stop_fn
 
 def save_checkpoint_fn(epoch, env_step, gradient_step):
     # see also: https://pytorch.org/tutorials/beginner/saving_loading_models.html
@@ -65,7 +73,7 @@ if __name__ == "__main__":
     # object list
     kb_tmp = KnowledgeBase(config=config_file_paths)
     all_objects = kb_tmp.get_all_objects()
-    hinted_objects = get_hinted_items(all_objects, HINTS[novelty_name], True)
+    hinted_objects = get_hinted_items(all_objects, HINTS.get(novelty_name) or "", True)
 
     # action list
     all_actions = get_all_actions(config_file_paths)
@@ -83,7 +91,7 @@ if __name__ == "__main__":
         show_action_log=False,
         RepGenerator=RepGenerator,
         rep_gen_args={
-            "hints": HINTS[novelty_name],
+            "hints": HINTS.get(novelty_name) or "",
             "hinted_objects": hinted_objects,
             "novel_objects": [], # TODO
             **rep_gen_args
@@ -92,6 +100,7 @@ if __name__ == "__main__":
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
     if seed is not None:
+        torch.manual_seed(seed)
         venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
@@ -180,7 +189,7 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, exploration_noise=True)
+    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
     result = ts.trainer.onpolicy_trainer(
@@ -190,7 +199,7 @@ if __name__ == "__main__":
         repeat_per_collect=1,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
-        stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
+        stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
         logger=logger
     )
     
