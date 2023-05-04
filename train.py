@@ -159,6 +159,7 @@ if __name__ == "__main__":
         )
 
     print("----------- metadata -----------")
+    print("using", args.num_threads, "threads")
     print("Novelty:", novelty_name)
     print("Algorithm:", args.rl_algo)
     print("Observation type:", args.obs_type)
