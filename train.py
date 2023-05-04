@@ -200,7 +200,8 @@ if __name__ == "__main__":
         repeat_per_collect=1,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
-        stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
+        # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
+        stop_fn=lambda mean_rewards: False,
         logger=logger
     )
     
