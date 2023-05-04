@@ -79,17 +79,17 @@ class KnowledgeBase:
                 if obj_type not in self.default_obj_types and obj_type not in self.additional_items:
                     self.additional_items[obj_type] = "physobj"
         
-        # check if there are new objects in the world, which are placable.
+        # check if there are new objects in the world, which are placeable.
         for idx, objs in state._objects.items():
             if len(objs) == 0:
                 continue
             obj_type = objs[0].type
             if obj_type not in self.default_obj_types and obj_type not in self.additional_items:
-                self.additional_items[obj_type] = "placable"
+                self.additional_items[obj_type] = "placeable"
             elif obj_type in self.additional_items and self.additional_items[obj_type] == "physobj":
                 # if we inferred the object to be a physobj, 
-                # we got more precise information that it is actually a placable object
-                self.additional_items[obj_type] = "placable"
+                # we got more precise information that it is actually a placeable object
+                self.additional_items[obj_type] = "placeable"
 
         return (
             {**self.additional_items, **self.default_obj_types},
@@ -136,9 +136,9 @@ def generate_initial_state(ng2_config, state: PolycraftState, dynamics: Dynamic,
                 objs_world[obj_type] += 1
             else:
                 objs_world[obj_type] = 1
-    # everything placable but not in the world should also be on the list, but with quantity 0.
+    # everything placeable but not in the world should also be on the list, but with quantity 0.
     for obj, type in object_types.items():
-        if (type == "placable" or "breakable" in type) and obj not in objs_world:
+        if (type == "placeable" or "breakable" in type) and obj not in objs_world:
             objs_world[obj] = 0
      
 
