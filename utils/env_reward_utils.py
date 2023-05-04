@@ -376,16 +376,17 @@ class PolycraftRewardGenerator:
         
         target_obj_id = self.item_encoder.get_id(target_obj)
         def check_facing_obj(new_state):
+            # x, y inverted in the coord system
             x_diff, y_diff = facing_to_coord(new_state['facing'], distance)
             x, y = new_state['pos']
             try:
-                if new_state['map'][x_diff + x, y_diff + y] == target_obj_id:
+                if new_state['map'][y_diff + y, x_diff + x] == target_obj_id:
                     return True
                 elif target_obj in self.type_dict:
                     for alternative_name in self.type_dict[target_obj]:
                         # print(alternative_name)
                         alt_id = self.item_encoder.get_id(alternative_name)
-                        if new_state['map'][x_diff + x, y_diff + y] == alt_id:
+                        if new_state['map'][y_diff + y, x_diff + x] == alt_id:
                             return True
                 return False
             except IndexError:
