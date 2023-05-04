@@ -10,6 +10,8 @@ from net.basic_small import BasicNetSmall
 from tianshou.utils.net.common import Net
 from tianshou.utils.net.discrete import Actor, Critic
 import torch
+import numpy as np
+import pickle
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
@@ -27,8 +29,32 @@ def set_train_eps(epoch, env_step):
     else:
         return max_eps - (max_eps - min_eps) / 10 * epoch
 
+# def generate_stop_fn(mean_reward):
+#     result_hist = [0] * 10
+#     sum_result = 0
+#     def stop_fn(mean_reward):
+#         result_hist.append(mean_reward)
+
+def save_checkpoint_fn(epoch, env_step, gradient_step):
+    # see also: https://pytorch.org/tutorials/beginner/saving_loading_models.html
+    ckpt_path = os.path.join(log_path, "checkpoint.pth")
+    # Example: saving by epoch num
+    # ckpt_path = os.path.join(log_path, f"checkpoint_{epoch}.pth")
+    torch.save(
+        {
+            "model": policy.state_dict(),
+            "optim": optim.state_dict(),
+        }, ckpt_path
+    )
+    buffer_path = os.path.join(log_path, "train_buffer.pkl")
+    pickle.dump(train_collector.buffer, open(buffer_path, "wb"))
+    return ckpt_path
+
+
 if __name__ == "__main__":
     seed = args.seed
+    if seed == None:
+        seed = np.random.randint(0, 10000000)
 
     # novelty
     novelty_name = args.novelty
@@ -146,19 +172,20 @@ if __name__ == "__main__":
         exp_name or "default_exp",
         args.novelty,
         args.obs_type,
-        args.rl_algo
+        args.rl_algo,
+        str(seed)
     )
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
+    train_collector = ts.data.Collector(policy, venv, exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=1000, step_per_epoch=1200, step_per_collect=12,
+        max_epoch=300, step_per_epoch=1200, step_per_collect=1200,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
         repeat_per_collect=1,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
@@ -166,5 +193,6 @@ if __name__ == "__main__":
         stop_fn=lambda mean_rewards: mean_rewards >= venv.spec[0].reward_threshold,
         logger=logger
     )
+    
     print(f'Finished training! Use {result["duration"]}')
 
