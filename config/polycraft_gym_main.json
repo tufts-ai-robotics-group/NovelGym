@@ -103,6 +103,8 @@
         "deselect_item",
         "craft_*",
         "trade_*",
+        "move_*",
+        "rotate_*",
         "place",
         "nop",
         "give_up"
