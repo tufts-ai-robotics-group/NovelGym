@@ -1,6 +1,6 @@
 from gym_novel_gridworlds2.contrib.polycraft.objects import PolycraftObject
 
-RADIUS = 2
+RADIUS = 1
 TARGET_OBJS = ["*"]
 
 class ClearRadiusPolycraftObject(PolycraftObject):
