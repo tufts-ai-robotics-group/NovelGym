@@ -87,7 +87,8 @@ class SAPolycraftRL(gym.Wrapper):
         while agent != self.agent_name or not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
             if len(self.env.dones) == 0:
                 # episode is done, restart a new episode.
-                print("------Episode is complete without RL.------")
+                if self.env.enable_render:
+                    print("------Episode is complete without RL.------")
                 return False
             if agent not in self.env.dones or self.env.dones[agent]:
                 # skips the process if agent is done.
