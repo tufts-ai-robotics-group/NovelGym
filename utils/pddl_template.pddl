@@ -139,6 +139,20 @@
     )
 )
 
+(:action place_sapling
+    :parameters (?sapling - sapling ?log - log)
+    :precondition (and
+        (facing_obj air one)
+        (holding ?sapling)
+    )
+    :effect (and
+        (facing_obj ?log one)
+        (not (facing_obj air one))
+        (increase ( world ?log) 1)
+        (decrease ( inventory ?log) 1)
+    )
+)
+
 (:action place
     :parameters   (?physobj01 - placeable)
     :precondition (and
