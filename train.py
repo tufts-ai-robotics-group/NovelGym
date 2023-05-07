@@ -21,6 +21,19 @@ from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_h
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 
 
+seed = args.seed
+if seed == None:
+    seed = np.random.randint(0, 10000000)
+exp_name = args.exp_name
+log_path = os.path.join(
+    args.logdir, 
+    exp_name or "default_exp",
+    args.novelty,
+    args.obs_type,
+    args.rl_algo,
+    str(seed)
+)
+
 def set_train_eps(epoch, env_step):
     max_eps = 0.2
     min_eps = 0.05
@@ -29,7 +42,14 @@ def set_train_eps(epoch, env_step):
     else:
         return max_eps - (max_eps - min_eps) / 10 * epoch
 
+def save_best_fn(policy):
+    torch.save(policy.state_dict(), os.path.join(log_path, "best_policy.pth"))
+
 def generate_stop_fn(length, threshold):
+    """
+    Generates a stop function that takes a running mean of the last `length` 
+    rewards and returns True if the mean is better than `threshold`.
+    """
     result_hist = [0] * length
     result_index = 0
     sum_result = 0
@@ -54,16 +74,10 @@ def save_checkpoint_fn(epoch, env_step, gradient_step):
             "optim": optim.state_dict(),
         }, ckpt_path
     )
-    buffer_path = os.path.join(log_path, "train_buffer.pkl")
-    pickle.dump(train_collector.buffer, open(buffer_path, "wb"))
     return ckpt_path
 
 
 if __name__ == "__main__":
-    seed = args.seed
-    if seed == None:
-        seed = np.random.randint(0, 10000000)
-
     # novelty
     novelty_name = args.novelty
     novelty_path = NOVELTIES[novelty_name]
@@ -99,9 +113,6 @@ if __name__ == "__main__":
     ) for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
-    if seed is not None:
-        torch.manual_seed(seed)
-        venv.seed(seed=[seed + i * 112 for i in range(args.num_threads)])
 
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
@@ -177,15 +188,6 @@ if __name__ == "__main__":
         exit(0)
 
     # logging
-    exp_name = args.exp_name
-    log_path = os.path.join(
-        args.logdir, 
-        exp_name or "default_exp",
-        args.novelty,
-        args.obs_type,
-        args.rl_algo,
-        str(seed)
-    )
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
     logger = CustomTensorBoardLogger(writer)
@@ -203,6 +205,8 @@ if __name__ == "__main__":
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
         stop_fn=lambda mean_rewards: False,
+        save_best_fn=save_best_fn,
+        # save_checkpoint_fn=save_checkpoint_fn,
         logger=logger
     )
     
