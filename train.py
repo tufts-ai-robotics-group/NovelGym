@@ -34,6 +34,58 @@ log_path = os.path.join(
     str(seed)
 )
 
+def create_policy(rl_algo, state_shape, action_shape, novel_actions=[]):
+    PolicyModule = POLICIES[rl_algo]
+    policy_props = POLICY_PROPS.get(rl_algo) or {}
+
+    if state_shape[0] < 50 and action_shape < 40:
+        net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True)
+    else:
+        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
+    optim = torch.optim.Adam(net.parameters(), lr=1e-4)
+    if rl_algo == "dqn":
+        policy = PolicyModule(
+            model=net, 
+            optim=optim, 
+            discount_factor=0.99, 
+            estimation_step=3,
+        )
+    elif rl_algo == "novel_boost":
+        policy = PolicyModule(
+            model=net, 
+            optim=optim, 
+            discount_factor=0.99, 
+            estimation_step=3, 
+            novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
+            num_actions=action_shape,
+            **policy_props
+        )
+    elif rl_algo == "ppo":
+        critic = BasicCriticNet(state_shape, 1)
+        policy = ts.policy.PPOPolicy(
+            actor=net,
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical,
+        )
+    elif rl_algo == "dsac":
+        net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+        critic1 = Critic(net_c1, last_size=action_shape)
+        critic2 = Critic(net_c2, last_size=action_shape)
+        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=1e-4)
+        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=1e-4)
+        policy = ts.policy.DiscreteSACPolicy(
+            actor=net,
+            critic1=critic1,
+            critic2=critic2,
+            actor_optim=optim,
+            critic1_optim=critic1_optim,
+            critic2_optim=critic2_optim,
+        )
+    return policy
+
+
 def set_train_eps(epoch, env_step):
     max_eps = 0.2
     min_eps = 0.05
@@ -71,7 +123,7 @@ def save_checkpoint_fn(epoch, env_step, gradient_step):
     torch.save(
         {
             "model": policy.state_dict(),
-            "optim": optim.state_dict(),
+            "optim": policy.optim.state_dict(),
         }, ckpt_path
     )
     return ckpt_path
@@ -117,57 +169,11 @@ if __name__ == "__main__":
     hints = str(HINTS.get(args.novelty))
     novel_actions = (NOVEL_ACTIONS.get(args.novelty) or []) + get_hinted_actions(all_actions, hints, True)
 
-    PolicyModule = POLICIES[args.rl_algo]
-    policy_props = POLICY_PROPS.get(args.rl_algo) or {}
-
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
-    if state_shape[0] < 50 and action_shape < 40:
-        net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True)
-    else:
-        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
-    optim = torch.optim.Adam(net.parameters(), lr=1e-4)
-    if args.rl_algo == "dqn":
-        policy = PolicyModule(
-            model=net, 
-            optim=optim, 
-            discount_factor=0.99, 
-            estimation_step=3,
-        )
-    elif args.rl_algo == "novel_boost":
-        policy = PolicyModule(
-            model=net, 
-            optim=optim, 
-            discount_factor=0.99, 
-            estimation_step=3, 
-            novel_action_indices=get_novel_action_indices(all_actions, novel_actions),
-            num_actions=action_shape,
-            **policy_props
-        )
-    elif args.rl_algo == "ppo":
-        critic = BasicCriticNet(state_shape, 1)
-        policy = ts.policy.PPOPolicy(
-            actor=net,
-            critic=critic,
-            optim=optim,
-            dist_fn=torch.distributions.Categorical,
-        )
-    elif args.rl_algo == "dsac":
-        net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-        net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-        critic1 = Critic(net_c1, last_size=action_shape)
-        critic2 = Critic(net_c2, last_size=action_shape)
-        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=1e-4)
-        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=1e-4)
-        policy = ts.policy.DiscreteSACPolicy(
-            actor=net,
-            critic1=critic1,
-            critic2=critic2,
-            actor_optim=optim,
-            critic1_optim=critic1_optim,
-            critic2_optim=critic2_optim,
-        )
+    
+    policy = create_policy(args.rl_algo, state_shape, action_shape, novel_actions)
 
     print("----------- metadata -----------")
     print("using", args.num_threads, "threads")
@@ -181,7 +187,6 @@ if __name__ == "__main__":
     print("Hinted Objects: ", hinted_objects)
     print("State space: ", state_shape)
     print("Action space: ", action_shape)
-    print("Network:", net.__class__.__name__)
     print("--------------------------------")
     print()
     if args.metadata:
