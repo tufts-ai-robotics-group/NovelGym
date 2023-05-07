@@ -1,6 +1,4 @@
-
-import os
-import argparse
+import numpy as np
 from envs.polycraft_simplified import SAPolycraftRL
 import tianshou as ts
 import gymnasium as gym
@@ -9,12 +7,21 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 from obs_convertion import LidarAll, OnlyFacingObs
-
 from args import parser, NOVELTIES
 
-args = parser.parse_args()
-verbose = True
+from policy_utils import create_policy
+from utils.pddl_utils import get_all_actions
 
+parser.add_argument(
+    "--model_path", '-m',
+    type=str,
+    help="The path of the saved model to check.",
+)
+
+args = parser.parse_args()
+
+
+verbose = True
 
 # novelty
 novelty_name = args.novelty
@@ -32,6 +39,12 @@ env = SAPolycraftRL(
     enable_render=True,
 )
 env.reset(seed=seed)
+# get create policy
+all_actions = get_all_actions(config_file_paths)
+state_shape = env.observation_space.shape or env.observation_space.n
+action_shape = env.action_space.shape or env.action_space.n
+policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions)
+policy.load_state_dict(torch.load(args.model_path))
 
 for episode in range(1000):
     obs, info = env.reset()
@@ -40,19 +53,12 @@ for episode in range(1000):
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
 
     agent = env.env.agent_manager.agents["agent_0"]
-    policy = agent.agent.policy
 
     for step in range(1000):
-        print(obs)
-        print("actions: ", "; ".join([
-            f"{i}: {action}" 
-            for i, (action, _) in 
-                enumerate(agent.action_set.actions)
-            ])
-        )
-        # action = policy(obs)
-        # action = env.action_space.sample()
-        action = int(input("action: "))
+        action = policy(ts.data.Batch(obs=np.array([obs]), info=info)).act
+        action = policy.map_action(action)
+        print("action: ", agent.action_set.actions[action][0])
+        input("Press Enter to continue...")
         obs, reward, terminated, truncated, info = env.step(action)
         print("reward: ", reward)
         

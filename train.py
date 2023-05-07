@@ -11,11 +11,13 @@ import pickle
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
-from args import args, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
+from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
 from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
 
+
+args = parser.parse_args()
 seed = args.seed
 if seed == None:
     seed = np.random.randint(0, 10000000)

@@ -69,7 +69,4 @@ parser.add_argument(
     default=None
 )
 
-
 verbose = False
-
-args = parser.parse_args()
