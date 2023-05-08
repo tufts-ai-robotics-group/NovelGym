@@ -3,7 +3,7 @@ from gym_novel_gridworlds2.contrib.polycraft.objects import EntityTrader
 class EntityTraderMultInteract(EntityTrader):
     entity_type = "EntityTrader"
 
-    def __init__(self, interact_count_period=1, *args, **kwargs):
+    def __init__(self, interact_count_period=2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.interact_count = 0
         self.interact_count_period = interact_count_period
