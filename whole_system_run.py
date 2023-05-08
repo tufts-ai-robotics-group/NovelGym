@@ -15,11 +15,6 @@ from policy_utils import create_policy
 from utils.pddl_utils import get_all_actions
 
 parser.add_argument(
-    "--model_path", '-m',
-    type=str,
-    help="The path of the saved model to check.",
-)
-parser.add_argument(
     "--num_episodes",
     type=int,
     default=100,
@@ -27,8 +22,8 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-seed = args.seed or np.random.randint(0, 1000)
-SEEDS = [seed + i for i in range(10)]
+model_seed = args.seed or np.random.randint(0, 1000)
+SEEDS = [model_seed + i for i in range(10)]
 num_episodes = args.num_episodes
 
 verbose = False
@@ -43,13 +38,26 @@ def log_info(seed_no, success_rate):
     with open(result_file, "a") as f:
         f.write(f"{seed_no},{success_rate}\n")
 
+
+def find_model_paths(novelty_name, exp_name, rl_algo, obs_type, result_folder="results"):
+    files = {}
+    result_folder = os.path.join(result_folder, exp_name, novelty_name, obs_type, rl_algo)
+    for directory in os.listdir(result_folder):
+        if not os.path.isdir(os.path.join(result_folder, directory)):
+            continue
+        for file in os.listdir(os.path.join(result_folder, directory)):
+            if file.endswith(".pth"):
+                files[directory] = os.path.join(result_folder, directory, file)
+    return files
+
+
 # novelty
 novelty_name = args.novelty
 novelty_path = NOVELTIES[novelty_name]
 config_file_paths = ["config/polycraft_gym_rl_single.json"]
 config_file_paths.append(novelty_path)
 
-seed = args.seed
+env_seed = args.seed
 
 
 if __name__ == "__main__":
@@ -70,13 +78,20 @@ if __name__ == "__main__":
     all_actions = get_all_actions(config_file_paths)
     state_shape = env.observation_space.shape or env.observation_space.n
     action_shape = env.action_space.shape or env.action_space.n
-    policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions)
-    policy.load_state_dict(torch.load(args.model_path))
 
-    for seed in tqdm(SEEDS):
+    model_paths = find_model_paths(novelty_name, exp_name, args.rl_algo, args.obs_type)
+    print("Found Files:", model_paths)
+    for model_seed, model_path in tqdm(model_paths.items(), leave=False):
+        policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions)
+        try:
+            policy.load_state_dict(torch.load(model_path))
+        except:
+            print("Failed to load model from", model_path)
+            continue
+        
         success_count = 0
-        env.reset(seed=seed)
-        for episode in tqdm(range(num_episodes)):
+        env.reset(seed=env_seed)
+        for episode in tqdm(range(num_episodes), leave=False):
             obs, info = env.reset()
 
             agent = env.env.agent_manager.agents["agent_0"]
@@ -96,7 +111,7 @@ if __name__ == "__main__":
             # print("Episode", episode, ": success" if success else ": fail")
 
         print()
-        print("Seed: ", seed)
+        print("Model Seed: ", model_seed)
         print("Success Rate:", success_count / num_episodes)
-        log_info(seed, success_count / num_episodes)
+        log_info(model_seed, success_count / num_episodes)
 
