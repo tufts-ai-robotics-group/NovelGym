@@ -88,9 +88,8 @@ class SAPolycraftRL(gym.Wrapper):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
         while agent != self.agent_name or \
-              not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False) and not self.env.dones[agent]:
-            
-            if len(self.env.dones) == 0:
+              not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
+            if len(self.env.dones) == 0 or (agent == self.agent_name and self.env.dones[agent]):
                 # episode is done, restart a new episode.
                 if self.env.enable_render:
                     print("------Episode is complete without RL.------")
