@@ -26,6 +26,7 @@ class SAPolycraftRL(gym.Wrapper):
             RepGenerator=LidarAll,
             rep_gen_args={},
             enable_render=False,
+            skip_epi_when_rl_done=True,
             seed=None
         ):
         config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
@@ -59,6 +60,8 @@ class SAPolycraftRL(gym.Wrapper):
         self._action_space = None
         self._observation_space = None
 
+        self._skip_epi_when_rl_done = skip_epi_when_rl_done
+
     
     @property
     def observation_space(self):
@@ -84,14 +87,16 @@ class SAPolycraftRL(gym.Wrapper):
     def _fast_forward(self):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
-        while agent != self.agent_name or not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
+        while agent != self.agent_name or \
+              not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False) and not self.env.dones[agent]:
+            
             if len(self.env.dones) == 0:
                 # episode is done, restart a new episode.
                 if self.env.enable_render:
                     print("------Episode is complete without RL.------")
                 return False
             if agent not in self.env.dones or self.env.dones[agent]:
-                # skips the process if agent is done.
+                # skips the process if agent is not the main agent and is done.
                 self.env.step(0, {})
             else:
                 obs, reward, done, info = self.env.last()
@@ -225,7 +230,14 @@ class SAPolycraftRL(gym.Wrapper):
 
         # generate the observation
         obs = self._gen_obs()
-        return obs, reward, env_done or plannable_done, truncated, info
+
+        # if we want to skip the rest of the symbolic learning when RL reaches
+        # the goal to speed up training, we set done to be true when RL is done
+        if self._skip_epi_when_rl_done:
+            done = env_done or plannable_done
+        else:
+            done = env_done
+        return obs, reward, done, truncated, info
 
     def seed(self, seed=None):
         self.env.reset(seed=seed)

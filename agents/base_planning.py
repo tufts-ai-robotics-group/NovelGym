@@ -81,6 +81,7 @@ class BasePlanningAgent(Agent):
                 print("Found Plan:")
                 for item in plan:
                     print("    ", item)
+            self.stuck = False
             return True
         else:
             if self.verbose:

@@ -54,7 +54,7 @@ parser.add_argument(
     type=str,
     help="The algorithm for RL.",
     required=False,
-    default="dqn",
+    default="ppo",
     choices=POLICIES.keys()
 )
 parser.add_argument(
