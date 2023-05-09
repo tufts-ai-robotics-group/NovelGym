@@ -111,7 +111,6 @@ class SAPolycraftRL(gym.Wrapper):
 
                 self.env.step(action, extra_params)
             agent = self.env.agent_selection
-        
         return True
 
 
@@ -220,12 +219,24 @@ class SAPolycraftRL(gym.Wrapper):
 
         # run another step of other agents using the stored policy 
         # until the agent in interest is reached again.
-        self._fast_forward()
+        while True:
+            needs_rl = self._fast_forward()
 
-        obs, reward, env_done, info = self.env.last()
+            obs, reward, env_done, info = self.env.last()
 
-        # check if effects met and give the rewards
-        plannable_done, truncated, reward = self._gen_reward()
+            # check if effects met and give the rewards
+            plannable_done, truncated, reward = self._gen_reward()
+
+            if not needs_rl:
+                # if the episode is done, we break the loop
+                break
+            elif self._skip_epi_when_rl_done:
+                # skip whole episode if RL gets us back to the normal state
+                # used in training
+                break
+            elif not plannable_done:
+                # if not plannable done, we continue the learning
+                break
 
         # generate the observation
         obs = self._gen_obs()
@@ -252,6 +263,7 @@ class SAPolycraftRL(gym.Wrapper):
             main_agent.verbose = True
 
 
+        skipped_epi_count = 0
         while not needs_rl:
             self.episode += 1
             self.env.reset(seed=seed, options={"episode": self.episode})
@@ -262,6 +274,8 @@ class SAPolycraftRL(gym.Wrapper):
             self._agent_iter = self.env.agent_iter()
 
             needs_rl = self._fast_forward()
+            if not needs_rl:
+                skipped_epi_count += 1
         obs, reward, done, info = self.env.last()
         # info = {
         #     "pddl_domain": getattr(self, "pddl_domain", ""),
@@ -275,5 +289,5 @@ class SAPolycraftRL(gym.Wrapper):
 
         # get the observation
         obs = self._gen_obs()
-        return obs, {}
+        return obs, {"skipped_epi_count": skipped_epi_count}
 

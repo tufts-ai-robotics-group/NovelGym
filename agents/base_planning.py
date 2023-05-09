@@ -120,7 +120,7 @@ class BasePlanningAgent(Agent):
             try:
                 return self.action_set.action_index[action[0]]
             except KeyError as e:
-                print("PDDL plan:", self.pddl_plan)
-                raise e
+                print("Warning: action not found in action set: ", action[0], ". Will do nop.")
+                return self.action_set.action_index["nop"]
 
         return self.action_set.action_index["nop"]
