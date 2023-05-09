@@ -117,6 +117,10 @@ class BasePlanningAgent(Agent):
         if len(self.action_buffer) > 0:
             action = self.action_buffer.pop()
             self.last_action = action
-            return self.action_set.action_index[action[0]]
+            try:
+                return self.action_set.action_index[action[0]]
+            except KeyError as e:
+                print("PDDL plan:", self.pddl_plan)
+                raise e
 
         return self.action_set.action_index["nop"]
