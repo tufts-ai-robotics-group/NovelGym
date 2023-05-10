@@ -247,7 +247,7 @@ class SAPolycraftRL(gym.Wrapper):
             done = env_done or plannable_done
         else:
             done = env_done
-        return obs, reward, done, truncated, info
+        return obs, reward, done, truncated, {"skipped_epi_count": 0}
 
     def seed(self, seed=None):
         self.env.reset(seed=seed)
