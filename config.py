@@ -19,7 +19,7 @@ OBS_GEN_ARGS = {
 }
 
 NOVELTIES = {
-    "mi": "novelties/evaluation1/multi_interact/multi_interact.json",
+    "mi_h": "novelties/evaluation1/multi_interact/multi_interact.json",
     "mi_cantplan": "novelties/evaluation1/multi_interact/multi_interact_cant_plan.json",
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.json",
     "axe": "novelties/evaluation1/axe_to_break/axe_to_break.json",
@@ -30,7 +30,7 @@ NOVELTIES = {
 }
 
 HINTS = {
-    "mi": "The trader will reward you for interacting with him.",
+    "mi_h": "The trader will reward you for interacting with him.",
     "mi_cantplan": "The trader will reward you for interacting with him.",
     "kibt": str([
         "Sorry, you need a key to trade with me.",
@@ -43,7 +43,7 @@ HINTS = {
 }
 
 NOVEL_ACTIONS = {
-    "mi": [],
+    "mi_h": [],
     "mi_cantplan": [],
     "kibt": ["approach_plastic_chest", "collect"],
     "axe": [],

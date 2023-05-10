@@ -12,5 +12,5 @@ class EntityTraderMultInteract(EntityTrader):
         # interact, break, use, etc
         if action_name == "interact":
             if (self.interact_count - 1) % self.interact_count_period == 0:
-                agent.add_to_inventory("oak_log", 18)
+                agent.add_to_inventory("oak_log", 2)
             self.interact_count += 1
