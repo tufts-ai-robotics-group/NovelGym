@@ -24,7 +24,7 @@ NOVELTIES = {
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.json",
     "axe": "novelties/evaluation1/axe_to_break/axe_to_break.json",
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.json",
-    "space_ar_hard": "novelties/evaluation1/space_around/space_around_hard.json",
+    "space_ar_hard": "novelties/evaluation1/space_around/space_around_hard_high_radius.json",
     "space_ar": "novelties/evaluation1/space_around/space_around.json",
     "fence": "novelties/evaluation1/fence/fence_easy.json",
 }
