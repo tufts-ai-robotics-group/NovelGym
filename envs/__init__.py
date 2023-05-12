@@ -1,5 +1,5 @@
 from gymnasium.envs.registration import register
-from .polycraft_simplified import SAPolycraftRL
+from .planning_until_failure import SAPolycraftRL
 from .diarc_env import DiarcRapidLearn
 
 register(

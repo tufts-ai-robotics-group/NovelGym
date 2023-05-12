@@ -16,6 +16,11 @@ REWARDS = {
 
 
 class SAPolycraftRL(gym.Wrapper):
+    """
+    An environment where given the pddl domains,
+    it will execute the plan until an action failed, or until it's unable to plan.
+    then the environment steps will start.
+    """
     metadata = {"render_modes": ["human"]}
     def __init__(
             self, 

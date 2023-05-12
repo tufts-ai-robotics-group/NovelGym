@@ -1,5 +1,5 @@
 import numpy as np
-from envs.polycraft_simplified import SAPolycraftRL
+from envs.planning_until_failure import SAPolycraftRL
 import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
