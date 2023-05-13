@@ -1,7 +1,7 @@
 
 import os
 import argparse
-from envs.planning_until_failure import SAPolycraftRL
+from envs.planning_until_failure import PlanningUntilFailureEnv
 import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
@@ -24,7 +24,7 @@ config_file_paths.append(novelty_path)
 
 seed = args.seed
 
-env = SAPolycraftRL(
+env = PlanningUntilFailureEnv(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",

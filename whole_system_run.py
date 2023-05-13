@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from envs.planning_until_failure import SAPolycraftRL
+from envs.planning_until_failure import PlanningUntilFailureEnv
 import tianshou as ts
 from tqdm import tqdm
 import gymnasium as gym
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     if not os.path.exists(result_file):
         with open(result_file, "w") as f:
             f.write("seed_no,success_rate\n")
-    env = SAPolycraftRL(
+    env = PlanningUntilFailureEnv(
         config_file_paths=config_file_paths,
         agent_name="agent_0",
         task_name="main",

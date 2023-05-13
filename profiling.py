@@ -1,7 +1,7 @@
 
 import os
 import argparse
-from envs.planning_until_failure import SAPolycraftRL
+from envs.planning_until_failure import SingleAgentEnv
 import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
@@ -25,7 +25,7 @@ config_file_paths = ["config/polycraft_gym_rl_single.json"]
 config_file_paths.append(novelty_path)
 
 
-env = SAPolycraftRL(
+env = SingleAgentEnv(
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",

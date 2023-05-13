@@ -3,7 +3,7 @@ import os
 import tianshou as ts
 import gymnasium as gym
 
-from envs.planning_until_failure import SAPolycraftRL
+from envs.planning_until_failure import SingleAgentEnv
 
 import torch
 import numpy as np
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     # env
     envs = [lambda: gym.make(
-        "NG2-PolycraftMultiInteract-v0",
+        "Gym-PlanningUntilFail-v0",
         config_file_paths=config_file_paths,
         agent_name="agent_0",
         task_name="main",
