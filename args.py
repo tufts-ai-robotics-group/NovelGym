@@ -1,6 +1,6 @@
 import argparse
 
-from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
+from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS, AVAILABLE_ENVS
 
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
@@ -67,6 +67,12 @@ parser.add_argument(
     '--exp_name',
     help="The name of the experiment, used to save results.",
     default=None
+)
+parser.add_argument(
+    '--env',
+    help="The type of environment.",
+    default="pf",
+    choices=AVAILABLE_ENVS.keys()
 )
 
 verbose = False

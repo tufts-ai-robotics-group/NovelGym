@@ -11,7 +11,7 @@ import pickle
 from torch.utils.tensorboard import SummaryWriter
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
-from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS
+from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS, AVAILABLE_ENVS
 from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
@@ -94,8 +94,9 @@ if __name__ == "__main__":
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
     # env
+    env_name = AVAILABLE_ENVS[args.env]
     envs = [lambda: gym.make(
-        "Gym-PlanningUntilFail-v0",
+        env_name,
         config_file_paths=config_file_paths,
         agent_name="agent_0",
         task_name="main",

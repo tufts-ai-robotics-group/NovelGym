@@ -170,52 +170,16 @@ class SingleAgentEnv(gym.Wrapper):
         return self.rep_gen.generate_observation(diarc_json)
 
 
-    def _gen_reward(self) -> Tuple[bool, bool, float]:
-        """
-        done, truncated, reward
-        """
-        # case 1: is done
+    def _gen_reward(self):
         if self.env.internal_state._goal_achieved:
             return True, False, REWARDS["positive"]
         elif self.env.internal_state._given_up:
             return True, False, REWARDS["negative"]
         elif self.env.dones["agent_0"]:
             return False, True, REWARDS["step"]
-        
-        # not done, check if effects met
-        main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
-        failed_action = main_agent.failed_action
-
-        # case 2: unplannable mode, replan straight away
-        if failed_action == "cannotplan":
-            plan_found = main_agent.plan()
-            if plan_found:
-                # case 2.1, plan found. give positive reward and quit
-                return True, False, REWARDS['positive']
-            else:
-                return False, False, REWARDS['step']
-
-
-        # case 3: failed action mode. firstly check if effects met, then replan and assign rewards
-        diarc_json = generate_diarc_json_from_state(
-            player_id=self.player_id,
-            state=self.env.internal_state,
-            dynamic=self.env.dynamic,
-            failed_action=failed_action,
-            success=False,
-        )
-        effects_met = self.rep_gen.check_if_effects_met(diarc_json)
-        # case 3.1: effects not met, return step reward and continue
-        if not (effects_met[0] or effects_met[1]):
-            return False, False, REWARDS['step']
         else:
-            plan_found = main_agent.plan()
-            if plan_found:
-                # case 3.2, effects met, plannable
-                return True, False, REWARDS['positive']
-            else:
-                # case 3.3, effects met, unplannable
-                return True, False, REWARDS['negative']
+            return False, False, REWARDS["step"]
+        
 
     def step(self, action):
         # run the agent in interest

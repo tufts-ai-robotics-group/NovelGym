@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tianshou.utils import TensorboardLogger
 from obs_convertion import LidarAll, OnlyFacingObs
 
-from args import parser, NOVELTIES
+from args import parser, NOVELTIES, AVAILABLE_ENVS
 
 args = parser.parse_args()
 verbose = True
@@ -24,7 +24,9 @@ config_file_paths.append(novelty_path)
 
 seed = args.seed
 
-env = PlanningUntilFailureEnv(
+env_name = AVAILABLE_ENVS[args.env]
+env = gym.make(
+    env_name,
     config_file_paths=config_file_paths,
     agent_name="agent_0",
     task_name="main",

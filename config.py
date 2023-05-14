@@ -65,6 +65,11 @@ POLICY_PROPS = {
     }
 }
 
+AVAILABLE_ENVS = {
+    "sa": "Gym-SingleAgent-v0",
+    "pf": "Gym-PlanningUntilFail-v0"
+}
+
 
 RL_ALGOS = {
     "dqn": ts.policy.DQNPolicy,
