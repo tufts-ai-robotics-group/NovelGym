@@ -57,7 +57,8 @@ POLICIES = {
     "novel_boost": BiasedDQN,
     "ppo": ts.policy.PPOPolicy, 
     "dsac": ts.policy.DiscreteSACPolicy,
-    "crr": ts.policy.DiscreteCRRPolicy
+    "crr": ts.policy.DiscreteCRRPolicy,
+    "gail": ts.policy.GAILPolicy
 }
 
 POLICY_PROPS = {

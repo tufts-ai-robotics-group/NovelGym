@@ -114,7 +114,8 @@ if __name__ == "__main__":
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
     
-    policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions, novel_actions)
+    train_buffer = ts.data.ReplayBuffer.load_hdf5(args.buffer_file)
+    policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions, novel_actions, buffer=train_buffer)
 
     print("----------- metadata -----------")
     print("using", args.num_threads, "threads")
@@ -139,7 +140,6 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_buffer = ts.data.ReplayBuffer.load_hdf5(args.buffer_file)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
     result = ts.trainer.offline_trainer(

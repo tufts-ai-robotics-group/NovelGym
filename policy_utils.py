@@ -10,7 +10,7 @@ from policies import BiasedDQN
 from config import POLICIES, POLICY_PROPS
 
 
-def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions=[]):
+def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions=[], buffer=None):
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
 
@@ -59,11 +59,25 @@ def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions
             critic1_optim=critic1_optim,
             critic2_optim=critic2_optim,
         )
+    ## imitation learning
     elif rl_algo == "crr":
-        critic = BasicCriticNet(state_shape, 1)
+        critic = BasicCriticNet(state_shape, action_shape)
         policy = ts.policy.DiscreteCRRPolicy(
             actor=net,
             critic=critic,
             optim=optim,
+        )
+    elif rl_algo == "gail":
+        critic = BasicCriticNet(state_shape, 1)
+        disc_net = Net(state_shape + action_shape, 1, hidden_sizes=[256, 128, 64])
+        disc_optim = torch.optim.Adam(disc_net.parameters(), lr=1e-4)
+        policy = ts.policy.GAILPolicy(
+            actor=net,
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical,
+            expert_buffer=buffer,
+            disc_net=disc_net,
+            disc_optim=disc_optim
         )
     return policy

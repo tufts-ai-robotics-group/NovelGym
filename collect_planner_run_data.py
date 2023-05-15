@@ -60,9 +60,18 @@ def run_collection(i, progress_q: Queue, result_q: Queue):
         obs, info = env.reset()
         
         for _ in range(MAX_STEPS_PER_EPISODE):
+            obs_prev = obs
             act = agent.policy(obs)
             obs, rew, terminated, truncated, info = env.step(act)
-            buffer.add(Batch(obs=np.array([obs]), act=np.array([act]), rew=rew, terminated=terminated, truncated=truncated, info=info))
+            if act + 2 < env.action_space.n:
+                # filter out nop and giveup
+                buffer.add(Batch(
+                    obs=np.array([obs_prev]), 
+                    obs_next=np.array([obs]),
+                    act=act, rew=rew, 
+                    terminated=terminated, truncated=truncated, 
+                    info=info
+                ))
 
             if terminated or truncated:
                 break
