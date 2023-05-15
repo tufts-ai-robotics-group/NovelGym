@@ -16,6 +16,12 @@ from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_h
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
 
+parser.add_argument(
+    "--buffer_file", 
+    type=str,
+    help="The path of the saved expert buffer to load and pretrain.",
+    required=False
+)
 
 args = parser.parse_args()
 seed = args.seed
@@ -30,6 +36,7 @@ log_path = os.path.join(
     args.rl_algo,
     str(seed)
 )
+
 
 def set_train_eps(epoch, env_step):
     max_eps = 0.2
@@ -59,19 +66,6 @@ def generate_stop_fn(length, threshold):
         sum_result += mean_reward
         return sum_result / len(result_hist) >= threshold
     return stop_fn
-
-def save_checkpoint_fn(epoch, env_step, gradient_step):
-    # see also: https://pytorch.org/tutorials/beginner/saving_loading_models.html
-    ckpt_path = os.path.join(log_path, "checkpoint.pth")
-    # Example: saving by epoch num
-    # ckpt_path = os.path.join(log_path, f"checkpoint_{epoch}.pth")
-    torch.save(
-        {
-            "model": policy.state_dict(),
-            "optim": policy.optim.state_dict(),
-        }, ckpt_path
-    )
-    return ckpt_path
 
 
 if __name__ == "__main__":
@@ -145,11 +139,11 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=args.num_threads), exploration_noise=True)
+    train_buffer = ts.data.ReplayBuffer.load_hdf5(args.buffer_file)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
-    result = ts.trainer.onpolicy_trainer(
-        policy, train_collector, test_collector,
+    result = ts.trainer.offline_trainer(
+        policy, train_buffer, test_collector,
         max_epoch=300, step_per_epoch=1200, step_per_collect=1200,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
         repeat_per_collect=4,

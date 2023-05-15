@@ -12,10 +12,19 @@ from args import parser
 from config import NOVELTIES
 from envs import SingleAgentEnv
 
+parser.add_argument(
+    '--num_episodes',
+    type=int,
+    help="Number of episodes collected.",
+    required=False,
+    default=10000
+)
+
 args = parser.parse_args()
 
+
 num_extra_items = 4
-TOTAL = 100000
+TOTAL = args.num_episodes
 MAX_STEPS_PER_EPISODE = 1000
 EXPECTED_STEPS_PER_EPI = 50
 
