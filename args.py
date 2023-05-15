@@ -66,7 +66,7 @@ parser.add_argument(
 parser.add_argument(
     '--exp_name',
     help="The name of the experiment, used to save results.",
-    default=None
+    default="default_exp"
 )
 parser.add_argument(
     '--env',
