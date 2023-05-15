@@ -1,5 +1,5 @@
 from utils.item_encoder import SimpleItemEncoder
-from utils.env_reward_utils import PolycraftRewardGenerator, parse_failed_action_statement
+from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, parse_failed_action_statement
 from utils.pddl_utils import generate_obj_types, get_entities
 
 import json

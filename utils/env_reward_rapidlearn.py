@@ -80,7 +80,7 @@ def parse_failed_action_statement(statement: str):
     return re.findall(r'[^\s(),]+', statement)
 
 
-class PolycraftRewardGenerator:
+class RapidLearnRewardGenerator:
     # known bug: please don't reuse item_encoder among different Env / task!!!
     def __init__(self, pddl_domain, initial_state, failed_action_exp, item_encoder, plan=None, RL_test=False):
         # compatibility layer for RL vs DIARC

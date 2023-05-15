@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from gymnasium import spaces
 
-from utils.env_reward_utils import PolycraftRewardGenerator, scan_tokens
+from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, scan_tokens
 from utils.env_condition_set import ConditionSet
 from utils.item_encoder import SimpleItemEncoder
 from .base import ObservationGenerator
@@ -49,15 +49,18 @@ class LidarAll(ObservationGenerator):
         self.observation_space = spaces.Box(low, high, dtype=int)
 
         # reward generator
-        self.reward_generator = PolycraftRewardGenerator(
-            pddl_domain=json_input['domain'],  # un-escape pddl string
-            initial_state=self.get_state_for_evaluation(json_input['state']),
-            failed_action_exp=json_input['state']['action'],
-            item_encoder=self.item_encoder,
-            plan=json_input.get('plan'),
-            RL_test=RL_test
-        )
-        self.failed_action = json_input['state']['action'][1:-1].replace(" ", "_")
+        if 'domain' not in json_input:
+            self.reward_generator = None
+        else:
+            self.reward_generator = RapidLearnRewardGenerator(
+                pddl_domain=json_input['domain'],  # un-escape pddl string
+                initial_state=self.get_state_for_evaluation(json_input['state']),
+                failed_action_exp=json_input['state']['action'],
+                item_encoder=self.item_encoder,
+                plan=json_input.get('plan'),
+                RL_test=RL_test
+            )
+            self.failed_action = json_input['state']['action'][1:-1].replace(" ", "_")
         self.novel_action_set = json_input['novelActions']
         self.action_set = json_input.get('actionSet') or list(self.reward_generator.actions.keys())
         # print("actions: ", self.action_set)

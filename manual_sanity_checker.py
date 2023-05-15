@@ -39,7 +39,7 @@ env = gym.make(
     task_name="main",
     show_action_log=True,
     enable_render=True,
-    skip_epi_when_rl_done=False
+    skip_epi_when_rl_done=False,
 )
 env.reset(seed=seed)
 # get create policy

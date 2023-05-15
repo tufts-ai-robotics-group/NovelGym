@@ -1,5 +1,5 @@
 from utils.item_encoder import SimpleItemEncoder
-from utils.env_reward_utils import PolycraftRewardGenerator, parse_failed_action_statement
+from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, parse_failed_action_statement
 import json
 from obs_convertion import LidarAll
 import numpy as np
@@ -30,7 +30,7 @@ def test1():
     state = env.get_state_for_evaluation(data['state'])
     pos = state['pos']
 
-    a = PolycraftRewardGenerator(
+    a = RapidLearnRewardGenerator(
         pddl_domain=data['domain'].encode().decode('unicode_escape'), 
         initial_state=state,
         failed_action_exp="(break oak_log)",

@@ -141,8 +141,6 @@ class SingleAgentEnv(gym.Wrapper):
         
         json_input = {
             "state": diarc_json,
-            "domain": main_agent.pddl_domain,
-            "plan": main_agent.pddl_plan,
             "novelActions": [],
             "actionSet": [action[0] for action in action_set.actions if action not in ["nop", "give_up"]],
         }

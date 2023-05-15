@@ -51,6 +51,42 @@ class PlanningUntilFailureEnv(SingleAgentEnv):
                 self.env.step(action, extra_params)
             agent = self.env.agent_selection
         return True
+
+    def _init_obs_gen(self):
+        """
+        Initialize the observation generator.
+        """
+        main_agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
+        if self.show_action_log:
+            main_agent.verbose = True
+        failed_action = main_agent.failed_action
+        action_set = self.env.agent_manager.agents['agent_0'].action_set
+
+        if type(failed_action) == tuple:
+            failed_action = "(" + " ".join(failed_action[1]) + ")"
+        
+        diarc_json = generate_diarc_json_from_state(
+            player_id=self.player_id,
+            state=self.env.internal_state,
+            dynamic=self.env.dynamic,
+            failed_action=failed_action,
+            success=False,
+        )
+        
+        json_input = {
+            "state": diarc_json,
+            "domain": main_agent.pddl_domain,
+            "plan": main_agent.pddl_plan,
+            "novelActions": [],
+            "actionSet": [action[0] for action in action_set.actions if action not in ["nop", "give_up"]],
+        }
+        self.rep_gen = self.RepGeneratorModule(
+            json_input=json_input, 
+            items_lidar_disabled=self.items_lidar_disabled,
+            RL_test=True,
+            **self.rep_gen_args
+        )
+
     
     def _gen_reward(self) -> Tuple[bool, bool, float]:
         """
