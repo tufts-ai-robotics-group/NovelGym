@@ -15,8 +15,8 @@ from envs import SingleAgentEnv
 args = parser.parse_args()
 
 num_extra_items = 4
-TOTAL = 1000
-MAX_STEPS_PER_EPISODE = 10000
+TOTAL = 100000
+MAX_STEPS_PER_EPISODE = 1000
 EXPECTED_STEPS_PER_EPI = 50
 
 filename = "results/{}/planner_buffer.hdf5".format(args.exp_name)
