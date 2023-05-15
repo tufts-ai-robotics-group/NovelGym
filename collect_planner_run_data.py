@@ -92,5 +92,5 @@ if __name__ == "__main__":
                 i, buffer = result_q.get()
                 full_buffer.update(buffer)
             pbar.update()
-            full_buffer.save_hdf5(filename)
+            full_buffer.save_hdf5(filename, compression="gzip")
     print("Done! Saved to", filename)
