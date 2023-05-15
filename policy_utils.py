@@ -59,4 +59,11 @@ def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions
             critic1_optim=critic1_optim,
             critic2_optim=critic2_optim,
         )
+    elif rl_algo == "crr":
+        critic = BasicCriticNet(state_shape, 1)
+        policy = ts.policy.DiscreteCRRPolicy(
+            actor=net,
+            critic=critic,
+            optim=optim,
+        )
     return policy

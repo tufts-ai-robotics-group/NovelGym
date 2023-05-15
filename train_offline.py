@@ -144,8 +144,8 @@ if __name__ == "__main__":
 
     result = ts.trainer.offline_trainer(
         policy, train_buffer, test_collector,
-        max_epoch=300, step_per_epoch=1200, step_per_collect=1200,
-        update_per_epoch=1000,
+        max_epoch=300, step_per_collect=1200,
+        update_per_epoch=1200,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
