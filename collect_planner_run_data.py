@@ -15,8 +15,11 @@ from envs import SingleAgentEnv
 args = parser.parse_args()
 
 num_extra_items = 4
-TOTAL = 10000
-STEPS_PER_EPISODE = 1000
+TOTAL = 1000
+MAX_STEPS_PER_EPISODE = 10000
+EXPECTED_STEPS_PER_EPI = 50
+
+filename = "results/{}/planner_buffer.hdf5".format(args.exp_name)
 
 # novelty_name = args.novelty
 # novelty_path = NOVELTIES[novelty_name]
@@ -47,7 +50,7 @@ def run_collection(i, progress_q: Queue, result_q: Queue):
     for epi in range(run_count):
         obs, info = env.reset()
         
-        for _ in range(STEPS_PER_EPISODE):
+        for _ in range(MAX_STEPS_PER_EPISODE):
             act = agent.policy(obs)
             obs, rew, terminated, truncated, info = env.step(act)
             buffer.add(Batch(obs=obs, act=act, rew=rew, terminated=terminated, truncated=truncated, info=info))
@@ -84,9 +87,10 @@ if __name__ == "__main__":
             for p in processes:
                 p.join()
 
+            full_buffer = ReplayBuffer(TOTAL * EXPECTED_STEPS_PER_EPI)
             while not result_q.empty():
                 i, buffer = result_q.get()
-                buffer.save_hdf5("results/{}/planner_buffer_{}.hdf5".format(args.exp_name, i))
+                full_buffer.update(buffer)
             pbar.update()
-            filename = "results/{}/planner_buffer.hdf5".format(args.exp_name)
-            print("Done! Saved to", filename)
+            full_buffer.save_hdf5(filename)
+    print("Done! Saved to", filename)
