@@ -16,7 +16,12 @@ from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_h
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
 
-
+parser.add_argument(
+    "--buffer_file", 
+    type=str,
+    help="The path of the saved expert buffer to load and pretrain.",
+    required=False
+)
 args = parser.parse_args()
 seed = args.seed
 if seed == None:
@@ -77,9 +82,10 @@ def save_checkpoint_fn(epoch, env_step, gradient_step):
 if __name__ == "__main__":
     # novelty
     novelty_name = args.novelty
-    novelty_path = NOVELTIES[novelty_name]
+    novelty_path = NOVELTIES.get(novelty_name)
     config_file_paths = ["config/polycraft_gym_rl_single.json"]
-    config_file_paths.append(novelty_path)
+    if novelty_name is not None and novelty_name != "none":
+        config_file_paths.append(novelty_path)
 
     # object list
     kb_tmp = KnowledgeBase(config=config_file_paths)
@@ -144,14 +150,19 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
+    # if pre_collected buffer is provided, load it
+    if args.buffer_file:
+        buffer = ts.data.ReplayBuffer.load_hdf5(args.buffer_file)
+        train_collector = ts.data.Collector(policy, venv, buffer, exploration_noise=True)
+    else:
+        train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
 
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=300, step_per_epoch=1200, step_per_collect=1200,
         update_per_step=0.1, episode_per_test=100, batch_size=64,
-        repeat_per_collect=1,
+        repeat_per_collect=4,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),

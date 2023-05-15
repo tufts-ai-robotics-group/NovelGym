@@ -19,6 +19,7 @@ OBS_GEN_ARGS = {
 }
 
 NOVELTIES = {
+    "none": "",
     "mi_h": "novelties/evaluation1/multi_interact/multi_interact.json",
     "mi_cantplan": "novelties/evaluation1/multi_interact/multi_interact_cant_plan.json",
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.json",
