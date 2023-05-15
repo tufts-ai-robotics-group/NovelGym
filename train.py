@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # collector
     # if pre_collected buffer is provided, load it
     if args.buffer_file:
-        buffer = ts.data.ReplayBuffer.load_hdf5(args.buffer_file)
+        buffer = ts.data.VectorReplayBuffer.load_hdf5(args.buffer_file)
         train_collector = ts.data.Collector(policy, venv, buffer, exploration_noise=True)
     else:
         train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, 10), exploration_noise=True)
