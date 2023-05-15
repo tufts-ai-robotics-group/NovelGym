@@ -62,7 +62,7 @@ def run_collection(i, progress_q: Queue, result_q: Queue):
         for _ in range(MAX_STEPS_PER_EPISODE):
             act = agent.policy(obs)
             obs, rew, terminated, truncated, info = env.step(act)
-            buffer.add(Batch(obs=obs, act=act, rew=rew, terminated=terminated, truncated=truncated, info=info))
+            buffer.add(Batch(obs=np.array([obs]), act=np.array([act]), rew=rew, terminated=terminated, truncated=truncated, info=info))
 
             if terminated or truncated:
                 break
