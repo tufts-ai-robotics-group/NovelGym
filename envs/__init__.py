@@ -7,7 +7,7 @@ register(
     id='Gym-SingleAgent-v0',
     entry_point='envs:SingleAgentEnv',
     reward_threshold=980,
-    max_episode_steps=300
+    max_episode_steps=1000
     # reward_threshold =
 )
 register(
