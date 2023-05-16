@@ -1,8 +1,10 @@
 import torch
 
 import tianshou as ts
-from tianshou.utils.net.common import Net
+from tianshou.utils.net.common import Net, ActorCritic
 from tianshou.utils.net.discrete import Actor, Critic
+
+import numpy as np
 
 from net.basic import BasicCriticNet
 from utils.hint_utils import get_novel_action_indices
@@ -10,7 +12,16 @@ from policies import BiasedDQN
 from config import POLICIES, POLICY_PROPS
 
 
-def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions=[], buffer=None):
+def create_policy(
+        rl_algo, 
+        state_shape, 
+        action_shape, 
+        all_actions, 
+        novel_actions=[], 
+        hidden_sizes=[256, 128, 64],
+        buffer=None, 
+        device="cpu"
+    ):
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
 
@@ -61,12 +72,29 @@ def create_policy(rl_algo, state_shape, action_shape, all_actions, novel_actions
         )
     ## imitation learning
     elif rl_algo == "crr":
-        critic = BasicCriticNet(state_shape, action_shape)
+        net = Net(state_shape, hidden_sizes[0], device=device)
+        actor = Actor(
+            net,
+            action_shape,
+            hidden_sizes=hidden_sizes,
+            device=device,
+            softmax_output=False
+        )
+        critic = Critic(
+            net,
+            hidden_sizes=hidden_sizes,
+            last_size=np.prod(action_shape),
+            device=device
+        )
+        actor_critic = ActorCritic(actor, critic)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=1e-5)
         policy = ts.policy.DiscreteCRRPolicy(
-            actor=net,
+            actor=actor,
             critic=critic,
             optim=optim,
-        )
+            discount_factor=0.99,
+            target_update_freq=320
+        ).to(device)
     elif rl_algo == "gail":
         critic = BasicCriticNet(state_shape, 1)
         disc_net = Net(state_shape + action_shape, 1, hidden_sizes=[256, 128, 64])
