@@ -74,5 +74,20 @@ parser.add_argument(
     default="pf",
     choices=AVAILABLE_ENVS.keys()
 )
+parser.add_argument(
+    '--checkpoint', '--ckpt',
+    help="The path to the checkpoint to load.",
+    default=None
+)
+parser.add_argument(
+    '--lr', 
+    help="Learning Rate",
+    default=None
+)
+parser.add_argument(
+    '--hidden_sizes', 
+    help="Size of the hidden layer, separated by comma.",
+    default=None
+)
 
 verbose = False

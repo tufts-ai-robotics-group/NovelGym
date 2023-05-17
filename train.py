@@ -15,7 +15,7 @@ from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NO
 from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
-
+from utils.train_utils import set_train_eps, create_save_best_fn, generate_stop_fn, create_save_checkpoint_fn
 
 args = parser.parse_args()
 seed = args.seed
@@ -119,14 +119,29 @@ if __name__ == "__main__":
     # net
     state_shape = venv.observation_space[0].shape or venv.observation_space[0].n
     action_shape = venv.action_space[0].shape or venv.action_space[0].n
+
+    if args.hidden_sizes is not None:
+        hidden_sizes = [int(x) for x in args.hidden_sizes.split(",")]
+    else:
+        hidden_sizes = None
     
-    policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions, novel_actions)
+    policy = create_policy(
+        args.rl_algo, state_shape, action_shape, 
+        all_actions, novel_actions, 
+        checkpoint=args.checkpoint, lr=args.lr, 
+        hidden_sizes=hidden_sizes
+    )
 
     print("----------- metadata -----------")
     print("using", args.num_threads, "threads")
     print("Novelty:", novelty_name)
     print("Seed:", seed)
     print("Algorithm:", args.rl_algo)
+    print("lr:", args.lr or "default")
+    if args.checkpoint:
+        print("loaded checkpoint", args.checkpoint)
+    if hidden_sizes:
+        print("hidden size:", hidden_sizes)
     print("Observation type:", args.obs_type)
     print("hints:", hints)
     print()
@@ -157,7 +172,8 @@ if __name__ == "__main__":
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
         stop_fn=lambda mean_rewards: False,
-        save_best_fn=save_best_fn,
+        save_best_fn=create_save_best_fn(log_path),
+        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
         logger=logger
     )
     
