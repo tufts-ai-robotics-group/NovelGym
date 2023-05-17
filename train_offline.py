@@ -49,6 +49,19 @@ def set_train_eps(epoch, env_step):
 def save_best_fn(policy):
     torch.save(policy.state_dict(), os.path.join(log_path, "best_policy.pth"))
 
+def save_checkpoint_fn(epoch, env_step, gradient_step):
+    # see also: https://pytorch.org/tutorials/beginner/saving_loading_models.html
+    ckpt_path = os.path.join(log_path, "checkpoint.pth")
+    # Example: saving by epoch num
+    # ckpt_path = os.path.join(log_path, f"checkpoint_{epoch}.pth")
+    torch.save(
+        {
+            "model": policy.state_dict(),
+            "optim": policy.optim.state_dict(),
+        }, ckpt_path
+    )
+    return ckpt_path
+
 def generate_stop_fn(length, threshold):
     """
     Generates a stop function that takes a running mean of the last `length` 
@@ -148,7 +161,7 @@ if __name__ == "__main__":
         update_per_epoch=1200,
         episode_per_test=100, batch_size=64,
         save_best_fn=save_best_fn,
-        # save_checkpoint_fn=save_checkpoint_fn,
+        save_checkpoint_fn=save_checkpoint_fn,
         logger=logger
     )
     

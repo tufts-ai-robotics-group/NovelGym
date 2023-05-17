@@ -158,7 +158,6 @@ if __name__ == "__main__":
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
         stop_fn=lambda mean_rewards: False,
         save_best_fn=save_best_fn,
-        # save_checkpoint_fn=save_checkpoint_fn,
         logger=logger
     )
     

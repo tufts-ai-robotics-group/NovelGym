@@ -87,7 +87,7 @@ def create_policy(
             device=device
         )
         actor_critic = ActorCritic(actor, critic)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=1e-5)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=5e-4)
         policy = ts.policy.DiscreteCRRPolicy(
             actor=actor,
             critic=critic,
