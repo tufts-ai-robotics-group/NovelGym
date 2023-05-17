@@ -7,6 +7,7 @@ from tianshou.utils.net.discrete import Actor, Critic
 import numpy as np
 
 from net.basic import BasicCriticNet
+from net.norm_net import NormalizedNet
 from utils.hint_utils import get_novel_action_indices
 from policies import BiasedDQN
 from config import POLICIES, POLICY_PROPS
@@ -27,7 +28,7 @@ def create_policy(
     if lr is not None:
         lr = float(lr)
     if hidden_sizes is None:
-        hidden_sizes=[256, 128, 64]
+        hidden_sizes = [256, 128, 64]
     
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
@@ -80,18 +81,20 @@ def create_policy(
     ## imitation learning
     elif rl_algo == "crr":
         net = Net(state_shape, hidden_sizes[0], device=device)
-        actor = Actor(
-            net,
+        actor = NormalizedNet(
+            hidden_sizes[0],
             action_shape,
-            hidden_sizes=hidden_sizes,
-            device=device,
-            softmax_output=False
+            preprocess_net=net,
+            hidden_sizes=hidden_sizes[1:],
+            device=device
         )
-        critic = Critic(
-            net,
-            hidden_sizes=hidden_sizes,
-            last_size=np.prod(action_shape),
+        critic = NormalizedNet(
+            hidden_sizes[0],
+            action_shape,
+            preprocess_net=net,
+            hidden_sizes=hidden_sizes[1:],
             device=device,
+            output_state=False
         )
         actor_critic = ActorCritic(actor, critic)
         optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-6)
