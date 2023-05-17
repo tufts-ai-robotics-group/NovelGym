@@ -95,7 +95,8 @@ if __name__ == "__main__":
         args.rl_algo, state_shape, action_shape, 
         all_actions, novel_actions, 
         buffer=train_buffer, checkpoint=args.checkpoint, 
-        lr=args.lr, hidden_sizes=hidden_sizes
+        lr=args.lr, hidden_sizes=hidden_sizes,
+        device=args.device
     )
 
     print("----------- metadata -----------")
@@ -106,6 +107,7 @@ if __name__ == "__main__":
     print("lr:", args.lr or "default")
     if hidden_sizes:
         print("hidden size:", hidden_sizes)
+    print("Device:", args.device)
     print("Observation type:", args.obs_type)
     print("hints:", hints)
     print("Loaded buffer:", args.buffer_file)
@@ -133,7 +135,7 @@ if __name__ == "__main__":
         policy, train_buffer, test_collector,
         max_epoch=300, step_per_collect=1200,
         update_per_epoch=1200,
-        episode_per_test=100, batch_size=64,
+        episode_per_test=100, batch_size=256,
         save_best_fn=create_save_best_fn(log_path),
         save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
         logger=logger

@@ -1,5 +1,5 @@
 import argparse
-
+import torch
 from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS, AVAILABLE_ENVS
 
 
@@ -88,6 +88,11 @@ parser.add_argument(
     '--hidden_sizes', 
     help="Size of the hidden layer, separated by comma.",
     default=None
+)
+parser.add_argument(
+    '--device', '-d',
+    help="device to be run on",
+    default='cuda' if torch.cuda.is_available() else 'cpu'
 )
 
 verbose = False
