@@ -7,6 +7,7 @@ from gym_novel_gridworlds2.agents.agent import Agent
 import gymnasium as gym
 import numpy as np
 import time
+import os
 
 from args import parser 
 from config import NOVELTIES
@@ -19,6 +20,12 @@ parser.add_argument(
     required=False,
     default=10000
 )
+parser.add_argument(
+    "--buffer_file", 
+    type=str,
+    help="The path of the saved expert buffer to save to",
+    required=False
+)
 
 args = parser.parse_args()
 
@@ -28,16 +35,20 @@ TOTAL = args.num_episodes
 MAX_STEPS_PER_EPISODE = 1000
 EXPECTED_STEPS_PER_EPI = 50
 
-filename = "results/{}/planner_buffer.hdf5".format(args.exp_name)
+seed = args.seed or 0
 
-# novelty_name = args.novelty
-# novelty_path = NOVELTIES[novelty_name]
+if args.buffer_file is not None:
+    filename = os.path.join("results", args.buffer_file)
+else:
+    filename = os.path.join("results", args.exp_name, "{}_planner_buffer_{}.hdf5".format(args.env, seed))
+
+novelty_name = args.novelty
+novelty_path = NOVELTIES[novelty_name]
 config_file_paths = ["config/polycraft_gym_rl_single.json"]
-# config_file_paths.append(novelty_path)
+if novelty_path != "":
+    config_file_paths.append(novelty_path)
 
 run_count = int(TOTAL / args.num_threads)
-
-seed = args.seed or 0
 
 def run_collection(i, progress_q: Queue, result_q: Queue):
     env = gym.make(
