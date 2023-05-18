@@ -70,7 +70,8 @@ POLICY_PROPS = {
 
 AVAILABLE_ENVS = {
     "sa": "Gym-SingleAgent-v0",
-    "pf": "Gym-PlanningUntilFail-v0"
+    "pf": "Gym-PlanningUntilFail-v0",
+    "rs": "RewardShapingShorterPlan-v0"
 }
 
 

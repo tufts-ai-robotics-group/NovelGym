@@ -39,7 +39,7 @@ class BasePlanningAgent(Agent):
         self.done = False
         self.last_action: Optional[Tuple[str, tuple]] = None
         self.failed_action: Optional[Tuple[str, tuple]] = None
-        self.pddl_plan: List[tuple] = []
+        self.pddl_plan: str = ""
         
         # rl mode
         self.stuck = False
@@ -81,6 +81,7 @@ class BasePlanningAgent(Agent):
                 print("Found Plan:")
                 for item in plan:
                     print("    ", item)
+                print("Len:", len(plan))
             self.stuck = False
             return True
         else:

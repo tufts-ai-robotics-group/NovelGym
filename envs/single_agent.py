@@ -243,6 +243,10 @@ class SingleAgentEnv(gym.Wrapper):
             if not needs_rl:
                 skipped_epi_count += 1
         obs, reward, done, info = self.env.last()
+
+        # plan the main agent so utils can be used
+        main_agent.plan()
+
         # info = {
         #     "pddl_domain": getattr(self, "pddl_domain", ""),
         #     "pddl_problem": getattr(self, "pddl_problem", ""),
