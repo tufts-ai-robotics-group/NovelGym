@@ -58,6 +58,7 @@ POLICIES = {
     "ppo": ts.policy.PPOPolicy, 
     "dsac": ts.policy.DiscreteSACPolicy,
     "crr": ts.policy.DiscreteCRRPolicy,
+    "crr_separate_net": ts.policy.DiscreteCRRPolicy,
     "gail": ts.policy.GAILPolicy
 }
 

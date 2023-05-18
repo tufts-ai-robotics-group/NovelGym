@@ -17,6 +17,13 @@ class SingleAgentRSShorterPlanEnv(SingleAgentEnv):
     An environment that gives rewards given if the action picked matches
     the first action in the plan.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.testing = False
+
+    def _set_testing(self, testing):
+        self.testing = testing
+
     def _gen_reward(self):
         # if episode finished, just assign reward
         if self.env.internal_state._goal_achieved:
@@ -27,6 +34,8 @@ class SingleAgentRSShorterPlanEnv(SingleAgentEnv):
             return False, True, REWARDS["step"]
         
         # replan and assign rewards based on planner result
+        if self.testing:
+            return False, False, REWARDS["step"]
         agent: BasePlanningAgent = self.env.agent_manager.agents[self.agent_name].agent
         old_plan_len = agent.pddl_plan.count('\n') + 1
         agent.plan()

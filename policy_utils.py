@@ -57,27 +57,44 @@ def create_policy(
         )
     elif rl_algo == "ppo":
         critic = BasicCriticNet(state_shape, 1)
+        # net = Net(state_shape, hidden_sizes[0], device=device)
+        # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
+        # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
+        actor_critic = ActorCritic(net, critic).to(device)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
         policy = ts.policy.PPOPolicy(
             actor=net,
             critic=critic,
             optim=optim,
             dist_fn=torch.distributions.Categorical,
-        )
-    elif rl_algo == "dsac":
-        net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-        net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-        critic1 = Critic(net_c1, last_size=action_shape)
-        critic2 = Critic(net_c2, last_size=action_shape)
-        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=lr or 1e-4)
-        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=lr or 1e-4)
-        policy = ts.policy.DiscreteSACPolicy(
+        ).to(device)
+    elif rl_algo == "ppo_new":
+        net = Net(state_shape, hidden_sizes[0], device=device)
+        actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
+        critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
+        actor_critic = ActorCritic(net, critic).to(device)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
+        policy = ts.policy.PPOPolicy(
             actor=net,
-            critic1=critic1,
-            critic2=critic2,
-            actor_optim=optim,
-            critic1_optim=critic1_optim,
-            critic2_optim=critic2_optim,
-        )
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical,
+        ).to(device)
+    # elif rl_algo == "dsac":
+    #     net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+    #     net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
+    #     critic1 = Critic(net_c1, last_size=action_shape)
+    #     critic2 = Critic(net_c2, last_size=action_shape)
+    #     critic1_optim = torch.optim.Adam(critic1.parameters(), lr=lr or 1e-4)
+    #     critic2_optim = torch.optim.Adam(critic2.parameters(), lr=lr or 1e-4)
+    #     policy = ts.policy.DiscreteSACPolicy(
+    #         actor=net,
+    #         critic1=critic1,
+    #         critic2=critic2,
+    #         actor_optim=optim,
+    #         critic1_optim=critic1_optim,
+    #         critic2_optim=critic2_optim,
+    #     )
     ## imitation learning
     elif rl_algo == "crr":
         net = Net(state_shape, hidden_sizes[0], device=device)
@@ -107,20 +124,32 @@ def create_policy(
             target_update_freq=320,
             policy_improvement_mode="all"
         ).to(device)
-        # lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
-    elif rl_algo == "gail":
-        critic = BasicCriticNet(state_shape, 1)
-        disc_net = Net(state_shape + action_shape, 1, hidden_sizes=[256, 128, 64])
-        disc_optim = torch.optim.Adam(disc_net.parameters(), lr=lr or 1e-4)
-        policy = ts.policy.GAILPolicy(
-            actor=net,
+    elif rl_algo == "crr_separate_net":
+        actor = Net(state_shape, action_shape, hidden_sizes=hidden_sizes, device=device)
+        critic = BasicCriticNet(state_shape, action_shape).to(device)
+        actor_critic = ActorCritic(actor, critic)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-6)
+        policy = ts.policy.DiscreteCRRPolicy(
+            actor=actor,
             critic=critic,
             optim=optim,
-            dist_fn=torch.distributions.Categorical,
-            expert_buffer=buffer,
-            disc_net=disc_net,
-            disc_optim=disc_optim
-        )
+            discount_factor=0.99,
+            target_update_freq=320,
+            policy_improvement_mode="all"
+        ).to(device)
+    # elif rl_algo == "gail":
+    #     critic = BasicCriticNet(state_shape, 1)
+    #     disc_net = Net(state_shape + action_shape, 1, hidden_sizes=[256, 128, 64])
+    #     disc_optim = torch.optim.Adam(disc_net.parameters(), lr=lr or 1e-4)
+    #     policy = ts.policy.GAILPolicy(
+    #         actor=net,
+    #         critic=critic,
+    #         optim=optim,
+    #         dist_fn=torch.distributions.Categorical,
+    #         expert_buffer=buffer,
+    #         disc_net=disc_net,
+    #         disc_optim=disc_optim
+    #     )
     if checkpoint is not None:
         checkpoint = torch.load(checkpoint)
         policy.load_state_dict(checkpoint["model"])
