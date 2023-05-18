@@ -26,16 +26,25 @@ parser.add_argument(
     help="The path of the saved expert buffer to save to",
     required=False
 )
+parser.add_argument(
+    "--epsilon", 
+    type=str,
+    help="Percentage of runs where agent should take random action so sampled data has more diversity",
+    default = 0
+)
 
 args = parser.parse_args()
 
 
 num_extra_items = 4
+epsilon = args.epsilon
+assert epsilon >= 0 and epsilon < 1
 TOTAL = args.num_episodes
 MAX_STEPS_PER_EPISODE = 1000
-EXPECTED_STEPS_PER_EPI = 50
+EXPECTED_STEPS_PER_EPI = 50 / (1 - epsilon)
 
 seed = args.seed or 0
+np.random.seed(seed)
 
 if args.buffer_file is not None:
     filename = os.path.join("results", args.buffer_file)
@@ -72,7 +81,14 @@ def run_collection(i, progress_q: Queue, result_q: Queue):
         
         for _ in range(MAX_STEPS_PER_EPISODE):
             obs_prev = obs
-            act = agent.policy(obs)
+
+            rand = np.random.uniform()
+            # epsilon greedy for collecting data
+            if rand >= epsilon:
+                act = agent.policy(obs)
+            else:
+                act = env.action_space.sample()
+                agent.plan()
             obs, rew, terminated, truncated, info = env.step(act)
             if act + 2 < env.action_space.n:
                 # filter out nop and giveup
