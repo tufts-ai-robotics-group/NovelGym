@@ -7,6 +7,7 @@ class NormalizedNet(nn.Module):
         input_size = np.prod(state_shape)
         models = []
         self.preprocess_net = preprocess_net
+        models.append(nn.BatchNorm1d(input_size))
         for output_size in hidden_sizes:
             models.append(nn.Linear(input_size, output_size))
             models.append(nn.ReLU(inplace=True))

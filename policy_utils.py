@@ -104,7 +104,8 @@ def create_policy(
             critic=critic,
             optim=optim,
             discount_factor=0.99,
-            target_update_freq=320
+            target_update_freq=320,
+            policy_improvement_mode="all"
         ).to(device)
         # lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
     elif rl_algo == "gail":

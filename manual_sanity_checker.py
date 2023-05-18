@@ -47,8 +47,19 @@ env.reset(seed=seed)
 all_actions = get_all_actions(config_file_paths)
 state_shape = env.observation_space.shape or env.observation_space.n
 action_shape = env.action_space.shape or env.action_space.n
-policy = create_policy(args.rl_algo, state_shape, action_shape, all_actions)
+
+if args.hidden_sizes is not None:
+    hidden_sizes = [int(x) for x in args.hidden_sizes.split(",")]
+else:
+    hidden_sizes = None
+policy = create_policy(
+    args.rl_algo, state_shape, action_shape, 
+    all_actions, 
+    hidden_sizes=hidden_sizes,
+    # device=args.device
+)
 policy.load_state_dict(torch.load(args.model_path))
+policy.eval()
 
 for episode in range(1000):
     obs, info = env.reset()

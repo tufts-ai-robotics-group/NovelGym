@@ -135,7 +135,7 @@ if __name__ == "__main__":
         policy, train_buffer, test_collector,
         max_epoch=300, step_per_collect=1200,
         update_per_epoch=1200,
-        episode_per_test=100, batch_size=256,
+        episode_per_test=100, batch_size=64,
         save_best_fn=create_save_best_fn(log_path),
         save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
         logger=logger
