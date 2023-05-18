@@ -27,12 +27,12 @@ class SingleAgentRSShorterPlanEnv(SingleAgentEnv):
             return False, True, REWARDS["step"]
         
         # replan and assign rewards based on planner result
-        agent: BasePlanningAgent = self.env.agent_manager.agents["agent_0"].agent
+        agent: BasePlanningAgent = self.env.agent_manager.agents[self.agent_name].agent
         old_plan_len = agent.pddl_plan.count('\n') + 1
         agent.plan()
         new_plan_len = agent.pddl_plan.count('\n') + 1
 
-        if new_plan_len < old_plan_len:
+        if new_plan_len < old_plan_len and "nop" not in agent.pddl_plan:
             return False, False, REWARDS["plan_fit"]
         else:
             return False, False, REWARDS["step"]

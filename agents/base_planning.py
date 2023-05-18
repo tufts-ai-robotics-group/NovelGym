@@ -87,6 +87,7 @@ class BasePlanningAgent(Agent):
         else:
             if self.verbose:
                 print("No Plan Found. Will run RL to rescue.")
+            self.pddl_plan = "(nop)"
             return False
     
     def update_metadata(self, metadata: dict):
