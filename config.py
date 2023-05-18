@@ -28,7 +28,8 @@ NOVELTIES = {
     "space_ar_hard": "novelties/evaluation1/space_around/space_around_hard_high_radius.json",
     "space_ar": "novelties/evaluation1/space_around/space_around.json",
     "fence": "novelties/evaluation1/fence/fence_easy.json",
-    "moving_traders": "novelties/evaluation1/moving_traders/moving_traders.json"
+    "moving_traders": "novelties/evaluation1/moving_traders/moving_traders.json",
+    "busy_traders": "novelties/evaluation1/busy_traders/busy_traders.json",
 }
 
 HINTS = {

@@ -87,6 +87,12 @@
       },
       "give_up": {
         "module": "gym_novel_gridworlds2.contrib.polycraft.actions.GiveUp"
+      },
+      "trade": {
+        "module": "gym_novel_gridworlds2.contrib.polycraft.actions.Trade"
+      },
+      "craft": {
+        "module": "gym_novel_gridworlds2.contrib.polycraft.actions.Craft"
       }
     },
     "action_sets": {
