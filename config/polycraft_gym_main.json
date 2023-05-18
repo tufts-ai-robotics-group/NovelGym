@@ -110,7 +110,7 @@
         "nop",
         "give_up"
       ],
-      "pogoist": [
+      "pogoist_smart": [
         "use",
         "collect",
         "interact_102",
@@ -142,6 +142,9 @@
         "TP_TO"
       ],
       "trader": [
+        "nop"
+      ],
+      "pogoist": [
         "nop"
       ]
     },
@@ -260,7 +263,7 @@
         "name": "entity.polycraft.Pogoist.name",
         "type": "pogoist",
         "entity": "gym_novel_gridworlds2.contrib.polycraft.objects.EntityPogoist",
-        "action_set": "trader",
+        "action_set": "pogoist",
         "inventory": {
           "iron_pickaxe": 1
         },
