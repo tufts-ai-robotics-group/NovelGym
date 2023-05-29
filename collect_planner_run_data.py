@@ -32,6 +32,9 @@ parser.add_argument(
     help="Percentage of runs where agent should take random action so sampled data has more diversity",
     default = 0
 )
+parser.add_argument(
+    "--lr", 
+)
 
 args = parser.parse_args()
 
@@ -47,9 +50,9 @@ seed = args.seed or 0
 np.random.seed(seed)
 
 if args.buffer_file is not None:
-    filename = os.path.join("results", args.buffer_file)
+    filename = args.buffer_file
 else:
-    filename = os.path.join("results", args.exp_name, "{}_planner_buffer_{}.hdf5".format(args.env, seed))
+    filename = os.path.join(args.log_dir, args.exp_name, "{}_planner_buffer_{}.hdf5".format(args.env, seed))
 
 novelty_name = args.novelty
 novelty_path = NOVELTIES[novelty_name]

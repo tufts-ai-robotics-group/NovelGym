@@ -30,6 +30,7 @@ NOVELTIES = {
     "fence": "novelties/evaluation1/fence/fence_easy.json",
     "moving_traders": "novelties/evaluation1/moving_traders/moving_traders.json",
     "busy_traders": "novelties/evaluation1/busy_traders/busy_traders.json",
+    "multi_rooms": "novelties/evaluation1/multi_rooms/multi_rooms.json",
 }
 
 HINTS = {
@@ -61,7 +62,9 @@ POLICIES = {
     "dsac": ts.policy.DiscreteSACPolicy,
     "crr": ts.policy.DiscreteCRRPolicy,
     "crr_separate_net": ts.policy.DiscreteCRRPolicy,
-    "gail": ts.policy.GAILPolicy
+    "gail": ts.policy.GAILPolicy,
+    "ppo_new": ts.policy.PPOPolicy,
+    "icm_ppo": None
 }
 
 POLICY_PROPS = {

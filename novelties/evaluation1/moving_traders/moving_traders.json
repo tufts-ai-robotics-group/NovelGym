@@ -8,17 +8,6 @@
           "move_left",
           "move_right",
           "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
-          "nop",
           "nop"
         ]
       },

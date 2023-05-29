@@ -1,8 +1,8 @@
 import torch
 
 import tianshou as ts
-from tianshou.utils.net.common import Net, ActorCritic
-from tianshou.utils.net.discrete import Actor, Critic
+from tianshou.utils.net.common import Net, ActorCritic, MLP
+from tianshou.utils.net.discrete import Actor, Critic, IntrinsicCuriosityModule
 
 import numpy as np
 
@@ -69,17 +69,54 @@ def create_policy(
             dist_fn=torch.distributions.Categorical,
         ).to(device)
     elif rl_algo == "ppo_new":
-        net = Net(state_shape, hidden_sizes[0], device=device)
-        actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
-        critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
-        actor_critic = ActorCritic(net, critic).to(device)
+        net = Net(state_shape, hidden_sizes=hidden_sizes, device=device)
+        actor = Actor(net, action_shape, device=device)
+        critic = Critic(net, device=device)
+        actor_critic = ActorCritic(net, critic)
         optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
         policy = ts.policy.PPOPolicy(
-            actor=net,
+            actor=actor,
             critic=critic,
             optim=optim,
-            dist_fn=torch.distributions.Categorical,
+            dist_fn=torch.distributions.Categorical
         ).to(device)
+    elif rl_algo == "icm_ppo":
+        feature_dim = 16
+        lr_scale = 1.
+        reward_scale = 0.01,
+        forward_loss_weight = 0.2
+
+        net = Net(state_shape, hidden_sizes=hidden_sizes, device=device)
+        actor = Actor(net, action_shape, device=device)
+        critic = Critic(net, device=device)
+        actor_critic = ActorCritic(net, critic)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
+        ppo_policy = ts.policy.PPOPolicy(
+            actor=actor,
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical
+        ).to(device)
+        
+        feature_net = MLP(
+            np.prod(state_shape),
+            output_dim=feature_dim,
+            hidden_sizes=hidden_sizes[:-1],
+            device=device
+        )
+        icm_module = IntrinsicCuriosityModule(
+            feature_net=feature_net,
+            feature_dim=feature_dim,
+            action_dim=np.prod(action_shape),
+            hidden_sizes=hidden_sizes[-1:],
+            device=device
+        ).to(device)
+        icm_optim = torch.optim.Adam(icm_module.parameters(), lr=lr or 1e-4)
+        policy = ts.policy.ICMPolicy(
+            ppo_policy, icm_module, icm_optim, lr_scale, reward_scale,
+            forward_loss_weight
+        )
+        return policy
     # elif rl_algo == "dsac":
     #     net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
     #     net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])

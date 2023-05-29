@@ -1,0 +1,24 @@
+{
+  "rooms": {
+    "1": {
+      "start": [10, 0],
+      "end": [15, 15]
+    },
+    "2": {
+      "start": [0, 0],
+      "end": [10, 15]
+    }
+  },
+  "objects": {
+    "oak_log": {
+      "quantity": 5,
+      "room": 1,
+      "chunked": "False"
+    },
+    "crafting_table": {
+      "quantity": 1,
+      "room": 1,
+      "chunked": "False"
+    }
+  }
+}  
