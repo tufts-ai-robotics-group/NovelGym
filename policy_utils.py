@@ -38,6 +38,36 @@ def create_policy(
     else:
         net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
     optim = torch.optim.Adam(net.parameters(), lr=lr or 1e-4)
+
+    # prepare policy
+    if "ppo_shared_net" in rl_algo:
+        net = Net(state_shape, hidden_sizes=hidden_sizes, device=device)
+        actor = Actor(net, action_shape, device=device)
+        critic = Critic(net, device=device)
+        actor_critic = ActorCritic(net, critic)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 5e-5)
+        ppo_policy = ts.policy.PPOPolicy(
+            actor=actor,
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical
+        ).to(device)
+    elif "ppo" in rl_algo:
+        # non-shared net ppo
+        critic = BasicCriticNet(state_shape, 1)
+        # net = Net(state_shape, hidden_sizes[0], device=device)
+        # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
+        # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
+        actor_critic = ActorCritic(net, critic).to(device)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
+        ppo_policy = ts.policy.PPOPolicy(
+            actor=net,
+            critic=critic,
+            optim=optim,
+            dist_fn=torch.distributions.Categorical,
+        ).to(device)
+
+
     if rl_algo == "dqn":
         policy = PolicyModule(
             model=net, 
@@ -56,48 +86,15 @@ def create_policy(
             **policy_props
         )
     elif rl_algo == "ppo":
-        critic = BasicCriticNet(state_shape, 1)
-        # net = Net(state_shape, hidden_sizes[0], device=device)
-        # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
-        # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
-        actor_critic = ActorCritic(net, critic).to(device)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
-        policy = ts.policy.PPOPolicy(
-            actor=net,
-            critic=critic,
-            optim=optim,
-            dist_fn=torch.distributions.Categorical,
-        ).to(device)
-    elif rl_algo == "ppo_new":
-        net = Net(state_shape, hidden_sizes=hidden_sizes, device=device)
-        actor = Actor(net, action_shape, device=device)
-        critic = Critic(net, device=device)
-        actor_critic = ActorCritic(net, critic)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
-        policy = ts.policy.PPOPolicy(
-            actor=actor,
-            critic=critic,
-            optim=optim,
-            dist_fn=torch.distributions.Categorical
-        ).to(device)
-    elif rl_algo == "icm_ppo":
+        policy = ppo_policy
+    elif rl_algo == "ppo_shared_net":
+        policy = ppo_policy
+    elif rl_algo == "icm_ppo" or rl_algo == "icm_ppo_shared_net":
         feature_dim = 16
         lr_scale = 1.
-        reward_scale = 0.01,
+        reward_scale = 0.01
         forward_loss_weight = 0.2
 
-        net = Net(state_shape, hidden_sizes=hidden_sizes, device=device)
-        actor = Actor(net, action_shape, device=device)
-        critic = Critic(net, device=device)
-        actor_critic = ActorCritic(net, critic)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
-        ppo_policy = ts.policy.PPOPolicy(
-            actor=actor,
-            critic=critic,
-            optim=optim,
-            dist_fn=torch.distributions.Categorical
-        ).to(device)
-        
         feature_net = MLP(
             np.prod(state_shape),
             output_dim=feature_dim,
@@ -116,7 +113,6 @@ def create_policy(
             ppo_policy, icm_module, icm_optim, lr_scale, reward_scale,
             forward_loss_weight
         )
-        return policy
     # elif rl_algo == "dsac":
     #     net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
     #     net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])

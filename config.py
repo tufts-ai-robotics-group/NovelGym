@@ -63,8 +63,9 @@ POLICIES = {
     "crr": ts.policy.DiscreteCRRPolicy,
     "crr_separate_net": ts.policy.DiscreteCRRPolicy,
     "gail": ts.policy.GAILPolicy,
-    "ppo_new": ts.policy.PPOPolicy,
-    "icm_ppo": None
+    "ppo_shared_net": ts.policy.PPOPolicy,
+    "icm_ppo": None,
+    "icm_ppo_shared_net": None
 }
 
 POLICY_PROPS = {
