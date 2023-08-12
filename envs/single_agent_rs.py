@@ -7,8 +7,9 @@ from .single_agent import SingleAgentEnv
 REWARDS = {
     "positive": 1000,
     "negative": -250,
+    "plan_nonfit": -5,
     "step": -1,
-    "plan_fit": 5
+    "plan_fit": 1
 }
 
 

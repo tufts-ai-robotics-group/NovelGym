@@ -15,7 +15,7 @@ with open(PDDL_PROBLEM_TEMPLATE_PATH, 'r') as f:
     PDDL_PROBLEM_TEMPLATE = f.read()
 
 class KnowledgeBase:
-    def __init__(self, config):
+    def __init__(self, config, object_placeholder=0):
         if type(config) == str:
             config = load_json(config)
         elif isinstance(config, list):
