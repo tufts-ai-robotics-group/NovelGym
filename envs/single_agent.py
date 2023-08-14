@@ -30,7 +30,7 @@ class SingleAgentEnv(gym.Wrapper):
             show_action_log=False, 
             RepGenerator=LidarAll,
             rep_gen_args={},
-            enable_render=False,
+            render_mode=None,
             skip_epi_when_rl_done=True,
             seed=None
         ):
@@ -43,7 +43,7 @@ class SingleAgentEnv(gym.Wrapper):
             config_dict=config_content, 
             max_time_step=None, 
             time_limit=None,
-            enable_render=enable_render,
+            render_mode=render_mode,
             run_name=task_name,
             logged_agents=['main_1'] if show_action_log else []
         )
@@ -188,7 +188,7 @@ class SingleAgentEnv(gym.Wrapper):
         while True:
             needs_rl = self._fast_forward()
 
-            obs, reward, env_done, info = self.env.last()
+            obs, reward, env_terminated, env_truncated, info = self.env.last()
 
             # check if effects met and give the rewards
             plannable_done, truncated, reward = self._gen_reward()
@@ -210,10 +210,10 @@ class SingleAgentEnv(gym.Wrapper):
         # if we want to skip the rest of the symbolic learning when RL reaches
         # the goal to speed up training, we set done to be true when RL is done
         if self._skip_epi_when_rl_done:
-            done = env_done or plannable_done
+            terminated = env_terminated or plannable_done
         else:
-            done = env_done
-        return obs, reward, done, truncated, {"skipped_epi_count": 0}
+            terminated = env_terminated
+        return obs, reward, terminated, truncated, {"skipped_epi_count": 0}
 
     def seed(self, seed=None):
         self.env.reset(seed=seed)
@@ -242,7 +242,7 @@ class SingleAgentEnv(gym.Wrapper):
             needs_rl = self._fast_forward()
             if not needs_rl:
                 skipped_epi_count += 1
-        obs, reward, done, info = self.env.last()
+        obs, reward, terminated, truncated, info = self.env.last()
 
         # plan the main agent so utils can be used
         main_agent.plan()

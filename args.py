@@ -4,7 +4,6 @@ from config import NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_AC
 
 
 parser = argparse.ArgumentParser(description="Polycraft Gym Environment")
-# parser.add_argument("filename", type=str, nargs='+', help="The path of the config file.", default="polycraft_gym_main.json")
 parser.add_argument(
     "--novelty", '-n',
     type=str, 

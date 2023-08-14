@@ -28,16 +28,16 @@ class PlanningUntilFailureEnv(SingleAgentEnv):
         agent = self.env.agent_selection
         while agent != self.agent_name or \
               not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
-            if len(self.env.dones) == 0 or (agent == self.agent_name and self.env.dones[agent]):
+            if len(self.env.terminations) == 0 or (agent == self.agent_name and self.env.terminations[agent]):
                 # episode is done, restart a new episode.
-                if self.env.enable_render:
+                if self.env.render_mode == "human":
                     print("------Episode is finished internally.------")
                 return False
-            if agent not in self.env.dones or self.env.dones[agent]:
+            if agent not in self.env.terminations or self.env.terminations[agent]:
                 # skips the process if agent is not the main agent and is done.
                 self.env.step(0, {})
             else:
-                obs, reward, done, info = self.env.last()
+                obs, reward, terminated, truncated, info = self.env.last()
                 action = self.env.agent_manager.agents[agent].agent.policy(obs)
                             # getting the actions
                 extra_params = {}
@@ -95,9 +95,9 @@ class PlanningUntilFailureEnv(SingleAgentEnv):
         # case 1: is done
         if self.env.internal_state._goal_achieved:
             return True, False, REWARDS["positive"]
-        elif self.env.internal_state._given_up:
+        elif self.env.terminations["agent_0"]:
             return True, False, REWARDS["negative"]
-        elif self.env.dones["agent_0"]:
+        elif self.env.truncations["agent_0"]:
             return False, True, REWARDS["step"]
         
         # not done, check if effects met

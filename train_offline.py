@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # novelty
     novelty_name = args.novelty
     novelty_path = NOVELTIES.get(novelty_name)
-    config_file_paths = ["config/polycraft_gym_rl_single.json"]
+    config_file_paths = ["config/polycraft_gym_rl_single."]
     if novelty_name is not None and novelty_name != "none":
         config_file_paths.append(novelty_path)
 

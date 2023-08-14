@@ -4,7 +4,9 @@ from gym_novel_gridworlds2.agents.agent import Agent
 from gym_novel_gridworlds2.state import State
 from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym.spaces import Discrete
-import json
+import yaml
+from yaml import Loader
+import warnings
 
 from typing import Optional
 
@@ -16,15 +18,15 @@ from utils.plan_utils import call_planner
 import tempfile
 import os
 
-JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
+CONFIG_PATH = "config/polycraft_gym_main.yaml"
 PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
 @lru_cache(maxsize=32)
-def get_base_config_json():
-    with open(JSON_CONFIG_PATH) as f:
-        config_json = json.load(f)
-    return config_json
+def get_base_config():
+    with open(CONFIG_PATH) as f:
+        config_content = yaml.load(f, Loader=Loader)
+    return config_content
 
 class BasePlanningAgent(Agent):
     def __init__(self, verbose=False, **kwargs):
@@ -32,6 +34,7 @@ class BasePlanningAgent(Agent):
         self.verbose = verbose
         self._reset()
         self.kb = None
+        self.not_found_actions = set()
 
 
     def _reset(self):
@@ -49,7 +52,7 @@ class BasePlanningAgent(Agent):
     
     def get_observation(self, state, dynamic):
         # raise NotImplementedError("Get observation for " + self.name + " is not implemented.")
-        self.kb = KnowledgeBase(get_base_config_json())
+        self.kb = KnowledgeBase(get_base_config())
         pddl_domain, pddl_problem = self.kb.generate_pddl(state, dynamic)
         self.state = state
         self.dynamic = dynamic
@@ -122,7 +125,9 @@ class BasePlanningAgent(Agent):
             try:
                 return self.action_set.action_index[action[0]]
             except KeyError as e:
-                print("Warning: action not found in action set: ", action[0], ". Will do nop.")
+                if action[0] not in self.not_found_actions:
+                    warnings.warn(f'Action "{action[0]}" not found in action set. Will do nop. Will print only once.')
+                    self.not_found_actions.add(action[0])
                 return self.action_set.action_index["nop"]
 
         return self.action_set.action_index["nop"]

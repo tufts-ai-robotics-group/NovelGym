@@ -21,7 +21,7 @@ verbose = False
 # novelty
 novelty_name = args.novelty
 novelty_path = NOVELTIES[novelty_name]
-config_file_paths = ["config/polycraft_gym_rl_single.json"]
+config_file_paths = ["config/polycraft_gym_rl_single."]
 config_file_paths.append(novelty_path)
 
 

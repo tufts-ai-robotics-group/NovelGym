@@ -3,18 +3,18 @@ from gym_novel_gridworlds2.agents.agent import Agent
 from gym_novel_gridworlds2.state import State
 from gym_novel_gridworlds2.state.dynamic import Dynamic
 from gym.spaces import Discrete
-import json
+import yaml
 
 from copy import deepcopy
 
 from utils.pddl_utils import generate_pddl
 from utils.plan_utils import call_planner
-from agents.base_planning import BasePlanningAgent, get_base_config_json
+from agents.base_planning import BasePlanningAgent, get_base_config
 from agents.rl_subagents.random import RLRandom
 from agents.rl_subagents.base import BaseRLAgent
 from gym_novel_gridworlds2.utils.json_parser import import_module
 
-JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
+CONFIG_PATH = "config/polycraft_gym_main.yaml"
 PDDL_DOMAIN = "pddl_domain.pddl"
 PDDL_PROBLEM = "pddl_problem.pddl"
 
@@ -52,7 +52,7 @@ class PlanningRLAgent(BasePlanningAgent):
         self.rl = False
     
     def plan(self):
-        self.pddl_domain, self.pddl_problem = generate_pddl(get_base_config_json(), self.state, self.dynamic)
+        self.pddl_domain, self.pddl_problem = generate_pddl(get_base_config(), self.state, self.dynamic)
         with open(PDDL_DOMAIN, "w") as f:
             f.write(self.pddl_domain)
         with open(PDDL_PROBLEM, "w") as f:
