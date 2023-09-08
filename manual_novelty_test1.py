@@ -19,7 +19,7 @@ verbose = True
 # novelty
 novelty_name = args.novelty
 novelty_path = NOVELTIES[novelty_name]
-config_file_paths = ["config/polycraft_gym_rl_single."]
+config_file_paths = ["config/polycraft_gym_rl_single.yaml"]
 if novelty_path != "":
     config_file_paths.append(novelty_path)
 
@@ -32,7 +32,7 @@ env = gym.make(
     agent_name="agent_0",
     task_name="main",
     show_action_log=True,
-    enable_render=True,
+    render_mode="human"
 )
 env.reset(seed=seed)
 
