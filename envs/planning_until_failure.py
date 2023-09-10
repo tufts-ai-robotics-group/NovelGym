@@ -28,14 +28,11 @@ class PlanningUntilFailureEnv(SingleAgentEnv):
         agent = self.env.agent_selection
         while agent != self.agent_name or \
               not getattr(self.env.agent_manager.agents[agent].agent, "stuck", False):
-            if len(self.env.terminations) == 0 or (agent == self.agent_name and self.env.terminations[agent]):
+            if agent not in self.env.terminations or (agent == self.agent_name and self.env.terminations[agent]):
                 # episode is done, restart a new episode.
                 if self.env.render_mode == "human":
                     print("------Episode is finished internally.------")
                 return False
-            if agent not in self.env.terminations or self.env.terminations[agent]:
-                # skips the process if agent is not the main agent and is done.
-                self.env.step(0, {})
             else:
                 obs, reward, terminated, truncated, info = self.env.last()
                 action = self.env.agent_manager.agents[agent].agent.policy(obs)
