@@ -69,7 +69,6 @@ def run_collection(i, progress_q: Queue, result_q: Queue):
         agent_name="agent_0",
         task_name="main",
         show_action_log=False,
-        enable_render=False,
         seed=i + seed
     )
     env.seed(i + seed)
