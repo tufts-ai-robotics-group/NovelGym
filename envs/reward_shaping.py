@@ -5,9 +5,6 @@ from agents import BasePlanningAgent
 from .single_agent import SingleAgentEnv
 
 REWARDS = {
-    "positive": 1000,
-    "negative": -250,
-    "plan_nonfit": -5,
     "step": -1,
     "plan_fit": 1
 }
@@ -18,7 +15,7 @@ class RewardShapingWrapper(gym.Wrapper):
     An environment that gives rewards given if the action picked matches
     the first action in the plan.
     """
-    def __init__(self, env):
+    def __init__(self, env: gym.Env):
         self.env = env
     
     def step(self, action):
@@ -33,7 +30,7 @@ class RewardShapingWrapper(gym.Wrapper):
             return reward
         
         # replan and assign rewards based on planner result
-        agent: BasePlanningAgent = self.unwrapped.agent_manager.agents[self.agent_name].agent
+        agent: BasePlanningAgent = self.unwrapped.agent_manager.agents[self.get_wrapper_attr("agent_name")].agent
         old_plan_len = agent.pddl_plan.count('\n') + 1
         agent.plan()
         new_plan_len = agent.pddl_plan.count('\n') + 1

@@ -102,7 +102,7 @@ class SingleAgentWrapper(gym.Wrapper):
                 action = action
 
             self.env.step(action, extra_params)
-        agent = self.env.agent_selection
+            agent = self.env.agent_selection
         return True
 
 
@@ -210,9 +210,10 @@ class SingleAgentWrapper(gym.Wrapper):
         self.env.dynamic.all_entities = get_entities(self.env.config_dict)
 
     def reset(self, seed=None, options={}):
+        # print("reset")
         # reset the environment
         needs_rl = False
-        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        main_agent = self.env.agent_manager.agents[self.agent_name].agent
         main_agent._reset()
         if self.show_action_log:
             main_agent.verbose = True
@@ -232,7 +233,6 @@ class SingleAgentWrapper(gym.Wrapper):
             if not needs_rl:
                 skipped_epi_count += 1
         obs, reward, terminated, truncated, info = self.env.last()
-
         # plan the main agent so utils can be used
         main_agent.plan()
 
