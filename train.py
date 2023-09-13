@@ -9,6 +9,7 @@ import torch
 import numpy as np
 import pickle
 from torch.utils.tensorboard import SummaryWriter
+from envs.single_agent_standard import SingleAgentWrapper
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
 from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS, AVAILABLE_ENVS
@@ -16,6 +17,9 @@ from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_h
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
 from utils.train_utils import set_train_eps, create_save_best_fn, generate_stop_fn, create_save_checkpoint_fn
+
+from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
+from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 
 args = parser.parse_args()
 seed = args.seed
@@ -53,21 +57,36 @@ if __name__ == "__main__":
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
     # env
-    env_name = AVAILABLE_ENVS[args.env]
-    envs = [lambda: gym.make(
-        env_name,
-        config_file_paths=config_file_paths,
-        agent_name="agent_0",
-        task_name="main",
-        show_action_log=False,
-        RepGenerator=RepGenerator,
-        rep_gen_args={
-            "hints": HINTS.get(novelty_name) or "",
-            "hinted_objects": hinted_objects,
-            "novel_objects": [], # TODO
-            **rep_gen_args
-        }
-    ) for _ in range(args.num_threads)]
+    config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
+
+    def make_env():
+        env_name = args.env
+        base_ngw_env = NovelGridWorldSequentialEnv(
+            config_dict=config_content,
+            render_mode=None,
+            run_name="main",
+            logged_agents=[]
+        )
+        single_agent_env = SingleAgentWrapper(
+            base_env=base_ngw_env,
+            agent_name="agent_0",
+            RepGenerator=RepGenerator,
+            rep_gen_args={
+                "hints": HINTS.get(novelty_name) or "",
+                "hinted_objects": hinted_objects,
+                "novel_objects": [], # TODO
+                **rep_gen_args
+            }
+        )
+        if env_name == "pf":
+            # TODO add wrapper
+            single_agent_env = single_agent_env
+        if env_name == "rs":
+            # TODO add wrapper
+            single_agent_env = single_agent_env
+        return single_agent_env
+        
+    envs = [make_env for _ in range(args.num_threads)]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
 

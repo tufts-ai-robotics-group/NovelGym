@@ -3,6 +3,7 @@ import tianshou as ts
 from policies import BiasedDQN
 from net.basic import BasicNet
 from net.norm_net import NormalizedNet
+from envs.single_agent_standard import SingleAgentWrapper
 
 OBS_TYPES = {
     "lidar_all": LidarAll,
@@ -79,6 +80,10 @@ AVAILABLE_ENVS = {
     "sa": "Gym-SingleAgent-v0",
     "pf": "Gym-PlanningUntilFail-v0",
     "rs": "RewardShapingShorterPlan-v0"
+}
+
+AVAILABLE_WRAPPERS = {
+    "sa": [SingleAgentWrapper]
 }
 
 
