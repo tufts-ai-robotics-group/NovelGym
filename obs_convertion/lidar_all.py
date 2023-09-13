@@ -14,14 +14,35 @@ NUM_BEAMS=8
 MAX_BEAM_RANGE=40
 
 
+###################################
+# Important!
+# TODO
+# Caveats of reserved spots in the observation space
+# the items are sorted by name on first initalization.
+# subsequent "reserved spots" will be filled with items in a first-come
+# first-encoded fashion. therefore, if two environments encounter
+# more than one new object in different orders, the encoded id could be
+# different among different instances of the environment.
+# Will need to check synchronization options.
+# y. wei. 09/13/2023
+###################################
+
 class LidarAll(ObservationGenerator):
-    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, num_beams=8, max_beam_range=40, *args, **kwargs) -> None:
+    def __init__(self, 
+                 json_input: dict, 
+                 items_lidar_disabled=[], 
+                 RL_test=False, 
+                 num_beams=8, 
+                 max_beam_range=40,
+                 num_reserved_extra_objects=1,
+                 *args, 
+                 **kwargs
+        ) -> None:
         """
         The Env is instanciated using the first json input.
         """
         # encoder for automatically encoding new objects
-        self.item_encoder = SimpleItemEncoder({"air": 0})
-        self.max_item_type_count = self._encode_items(json_input['state'])
+        self.max_item_type_count, self.item_encoder = self._encode_items(json_input['state'], num_reserved_extra_objects)
 
         # rep of beams
         self.num_beams = num_beams
@@ -74,11 +95,12 @@ class LidarAll(ObservationGenerator):
             items_lidar_disabled=[], 
             num_beams=NUM_BEAMS,
             max_beam_range=MAX_BEAM_RANGE,
+            reserved_extra_objects=1, # in case we have new objects in the world
             *args,
             **kwargs
         ):
         # +1 since obj encoder has one extra error margin for unknown objects
-        max_item_type_count = len(all_objects) + len(all_entities) + 1
+        max_item_type_count = len(all_objects) + len(all_entities) + reserved_extra_objects + 1
         # things to search for in lidar. only excludes disabled items
 
         # maximum of number of possible items
@@ -144,11 +166,12 @@ class LidarAll(ObservationGenerator):
         return np.concatenate((sensor_result, inventory_result, [selected_item]), dtype=int)
 
 
-    def _encode_items(self, json_data):
+    def _encode_items(self, json_data, num_extra_objects):
         """
         Run through the json and loads items into the list. Returns the number of items.
         Used to know how many items to expect so we can instantiate the array accordingly.
         """
+        self.item_encoder = SimpleItemEncoder({"air": 0})
         # This is a dry run of some functions to make sure the all items are included.
         # Nothing will be returned. The same function will be run again when generate_observation is called.
         self._generate_map(json_data)
@@ -157,13 +180,17 @@ class LidarAll(ObservationGenerator):
             self.item_encoder.get_id(slot['item'])
         
         all_items_keys = sorted(self.item_encoder.item_list)
+
         # create a new one with sorted keys
-        self.item_encoder = SimpleItemEncoder({key: idx for idx, key in enumerate(all_items_keys)})
+        self.item_encoder = SimpleItemEncoder(
+            {key: idx for idx, key in enumerate(all_items_keys)},
+            placeholder_count=num_extra_objects
+        )
 
         # prevent new items from being encoded since we made the 
         #     assumption that no new items will be discovered after the first run.
         self.item_encoder.id_limit = len(self.item_encoder.item_list)
-        return self.item_encoder.id_limit
+        return self.item_encoder.id_limit, self.item_encoder
 
 
     #################################################################

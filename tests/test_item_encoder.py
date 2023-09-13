@@ -15,3 +15,5 @@ def test_item_encoder():
     assert item_encoder.get_id("plank") == 2
     assert item_encoder.item_list == {"air": 0, "oak_log": 1, "plank": 2}
     assert item_encoder.reverse_look_up_table == {0: "air", 1: "oak_log", 2: "plank"}
+
+# TODO test it with lidar

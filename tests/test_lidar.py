@@ -8,7 +8,7 @@ from gym_novel_gridworlds2.utils.json_parser import load_json, ConfigParser
 import numpy as np
 import os
 
-JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
+JSON_CONFIG_PATH = "config/polycraft_gym_main.yaml"
 
 def test_observation_space():
     config_json = load_json(JSON_CONFIG_PATH)
