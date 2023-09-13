@@ -9,7 +9,7 @@ import torch
 import numpy as np
 import pickle
 from torch.utils.tensorboard import SummaryWriter
-from envs.single_agent_standard import SingleAgentWrapper
+from envs import SingleAgentWrapper, RewardShapingWrapper
 from ts_extensions.custom_logger import CustomTensorBoardLogger
 
 from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NOVEL_ACTIONS, OBS_GEN_ARGS, AVAILABLE_ENVS
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             single_agent_env = single_agent_env
         if env_name == "rs":
             # TODO add wrapper
-            single_agent_env = single_agent_env
+            single_agent_env = RewardShapingWrapper(single_agent_env)
         return single_agent_env
         
     envs = [make_env for _ in range(args.num_threads)]
