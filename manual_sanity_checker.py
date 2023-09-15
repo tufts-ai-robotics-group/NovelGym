@@ -39,7 +39,8 @@ env = make_env(
     config_file_paths,
     RepGenerator=LidarAll,
     rep_gen_args={},
-    render_mode="human"
+    render_mode="human",
+    base_env_args={"logged_agents": ["agent_0"]}
 )
 
 env.reset(seed=seed)
