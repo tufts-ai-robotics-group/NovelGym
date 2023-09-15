@@ -130,7 +130,7 @@ object_types:
     module: gym_novel_gridworlds2.contrib.polycraft.objects.Metal
     break_cost: 600
   iron_pickaxe: gym_novel_gridworlds2.contrib.polycraft.objects.IronPickaxe
-  crafting_table: gym_novel_gridworlds2.contrib.polycraft.objects.BreakablePolycraftObject
+  crafting_table: gym_novel_gridworlds2.contrib.polycraft.objects.PlacablePolycraftObject
   block_of_platinum:
     module: gym_novel_gridworlds2.contrib.polycraft.objects.Metal
     break_cost: 600
