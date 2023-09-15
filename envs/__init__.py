@@ -1,7 +1,8 @@
 from gymnasium.envs.registration import register
 from .planning_until_failure import PlanningUntilFailureEnv
 from .single_agent_standard import SingleAgentWrapper
-from .reward_shaping import RewardShapingWrapper
+from .reward_shaping_realtime import RealTimeRSWrapper
+from .reward_shaping_subgoals import RSPreplannedSubgoal
 
 register(
     id='Gym-PlanningUntilFail-v0',
@@ -11,4 +12,9 @@ register(
     # reward_threshold =
 )
 
-__all__ = ["SingleAgentWrapper", "RewardShapingWrapper"]
+__all__ = [
+    "SingleAgentWrapper", 
+    "RewardShapingWrapper",
+    "RealTimeRSWrapper",
+    "RSPreplannedSubgoal"
+]

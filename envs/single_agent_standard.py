@@ -222,7 +222,7 @@ class SingleAgentWrapper(gym.Wrapper):
         skipped_epi_count = 0
         while not needs_rl:
             self.episode += 1
-            self.env.reset(seed=seed, options={"episode": self.episode})
+            self.env.reset(seed=seed, options={"episode": self.episode, **options})
             self.env.dynamic.all_objects = generate_obj_types(self.env.config_dict)
             self.env.dynamic.all_entities = get_entities(self.env.config_dict)
             

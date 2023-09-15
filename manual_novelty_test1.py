@@ -1,7 +1,6 @@
 
 import os
 import argparse
-from envs.planning_until_failure import PlanningUntilFailureEnv
 import tianshou as ts
 import gymnasium as gym
 from net.basic import BasicNet
@@ -11,6 +10,8 @@ from tianshou.utils import TensorboardLogger
 from obs_convertion import LidarAll, OnlyFacingObs
 
 from args import parser, NOVELTIES, AVAILABLE_ENVS
+
+from utils.make_env import make_env
 
 args = parser.parse_args()
 verbose = True
@@ -25,15 +26,15 @@ if novelty_path != "":
 
 seed = args.seed
 
-env_name = AVAILABLE_ENVS[args.env]
-env = gym.make(
+env_name = args.env
+env = make_env(
     env_name,
-    config_file_paths=config_file_paths,
-    agent_name="agent_0",
-    task_name="main",
-    show_action_log=True,
+    config_file_paths,
+    RepGenerator=LidarAll,
+    rep_gen_args={},
     render_mode="human"
 )
+
 env.reset(seed=seed)
 
 for episode in range(1000):
