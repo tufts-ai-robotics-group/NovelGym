@@ -173,6 +173,7 @@ entities:
     action_set: main
     inventory:
       iron_pickaxe: 1
+      tree_tap: 1
     id: 0
     room: 2
     max_step_cost: 100000
@@ -260,9 +261,9 @@ recipes:
     - stick
     - block_of_titanium
     - stick
-    - block_of_diamond
-    - block_of_titanium
-    - block_of_diamond
+    - diamond
+    - '0'
+    - '0'
     - '0'
     - rubber
     - '0'
