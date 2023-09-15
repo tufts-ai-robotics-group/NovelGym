@@ -3,4 +3,4 @@ tensorboard>=2.12.0
 gymnasium>=0.27.1
 NovelGridWorlds @ git+https://github.com/tufts-ai-robotics-group/NovelGridWorldsV2.git
 pddl-parser @ git+https://github.com/pucrs-automated-planning/pddl-parser.git
-yaml
+PyYAML
