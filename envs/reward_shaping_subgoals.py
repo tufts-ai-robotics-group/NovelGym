@@ -10,7 +10,7 @@ import queue
 
 REWARDS = {
     "step": -1,
-    "plan_fit": 1
+    "plan_fit": 5
 }
 
 def is_good_goal(goal: tuple):
@@ -49,7 +49,9 @@ class RSPreplannedSubgoal(gym.Wrapper):
         if self.unwrapped.render_mode == "human":
             print("sub goals:")
             for goal in reversed(self.subgoals):
-                print("   " + goal)
+                num = agent.action_set.action_index[goal]
+                print("{:<4}{}".format(num, goal))
+            print()
         return result
     
     def convert_action_to_name(self, action: int):

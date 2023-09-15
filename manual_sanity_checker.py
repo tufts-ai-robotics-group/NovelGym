@@ -10,6 +10,7 @@ from obs_convertion import LidarAll, OnlyFacingObs
 from args import parser, NOVELTIES, AVAILABLE_ENVS
 
 from policy_utils import create_policy
+from utils.make_env import make_env
 from utils.pddl_utils import get_all_actions
 
 parser.add_argument(
@@ -33,15 +34,14 @@ if novelty_path != "":
 seed = args.seed
 
 env_name = AVAILABLE_ENVS[args.env]
-env = gym.make(
+env = make_env(
     env_name,
-    config_file_paths=config_file_paths,
-    agent_name="agent_0",
-    task_name="main",
-    show_action_log=True,
-    enable_render=True,
-    skip_epi_when_rl_done=False,
+    config_file_paths,
+    RepGenerator=LidarAll,
+    rep_gen_args={},
+    render_mode="human"
 )
+
 env.reset(seed=seed)
 # get create policy
 all_actions = get_all_actions(config_file_paths)
