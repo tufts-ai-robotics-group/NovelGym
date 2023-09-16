@@ -2,7 +2,6 @@ from typing import Tuple
 import gymnasium as gym
 from agents import BasePlanningAgent
 
-from .single_agent import SingleAgentEnv
 
 from gym_novel_gridworlds2.actions import ActionSet
 
@@ -47,6 +46,7 @@ class RSPreplannedSubgoal(gym.Wrapper):
         else:
             self.subgoals = []
         if self.unwrapped.render_mode == "human":
+            agent.verbose = True
             print("sub goals:")
             for goal in reversed(self.subgoals):
                 num = agent.action_set.action_index[goal]

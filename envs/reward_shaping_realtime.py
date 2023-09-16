@@ -2,7 +2,6 @@ from typing import Tuple
 import gymnasium as gym
 from agents import BasePlanningAgent
 
-from .single_agent import SingleAgentEnv
 
 REWARDS = {
     "step": -1,

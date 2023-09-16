@@ -78,7 +78,7 @@ class SingleAgentWrapper(gym.Wrapper):
         return self._action_space
 
     
-    def _fast_forward(self):
+    def _run_env_agents(self):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
         while agent != self.agent_name:
@@ -174,24 +174,12 @@ class SingleAgentWrapper(gym.Wrapper):
 
         # run another step of other agents using the stored policy 
         # until the agent in interest is reached again.
-        while True:
-            needs_rl = self._fast_forward()
+        needs_rl = self._run_env_agents()
 
-            obs, reward, env_terminated, truncated, info = self.env.last()
+        obs, reward, env_terminated, truncated, info = self.env.last()
 
-            # check if effects met and give the rewards
-            plannable_done, reward = self._gen_reward()
-
-            if not needs_rl:
-                # if the episode is done, we break the loop
-                break
-            elif self._skip_epi_when_rl_done:
-                # skip whole episode if RL gets us back to the normal state
-                # used in training
-                break
-            elif not plannable_done:
-                # if not plannable done, we continue the learning
-                break
+        # check if effects met and give the rewards
+        plannable_done, reward = self._gen_reward()
 
         # generate the observation
         obs = self._gen_obs()
@@ -210,6 +198,8 @@ class SingleAgentWrapper(gym.Wrapper):
         self.env.dynamic.all_entities = get_entities(self.env.config_dict)
 
     def reset(self, seed=None, options={}):
+        if options is None:
+            options = {}
         # print("reset")
         # reset the environment
         needs_rl = False
@@ -229,7 +219,7 @@ class SingleAgentWrapper(gym.Wrapper):
             # fast forward
             self._agent_iter = self.env.agent_iter()
 
-            needs_rl = self._fast_forward()
+            needs_rl = self._run_env_agents()
             if not needs_rl:
                 skipped_epi_count += 1
         obs, reward, terminated, truncated, info = self.env.last()
