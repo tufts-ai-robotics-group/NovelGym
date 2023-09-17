@@ -1,4 +1,4 @@
-from obs_convertion import LidarAll, OnlyFacingObs, NovelOnlyObs
+from obs_convertion import LidarAll, OnlyFacingObs, NovelOnlyObs, Matrix
 import tianshou as ts
 from policies import BiasedDQN
 from net.basic import BasicNet
@@ -10,6 +10,7 @@ OBS_TYPES = {
     "lidar_lite": LidarAll,
     "facing_only": OnlyFacingObs,
     "hinted_only": NovelOnlyObs,
+    "matrix": Matrix
 }
 
 OBS_GEN_ARGS = {
