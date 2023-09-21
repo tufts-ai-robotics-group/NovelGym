@@ -3,6 +3,7 @@ import os
 import argparse
 import tianshou as ts
 import gymnasium as gym
+from config import OBS_GEN_ARGS, OBS_TYPES
 from net.basic import BasicNet
 import torch
 from torch.utils.tensorboard import SummaryWriter
@@ -27,11 +28,16 @@ if novelty_path != "":
 seed = args.seed
 
 env_name = args.env
+
+# observation generator
+RepGenerator = OBS_TYPES[args.obs_type]
+rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
+
 env = make_env(
     env_name,
     config_file_paths,
-    RepGenerator=LidarAll,
-    rep_gen_args={},
+    RepGenerator=RepGenerator,
+    rep_gen_args=rep_gen_args,
     render_mode="human",
     base_env_args={"logged_agents": ["agent_0"]}
 )

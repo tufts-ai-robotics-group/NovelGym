@@ -4,13 +4,13 @@ from gymnasium import spaces
 
 from utils.env_reward_rapidlearn import RapidLearnRewardGenerator
 from utils.item_encoder import SimpleItemEncoder
-from .base import ObservationGenerator
+from .lidar_all import LidarAll
 
 LOCAL_VIEW_SIZE=5
 TARGET_OBJ="bedrock"
 
 
-class Matrix(ObservationGenerator):
+class Matrix(LidarAll):
     """Matrix-based observation space"""
     def __init__(self,
                  json_input: dict,
@@ -67,52 +67,34 @@ class Matrix(ObservationGenerator):
             all_entities,
             items_lidar_disabled=[],
             local_view_size=LOCAL_VIEW_SIZE,
+            reserved_extra_objects=1, # in case we have new objects in the world
             *args,
             **kwargs
         ):
+        # +1 since obj encoder has one extra error margin for unknown objects
+        max_item_type_count = len(all_objects) + len(all_entities) + reserved_extra_objects + 1
+        # things to search for in lidar. only excludes disabled items
+
+        # maximum of number of possible items
+        map_items_max_count = max_item_type_count - len(items_lidar_disabled)
+
         # Calculate the total number of cells in the local view
         num_cells = local_view_size ** 2
 
         # Define the observation space for each cell
-        low = np.array([0] * num_cells)  # Minimum observation value
-        high = np.array([len(all_objects) + len(all_entities) - len(items_lidar_disabled)] * num_cells)  # Maximum observation value
+        low_map = np.zeros((num_cells, num_cells))
+        high_map = np.ones((num_cells, num_cells)) * map_items_max_count
+        map_obs_space = spaces.Box(low_map, high_map, dtype=int)
 
-        observation_space = spaces.Box(low, high, dtype=int)
+        inventory_obs_space = spaces.Box(np.zeros(max_item_type_count), np.ones(max_item_type_count) * 40)
+        selected_item_obs_space = spaces.Box([0], [max_item_type_count])
+
+        observation_space = spaces.Dict({
+            "map": map_obs_space,
+            "inventory": inventory_obs_space,
+            "selected_item": selected_item_obs_space
+        })
         return observation_space
-
-
-    def init_info(self):
-        """
-        Returns the init info for the discover executor
-        """
-        return {
-            "failed_action": self.failed_action,
-            "action_set": self.action_set,
-            "observation_space": self.observation_space.sample(),
-            "novel_action_set": self.novel_action_set
-        }
-
-
-    def get_action_name(self, action_id: int):
-        """Get action name from action id"""
-        return self.reward_generator.action_name_set[action_id]
-
-
-    def get_novel_action_name(self, action_id: int):
-        """Get novel action name from action id"""
-        return self.novel_action[action_id]
-
-
-    def check_if_effects_met(self, new_state_json: dict) -> bool:
-        """Check if effects of action met"""
-        state = self.get_state_for_evaluation(new_state_json)
-        return self.reward_generator.check_if_effect_met(state)
-
-
-    def check_if_plannable_state_reached(self, new_state_json: dict) -> bool:
-        """Check if a state has been reached from which a plan can be made"""
-        state = self.get_state_for_evaluation(new_state_json)
-        return True
 
 
     def generate_observation(self, json_input: dict) -> np.ndarray:
@@ -136,53 +118,12 @@ class Matrix(ObservationGenerator):
         # Combine the local view matrix, inventory, and selected item into a single observation array
         # observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item]), dtype=int)
         observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item])).astype(int)
-
-        return observation
-
-
-    def get_state_for_evaluation(self, json_input: dict) -> dict:
-        """Gets state for evaluation"""
-        pos_x, pos_y = json_input["player"]["pos"]
-        map, min, _ = self._generate_map(json_input)
-        return {
-            "inventory": self._generate_inventory(json_input),
-            "world": self._get_object_count_in_world(json_input),
-            "holding": self._get_selected_item(json_input),
-            "map": map,
-            "pos": (pos_x - min[0], pos_y - min[1]),
-            "facing": json_input["player"]["facing"]
+        observation = {
+            "map": local_view, 
+            "inventory": inventory_result, 
+            "selected_item": [selected_item]
         }
-    
-
-    #################################################################
-    # Util to encode items
-    #################################################################
-    def _encode_items(self, json_data, num_extra_objects):
-        """
-        Run through the json and loads items into the list. Returns the number of items.
-        Used to know how many items to expect so we can instantiate the array accordingly.
-        """
-        self.item_encoder = SimpleItemEncoder({"air": 0})
-        # This is a dry run of some functions to make sure the all items are included.
-        # Nothing will be returned. The same function will be run again when generate_observation is called.
-        self._generate_map(json_data)
-
-        for slot in json_data['inventory']['slots']:
-            self.item_encoder.get_id(slot['item'])
-
-        all_items_keys = sorted(self.item_encoder.item_list)
-
-        # create a new one with sorted keys
-        self.item_encoder = SimpleItemEncoder(
-            {key: idx for idx, key in enumerate(all_items_keys)},
-            placeholder_count=num_extra_objects
-        )
-
-        # prevent new items from being encoded since we made the 
-        #     assumption that no new items will be discovered after the first run.
-        self.item_encoder.id_limit = len(self.item_encoder.item_list)
-        return self.item_encoder.id_limit, self.item_encoder
-
+        return observation
 
     #################################################################
     # Util to generate a map
@@ -241,42 +182,3 @@ class Matrix(ObservationGenerator):
         return local_view
 
 
-    #################################################################
-    # Util to generate state about the inventory
-    #################################################################
-    def _get_selected_item(self, input: dict) -> int:
-        """
-        Gets the id of the selected item.
-        """
-        inventory = input['inventory']
-        selected_item = inventory['selectedItem']
-        return self.item_encoder.get_id(selected_item)
-
-
-    def _generate_inventory(self, input: dict) -> np.ndarray:
-        """
-        Generates the inventory part of the state representation.
-        """
-        inventory = input['inventory']['slots']
-        # minus 1 to exclude air in the inventory. (0 = air for our encoder)
-        inventory_quantity_arr = np.zeros(self.max_item_type_count, dtype=int)
-
-        for slot in inventory:
-            item_id = self.item_encoder.get_id(slot['item'])
-            inventory_quantity_arr[item_id] += slot['count']
-        return inventory_quantity_arr
-
-
-    #################################################################
-    # Util to generate the state for reward function evaluation
-    #################################################################
-    def _get_object_count_in_world(self, json_input: dict) -> np.ndarray:
-        """
-        counts the number of objects in the world.
-        """
-        item_count = np.zeros(self.item_encoder.id_limit)
-
-        for _, item in json_input['map'].items():
-            item_id = self.item_encoder.get_id(item)
-            item_count[item_id] += 1
-        return item_count
