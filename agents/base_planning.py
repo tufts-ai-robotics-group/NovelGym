@@ -92,14 +92,6 @@ class BasePlanningAgent(Agent):
                 print("No Plan Found. Will run RL to rescue.")
             self.pddl_plan = "(nop)"
             return False
-    
-    def update_metadata(self, metadata: dict):
-        if metadata["gameOver"]:
-            self._reset()
-        elif not self.stuck and metadata["command_result"]["result"] != "SUCCESS":
-            # init rl here
-            self.stuck = True
-            self.failed_action = self.last_action
 
 
     def policy(self, observation):
