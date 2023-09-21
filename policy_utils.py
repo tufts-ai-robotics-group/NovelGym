@@ -13,6 +13,30 @@ from policies import BiasedDQN
 from config import POLICIES, POLICY_PROPS
 
 
+def create_policy_for_matrix(
+        rl_algo,
+        state_space,
+        action_space,
+        all_actions,
+        novel_actions=[], 
+        hidden_sizes=[256, 128, 64],
+        buffer=None, 
+        lr=None,
+        device="cpu",
+        checkpoint=None
+    ):
+        if lr is not None:
+            lr = float(lr)
+        if hidden_sizes is None:
+            hidden_sizes = [256, 128, 64]
+        
+        if rl_algo == "ppo":
+            policy = ts.policy.PPOPolicy(
+                # TODO
+            )
+
+
+
 def create_policy(
         rl_algo, 
         state_shape, 
