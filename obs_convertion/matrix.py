@@ -7,12 +7,14 @@ from utils.item_encoder import SimpleItemEncoder
 from .base import ObservationGenerator
 
 LOCAL_VIEW_SIZE=5
+TARGET_OBJ="bedrock"
 
 
 class Matrix(ObservationGenerator):
     """Matrix-based observation space"""
     def __init__(self,
                  json_input: dict,
+                 items_lidar_disabled=[],
                  RL_test=False,
                  local_view_size=LOCAL_VIEW_SIZE,
                  num_reserved_extra_objects=1,
@@ -25,15 +27,14 @@ class Matrix(ObservationGenerator):
         # Encoder for automatically encoding new objects
         self.max_item_type_count, self.item_encoder = self._encode_items(json_input['state'], num_reserved_extra_objects)
 
+        # things to search for. only excludes disabled items
+        self.items_disabled = items_lidar_disabled
+        self.items = list(filter(lambda item: item not in self.items_disabled, self.item_encoder.item_list.keys()))
+        self.items_id = {self.item_encoder.get_id(keys): lidar_item_idx for lidar_item_idx, keys in enumerate(self.items)}
+
         # Representation of the agent's local view
         self.local_view_size = local_view_size  # Size of the local view grid (5x5)
         self.local_view = np.zeros((self.local_view_size, self.local_view_size))
-
-        # Inventory
-        self.inventory = self._generate_inventory(json_input)
-
-        # Selected item
-        self.selected_item = self._get_selected_item(json_input)
 
         # Limits for the local view (assume maximum values for now)
         low = np.array([0] * (self.local_view_size ** 2))
@@ -64,6 +65,7 @@ class Matrix(ObservationGenerator):
     def get_observation_space(
             all_objects,
             all_entities,
+            items_lidar_disabled=[],
             local_view_size=LOCAL_VIEW_SIZE,
             *args,
             **kwargs
@@ -73,7 +75,7 @@ class Matrix(ObservationGenerator):
 
         # Define the observation space for each cell
         low = np.array([0] * num_cells)  # Minimum observation value
-        high = np.array([len(all_objects) + len(all_entities)] * num_cells)  # Maximum observation value
+        high = np.array([len(all_objects) + len(all_entities) - len(items_lidar_disabled)] * num_cells)  # Maximum observation value
 
         observation_space = spaces.Box(low, high, dtype=int)
         return observation_space
@@ -132,7 +134,8 @@ class Matrix(ObservationGenerator):
         selected_item = self._get_selected_item(state_json)
 
         # Combine the local view matrix, inventory, and selected item into a single observation array
-        observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item]), dtype=int)
+        # observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item]), dtype=int)
+        observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item])).astype(int)
 
         return observation
 
@@ -217,17 +220,23 @@ class Matrix(ObservationGenerator):
         """
         Generates a 5x5 local view matrix based on the player's position and the world map.
         """
-        local_view_size = 5
-        half_local_view = local_view_size // 2
-        local_view = np.zeros((local_view_size, local_view_size))
+        half_local_view = self.local_view_size // 2
+        local_view = np.zeros((self.local_view_size, self.local_view_size))
 
-        for i in range(local_view_size):
-            for j in range(local_view_size):
+        target_obj_encoded = self.item_encoder.get_id(TARGET_OBJ)
+
+        for i in range(self.local_view_size):
+            for j in range(self.local_view_size):
                 x = player_pos[0] - half_local_view + i
                 y = player_pos[1] - half_local_view + j
 
                 if 0 <= x < world_map.shape[0] and 0 <= y < world_map.shape[1]:
-                    local_view[i, j] = world_map[x, y]
+                    if world_map[x, y] == target_obj_encoded:
+                        local_view[i, j] = target_obj_encoded
+                    else:
+                        local_view[i, j] = world_map[player_pos[0], player_pos[1]]
+                else:
+                    local_view[i, j] = target_obj_encoded  # This is where the "wall" is placed
 
         return local_view
 
@@ -271,7 +280,3 @@ class Matrix(ObservationGenerator):
             item_id = self.item_encoder.get_id(item)
             item_count[item_id] += 1
         return item_count
-
-
-if __name__ == '__main__':
-    RepGenerator = Matrix()
