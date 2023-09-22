@@ -13,7 +13,7 @@ REWARDS = {
 }
 
 def is_good_goal(goal: tuple):
-    return "break" not in goal
+    return "craft" in goal or "use" in goal or "trade" in goal or "collect" in goal
 
 
 class RSPreplannedSubgoal(gym.Wrapper):
