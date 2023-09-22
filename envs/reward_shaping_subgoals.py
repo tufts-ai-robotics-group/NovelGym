@@ -13,7 +13,7 @@ REWARDS = {
 }
 
 def is_good_goal(goal: tuple):
-    return True
+    return "break" not in goal
 
 
 class RSPreplannedSubgoal(gym.Wrapper):
@@ -30,7 +30,7 @@ class RSPreplannedSubgoal(gym.Wrapper):
     
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
-        reward = self._update_reward(action, terminated, truncated, reward)
+        reward = self._update_reward(action, terminated, truncated, info, reward)
         return obs, reward, terminated, truncated, info
     
     def reset(self, seed=None, options={}):
@@ -59,7 +59,7 @@ class RSPreplannedSubgoal(gym.Wrapper):
         action_set: ActionSet = self.unwrapped.agent_manager.agents[agent_name].action_set
         return action_set.actions[action][0]
 
-    def _update_reward(self, action, terminated, truncated, reward):
+    def _update_reward(self, action, terminated, truncated, info: dict, reward):
         # if episode finished, just assign reward
         if terminated or truncated:
             return reward
@@ -67,7 +67,7 @@ class RSPreplannedSubgoal(gym.Wrapper):
         # replan and assign rewards based on planner result
         action_name = self.convert_action_to_name(action)
 
-        if len(self.subgoals) > 0 and action_name == self.subgoals[-1]:
+        if len(self.subgoals) > 0 and action_name == self.subgoals[-1] and info.get("success", False):
             self.subgoals.pop()
             if self.unwrapped.render_mode == "human":
                 print(f"hit {action_name}. got plan fit reward")
