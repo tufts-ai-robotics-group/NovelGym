@@ -1,5 +1,5 @@
 from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
-from envs import SingleAgentWrapper, RealTimeRSWrapper, RSPreplannedSubgoal, RapidLearnWrapper
+from envs import SingleAgentWrapper, RealTimeRSWrapper, RSPreplannedSubgoal, RapidLearnWrapper, RSPreplannedStateSubgoal
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
 
 def make_env(
@@ -32,4 +32,6 @@ def make_env(
         single_agent_env = RapidLearnWrapper(single_agent_env)
     if env_name == "rs":
         single_agent_env = RSPreplannedSubgoal(single_agent_env)
+    elif env_name == "rs_s":
+        single_agent_env = RSPreplannedStateSubgoal(single_agent_env)
     return single_agent_env
