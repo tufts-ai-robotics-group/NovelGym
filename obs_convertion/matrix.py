@@ -168,17 +168,12 @@ class Matrix(LidarAll):
 
         for i in range(self.local_view_size):
             for j in range(self.local_view_size):
-                x = player_pos[0] - half_local_view + i
-                y = player_pos[1] - half_local_view + j
+                row = player_pos[1] - half_local_view + i
+                col = player_pos[0] - half_local_view + j
 
-                if 0 <= x < world_map.shape[0] and 0 <= y < world_map.shape[1]:
-                    if world_map[x, y] == target_obj_encoded:
-                        local_view[i, j] = target_obj_encoded
-                    else:
-                        local_view[i, j] = world_map[player_pos[0], player_pos[1]]
+                if 0 <= col < world_map.shape[0] and 0 <= row < world_map.shape[1]:
+                    local_view[i, j] = world_map[row, col]
                 else:
                     local_view[i, j] = target_obj_encoded  # This is where the "wall" is placed
 
         return local_view
-
-
