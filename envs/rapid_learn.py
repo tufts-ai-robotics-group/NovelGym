@@ -89,6 +89,7 @@ class RapidLearnWrapper(gym.Wrapper):
     def reset(self, seed=None, options={}):
         _, info = self.env.reset()
         # init obs gen again
+        # TODO bug
         self._init_obs_gen()
 
         skipped_epi_count = int(info["skipped_epi_count"])

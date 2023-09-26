@@ -32,7 +32,7 @@ if novelty_path != "":
 
 seed = args.seed
 
-env_name = AVAILABLE_ENVS[args.env]
+env_name = args.env
 env = make_env(
     env_name,
     config_file_paths,

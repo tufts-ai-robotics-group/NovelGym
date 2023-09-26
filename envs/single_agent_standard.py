@@ -190,7 +190,7 @@ class SingleAgentWrapper(gym.Wrapper):
             terminated = env_terminated or plannable_done
         else:
             terminated = env_terminated
-        return obs, reward, terminated, truncated, {"skipped_epi_count": 0}
+        return obs, reward, terminated, truncated, {"skipped_epi_count": 0, **info}
 
     def seed(self, seed=None):
         self.env.reset(seed=seed)
@@ -238,5 +238,5 @@ class SingleAgentWrapper(gym.Wrapper):
 
         # get the observation
         obs = self._gen_obs()
-        return obs, {"skipped_epi_count": skipped_epi_count}
+        return obs, {"skipped_epi_count": skipped_epi_count, **info}
 
