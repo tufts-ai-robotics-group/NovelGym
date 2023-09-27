@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=800, step_per_epoch=1200, step_per_collect=200,
+        max_epoch=800, step_per_epoch=1200, step_per_collect=1200,
         episode_per_test=100, batch_size=64,
         repeat_per_collect=2,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
