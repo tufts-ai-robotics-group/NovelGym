@@ -43,7 +43,7 @@ def create_policy(
         action_shape, 
         all_actions, 
         novel_actions=[], 
-        hidden_sizes=[256, 128, 64],
+        hidden_sizes=[256, 64],
         buffer=None, 
         lr=None,
         device="cpu",
@@ -52,7 +52,7 @@ def create_policy(
     if lr is not None:
         lr = float(lr)
     if hidden_sizes is None:
-        hidden_sizes = [256, 128, 64]
+        hidden_sizes = [256, 64]
     
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
