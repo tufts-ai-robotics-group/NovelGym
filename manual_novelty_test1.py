@@ -63,12 +63,12 @@ for episode in range(1000):
         )
         # action = policy(obs)
         # action = env.action_space.sample()
+        env.render()
         action = int(input("action: "))
         obs, reward, terminated, truncated, info = env.step(action)
         print("reward: ", reward)
         
-        if verbose:
-            env.render()
+        env.render()
         if terminated or truncated:
             break
 
