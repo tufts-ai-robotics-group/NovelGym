@@ -76,7 +76,13 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
         # to avoid local minima 
         self.rs_exclude_list = set()
         self.last_inventory = None
-        self.last_subgoal = None # temporatily store the last subgoal for repeated reward
+
+        # temporatily store the last subgoal for repeated reward
+        self.last_subgoal = None 
+
+        # track and compare with initial inventory. If the algorithm skipped ahead, 
+        # then we can give skip some subgoals.
+        self.init_inventory = {} 
         self.rehit_subgoal_decay = 1
     
     
@@ -115,12 +121,31 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
                 print("   inventory increase: ", goal)
             print()
         self.last_inventory = None
+        self.init_inventory = self._get_copied_agent_inventory()
+        self.last_subgoal = None # temporatily store the last subgoal for repeated reward
+        self.rehit_subgoal_decay = 1
         return result
     
     def convert_action_to_name(self, action: int):
         agent_name = self.get_wrapper_attr("agent_name")
         action_set: ActionSet = self.unwrapped.agent_manager.agents[agent_name].action_set
         return action_set.actions[action][0]
+
+    def _skip_subgoal_if_done(self):
+        """
+        When a subgoal is completed, skip subsequent subgoals if they have already been completed
+        somehow in previous time steps.
+        """
+        while len(self.subgoals) > 0:
+            if not _inventory_goal_met(self.init_inventory, self.last_inventory, self.subgoals[-1]):
+                # if the agent did not skip ahead, we do not update the subgoal.
+                break
+            self.last_subgoal = self.subgoals[-1]
+            self.rehit_subgoal_decay = 1
+            self.subgoals.pop()
+            if self.unwrapped.render_mode == "human":
+                print(f"Already completed subgoal {self.last_subgoal}. Next goal:", self.subgoals[-1])
+
 
     def _update_reward(self, action, terminated, truncated, info: dict, reward):
         # if episode finished, just assign reward
@@ -140,6 +165,7 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
                 self.subgoals.pop()
                 if self.unwrapped.render_mode == "human":
                     print(f"hit {action_name}. got plan fit reward. Next goal:", self.subgoals[-1])
+                self._skip_subgoal_if_done()
                 return REWARDS["plan_fit"]
             elif self.last_subgoal is not None and _inventory_goal_met(last_inventory, new_inventory, self.last_subgoal):
                 if self.unwrapped.render_mode == "human":
