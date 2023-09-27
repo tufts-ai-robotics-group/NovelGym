@@ -82,8 +82,8 @@ class Matrix(LidarAll):
         num_cells = local_view_size ** 2
 
         # Define the observation space for each cell
-        low_map = np.zeros((num_cells, num_cells))
-        high_map = np.ones((num_cells, num_cells)) * map_items_max_count
+        low_map = np.zeros((num_cells, num_cells, max_item_type_count))
+        high_map = np.ones((num_cells, num_cells, max_item_type_count)) * map_items_max_count
         map_obs_space = spaces.Box(low_map, high_map, dtype=int)
 
         inventory_obs_space = spaces.Box(np.zeros(max_item_type_count), np.ones(max_item_type_count) * 40)
@@ -116,8 +116,6 @@ class Matrix(LidarAll):
         selected_item = self._get_selected_item(state_json)
 
         # Combine the local view matrix, inventory, and selected item into a single observation array
-        # observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item]), dtype=int)
-        observation = np.concatenate((local_view.flatten(), inventory_result, [selected_item])).astype(int)
         observation = {
             "map": local_view, 
             "inventory": inventory_result, 
@@ -159,12 +157,10 @@ class Matrix(LidarAll):
     #################################################################
     def _generate_local_view(self, player_pos, world_map):
         """
-        Generates a 5x5 local view matrix based on the player's position and the world map.
+        Generates a local view matrix based on the player's position and the world map.
         """
         half_local_view = self.local_view_size // 2
-        local_view = np.zeros((self.local_view_size, self.local_view_size))
-
-        target_obj_encoded = self.item_encoder.get_id(TARGET_OBJ)
+        local_view = np.zeros((self.local_view_size, self.local_view_size, self.max_item_type_count))  # Add an extra dimension for channels
 
         for i in range(self.local_view_size):
             for j in range(self.local_view_size):
@@ -172,8 +168,11 @@ class Matrix(LidarAll):
                 col = player_pos[0] - half_local_view + j
 
                 if 0 <= col < world_map.shape[0] and 0 <= row < world_map.shape[1]:
-                    local_view[i, j] = world_map[row, col]
+                    # One-hot encode the value from the world map
+                    value = int(world_map[row, col])
+                    local_view[i, j, value] = 1
                 else:
-                    local_view[i, j] = target_obj_encoded  # This is where the "wall" is placed
+                    # Use a channel for the target_obj_encoded value
+                    local_view[i, j, self.max_item_type_count - 1] = 1
 
         return local_view
