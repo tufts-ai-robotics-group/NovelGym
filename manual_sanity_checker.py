@@ -62,6 +62,8 @@ policy.load_state_dict(torch.load(args.model_path))
 policy.eval()
 
 for episode in range(1000):
+    cum_rew = 0
+    discount_rew = 0
     obs, info = env.reset()
     env.render()
     print()
@@ -75,7 +77,9 @@ for episode in range(1000):
         print("action: ", agent.action_set.actions[action][0])
         input("Press Enter to continue...")
         obs, reward, terminated, truncated, info = env.step(action)
-        print("reward: ", reward)
+        cum_rew += reward
+        discount_rew = reward + 0.99 * discount_rew
+        print(f"reward: {reward}; cum_rew: {cum_rew}; discount_rew: {discount_rew}")
         
         if verbose:
             env.render()

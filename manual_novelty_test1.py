@@ -45,6 +45,8 @@ env = make_env(
 env.reset(seed=seed)
 
 for episode in range(1000):
+    cum_rew = 0
+    discount_rew = 0
     obs, info = env.reset()
     env.render()
     print()
@@ -66,7 +68,10 @@ for episode in range(1000):
         env.render()
         action = int(input("action: "))
         obs, reward, terminated, truncated, info = env.step(action)
-        print("reward: ", reward)
+        cum_rew += reward
+        discount_rew = reward + 0.99 * discount_rew
+        print(f"reward: {reward}; cum_rew: {cum_rew}; discount_rew: {discount_rew}")
+        
         
         env.render()
         if terminated or truncated:
