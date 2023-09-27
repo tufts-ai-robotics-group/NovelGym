@@ -45,7 +45,6 @@ def _parse_add_sub_goals(pddl_plan):
     pddl_plan = pddl_plan.split("\n")
     sub_goals = []
     for action in reversed(pddl_plan):
-        print(action)
         tokens = action.lstrip("(").rstrip(")").split(" ")
         if tokens[0] == "break_diamond_ore":
             sub_goals.append(INVENTORY_CHANGES["break_diamond_ore"])
@@ -57,7 +56,6 @@ def _parse_add_sub_goals(pddl_plan):
 
 
 def _inventory_goal_met(old_inventory, new_inventory, subgoal):
-    print(old_inventory, new_inventory, subgoal)
     for item, increment in subgoal.items():
         if new_inventory.get(item, 0) - old_inventory.get(item, 0) < increment:
             return False
@@ -110,7 +108,7 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
             agent.verbose = True
             print("sub goals:")
             for goal in reversed(self.subgoals):
-                print(goal)
+                print("   inventory increase: ", goal)
             print()
         self.last_inventory = None
         return result
