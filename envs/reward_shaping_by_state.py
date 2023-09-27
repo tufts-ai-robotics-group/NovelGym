@@ -14,6 +14,8 @@ REWARDS = {
     "plan_fit": 5
 }
 
+REHIT_SUBGOAL_DECAY_FACTOR = 0.5
+
 INVENTORY_CHANGES = {
     "craft_planks": {
         "planks": 4
@@ -74,6 +76,8 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
         # to avoid local minima 
         self.rs_exclude_list = set()
         self.last_inventory = None
+        self.last_subgoal = None # temporatily store the last subgoal for repeated reward
+        self.rehit_subgoal_decay = 1
     
     
     def _get_copied_agent_inventory(self):
@@ -131,9 +135,16 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
             new_inventory = self._get_copied_agent_inventory()
             
             if _inventory_goal_met(last_inventory, new_inventory, self.subgoals[-1]): # check inventory
+                self.last_subgoal = self.subgoals[-1]
+                self.rehit_subgoal_decay = 1
                 self.subgoals.pop()
                 if self.unwrapped.render_mode == "human":
                     print(f"hit {action_name}. got plan fit reward. Next goal:", self.subgoals[-1])
                 return REWARDS["plan_fit"]
+            elif self.last_subgoal is not None and _inventory_goal_met(last_inventory, new_inventory, self.last_subgoal):
+                if self.unwrapped.render_mode == "human":
+                    print(f"hit {action_name} again. decay now: {self.rehit_subgoal_decay}")
+                self.rehit_subgoal_decay *= REHIT_SUBGOAL_DECAY_FACTOR
+                return REWARDS["plan_fit"] * self.rehit_subgoal_decay
         return REWARDS["step"]
 
