@@ -3,7 +3,7 @@ from typing import List, Tuple
 from gym_novel_gridworlds2.agents.agent import Agent
 from gym_novel_gridworlds2.state import State
 from gym_novel_gridworlds2.state.dynamic import Dynamic
-from gym.spaces import Discrete
+from gymnasium.spaces import Discrete
 import yaml
 from yaml import Loader
 import warnings
