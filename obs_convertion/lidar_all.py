@@ -95,7 +95,7 @@ class LidarAll(ObservationGenerator):
             items_lidar_disabled=[], 
             num_beams=NUM_BEAMS,
             max_beam_range=MAX_BEAM_RANGE,
-            reserved_extra_objects=1, # in case we have new objects in the world
+            reserved_extra_objects=2, # in case we have new objects in the world
             *args,
             **kwargs
         ):

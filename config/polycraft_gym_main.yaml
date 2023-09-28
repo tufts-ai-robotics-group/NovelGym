@@ -90,7 +90,7 @@ action_sets:
   - move_*
   - rotate_*
   - place
-  - nop_placeholder
+  - nop_placeholder1
   - nop_placeholder2
   - nop
   - give_up
