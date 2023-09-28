@@ -38,6 +38,10 @@ actions:
     step_cost: 300
   nop:
     module: gym_novel_gridworlds2.contrib.polycraft.actions.NOP
+  nop_placeholder1: # placeholder for novelty action
+    module: gym_novel_gridworlds2.contrib.polycraft.actions.NOP
+  nop_placeholder2: # placeholder for novelty action
+    module: gym_novel_gridworlds2.contrib.polycraft.actions.NOP
   TP_TO:
     module: gym_novel_gridworlds2.contrib.polycraft.actions.TP_TO
   move_forward:
@@ -86,6 +90,8 @@ action_sets:
   - move_*
   - rotate_*
   - place
+  - nop_placeholder
+  - nop_placeholder2
   - nop
   - give_up
   pogoist_smart:

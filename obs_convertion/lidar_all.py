@@ -34,7 +34,7 @@ class LidarAll(ObservationGenerator):
                  RL_test=False, 
                  num_beams=8, 
                  max_beam_range=40,
-                 num_reserved_extra_objects=1,
+                 num_reserved_extra_objects=2,
                  *args, 
                  **kwargs
         ) -> None:
