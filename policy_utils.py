@@ -83,7 +83,7 @@ def create_policy(
         # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
         # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
         actor_critic = ActorCritic(net, critic).to(device)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-5)
         ppo_policy = ts.policy.PPOPolicy(
             actor=net,
             critic=critic,
