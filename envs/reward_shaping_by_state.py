@@ -160,7 +160,7 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
         # replan and assign rewards based on planner result
         action_name = self.convert_action_to_name(action)
 
-        if info.get("success", False): # action success
+        if info.get("success", False) and len(self.subgoals) > 0: # action success and have sub goals
             last_inventory = self.last_inventory
             new_inventory = self._get_copied_agent_inventory()
             
