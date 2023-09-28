@@ -75,7 +75,13 @@ for episode in range(1000):
         action = policy(ts.data.Batch(obs=np.array([obs]), info=info)).act
         action = policy.map_action(action)
         print("action: ", agent.action_set.actions[action][0])
-        input("Press Enter to continue...")
+        cmd = input("Press Enter to continue...")
+        while cmd == "c":
+            try:
+                env.check_goal_state()
+            except:
+                pass
+            cmd = input("Press Enter to continue...")
         obs, reward, terminated, truncated, info = env.step(action)
         cum_rew += reward
         discount_rew = reward + 0.99 * discount_rew

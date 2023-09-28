@@ -18,7 +18,7 @@ def make_env(
         config_dict=config_content,
         render_mode=render_mode,
         run_name="main",
-        max_time_step=1200,
+        max_time_step=2400,
         **base_env_args
     )
     single_agent_env = SingleAgentWrapper(

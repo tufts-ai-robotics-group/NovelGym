@@ -18,7 +18,6 @@ REHIT_SUBGOAL_DECAY_FACTOR = 0.5
 
 INVENTORY_CHANGES = {
     "craft_planks": {
-        "planks": 4
     },
     "craft_stick": {
         "stick": 4
@@ -39,7 +38,6 @@ INVENTORY_CHANGES = {
         "block_of_titanium": 1
     },
     "break_oak_log": {
-        "oak_log": 1
     }
 }
 
@@ -145,6 +143,13 @@ class RSPreplannedStateSubgoal(gym.Wrapper):
             self.subgoals.pop()
             if self.unwrapped.render_mode == "human":
                 print(f"Already completed subgoal {self.last_subgoal}. Next goal:", self.subgoals[-1])
+    
+    def check_goal_state(self):
+        print()
+        print("subgoals", self.subgoals)
+        print("last goal", self.last_subgoal)
+        print("decay", self.rehit_subgoal_decay)
+        print()
 
 
     def _update_reward(self, action, terminated, truncated, info: dict, reward):
