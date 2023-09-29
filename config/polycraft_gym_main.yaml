@@ -77,7 +77,7 @@ action_sets:
   - approach_entity_103
   - interact_103
   - select_oak_log
-  - select_*axe
+  - select_iron_pickaxe
   - select_sapling
   - select_tree_tap
   - select_crafting_table
