@@ -25,6 +25,7 @@ exp_name = args.exp_name
 log_path = os.path.join(
     args.logdir, 
     exp_name or "default_exp",
+    args.env,
     args.novelty,
     args.obs_type,
     args.rl_algo,
