@@ -37,7 +37,11 @@ env = make_env(
     env_name,
     config_file_paths,
     RepGenerator=RepGenerator,
-    rep_gen_args=rep_gen_args,
+    rep_gen_args={
+        "num_reserved_extra_objects": 2 if novelty_name == "none" else 0,
+        "item_encoder_config_path": "config/items.json",
+        **rep_gen_args
+    },
     render_mode="human",
     base_env_args={"logged_agents": ["agent_0"]}
 )
@@ -49,6 +53,7 @@ for episode in range(1000):
     discount_rew = 0
     obs, info = env.reset()
     env.render()
+    env.rep_gen.item_encoder.save_json("config/items2.json")
     print()
     print("++++++++++++++ Running episode", episode, "+++++++++++++++")
 
@@ -57,6 +62,7 @@ for episode in range(1000):
 
     for step in range(1000):
         print(obs)
+        print(obs.shape)
         print("actions: ", "; ".join([
             f"{i}: {action}" 
             for i, (action, _) in 

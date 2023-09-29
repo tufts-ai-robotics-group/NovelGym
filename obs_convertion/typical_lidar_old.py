@@ -5,7 +5,7 @@ import numpy as np
 
 from utils.env_utils import Polycraftv2Env
 from utils.diarc_json_utils import generate_diarc_json_from_state
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 
 from .base import ObservationGenerator
 
@@ -14,7 +14,7 @@ class LidarGenerator:
     def __init__(self, state, dynamics, items_lidar_disabled=[]):
         self.dynamics = dynamics
         self.items_lidar_disabled = items_lidar_disabled
-        self.item_encoder = SimpleItemEncoder()
+        self.item_encoder = PlaceHolderItemEncoder()
         
         self.num_beams = 8
         self.max_beam_range = 40

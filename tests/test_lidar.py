@@ -1,4 +1,4 @@
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, parse_failed_action_statement
 from utils.pddl_utils import generate_obj_types, get_entities
 

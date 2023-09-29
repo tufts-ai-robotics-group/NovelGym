@@ -3,7 +3,7 @@ import numpy as np
 from gymnasium import spaces
 
 from utils.env_reward_rapidlearn import RapidLearnRewardGenerator
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 from .lidar_all import LidarAll
 
 LOCAL_VIEW_SIZE=5

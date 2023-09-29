@@ -37,7 +37,10 @@ env = make_env(
     env_name,
     config_file_paths,
     RepGenerator=LidarAll,
-    rep_gen_args={},
+    rep_gen_args={
+        "num_reserved_extra_objects": 2 if novelty_name == "none" else 0,
+        "item_encoder_config_path": "config/items.json",
+    },
     render_mode="human",
     base_env_args={"logged_agents": ["agent_0"]}
 )

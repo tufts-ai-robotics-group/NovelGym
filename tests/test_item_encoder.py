@@ -1,7 +1,7 @@
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 
 def test_item_encoder():
-    item_encoder = SimpleItemEncoder({"air": 0}, placeholder_count=1)
+    item_encoder = PlaceHolderItemEncoder({"air": 0}, placeholder_count=1)
     assert item_encoder.item_list == {"air": 0, "__placeholder_0": 1}
     assert item_encoder.reverse_look_up_table == {0: "air", 1: "__placeholder_0"}
     assert item_encoder.get_id("air") == 0

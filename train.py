@@ -62,6 +62,8 @@ if __name__ == "__main__":
                         "hints": HINTS.get(novelty_name) or "",
                         "hinted_objects": hinted_objects,
                         "novel_objects": [], # TODO
+                        "num_reserved_extra_objects": 2 if novelty_name == "none" else 0,
+                        "item_encoder_config_path": "config/items.json",
                         **rep_gen_args
                     }
                 )
