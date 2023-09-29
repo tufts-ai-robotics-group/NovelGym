@@ -210,5 +210,5 @@ def create_policy(
     if checkpoint is not None:
         checkpoint = torch.load(checkpoint)
         policy.load_state_dict(checkpoint["model"])
-        optim.load_state_dict(checkpoint["optim"])
+        policy.optim.load_state_dict(checkpoint["optim"])
     return policy
