@@ -1,12 +1,7 @@
-{
-  "novelties": {
-    "0": {
-      "actions": {
-        "trade": {
-          "module": "novelties.evaluation1.busy_traders.trade_busy.BusyTrade",
-          "busy_ratio": 0.5
-        }
-      }
-    }
-  }
-}
+---
+novelties:
+  '0':
+    actions:
+      trade:
+        module: novelties.evaluation1.busy_traders.trade_busy.BusyTrade
+        busy_ratio: 0.5
