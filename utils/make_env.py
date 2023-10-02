@@ -26,7 +26,6 @@ def make_env(
 
     # single agent wrapper
     if env_name == "pf_s":
-        # TODO add wrapper
         single_agent_env = RapidLearnWrapper(
             base_env=base_ngw_env,
             agent_name="agent_0",
@@ -43,8 +42,7 @@ def make_env(
         )
 
     if env_name == "pf":
-        # TODO add wrapper
-        single_agent_env = RapidLearnWrapper(single_agent_env)
+        single_agent_env = RapidLearnWrapper(single_agent_env, skip_epi_when_rl_done=False)
     if env_name == "rs":
         single_agent_env = RSPreplannedSubgoal(single_agent_env)
     elif env_name == "rs_s":

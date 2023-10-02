@@ -25,6 +25,11 @@ class RapidLearnWrapper(gym.Wrapper):
     separated out.
     """
     metadata = {"render_modes": ["human"]}
+
+    def __init__(self, env, skip_epi_when_rl_done):
+        super().__init__(env)
+        self.skip_epi_when_rl_done = skip_epi_when_rl_done
+
     
     def _execute_plan(self):
         """
