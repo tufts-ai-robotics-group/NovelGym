@@ -125,13 +125,13 @@ class LidarAll(ObservationGenerator):
         # limits
         low = np.array(
             [0] * (lidar_items_max_count * num_beams) + 
-            [0] * max_item_type_count + 
-            [0]
+            [0] * max_item_type_count + # inventory
+            [0] * max_item_type_count # selected item
         )
         high = np.array(
             [max_beam_range] * (lidar_items_max_count * num_beams) + 
-            [40] * max_item_type_count + 
-            [max_item_type_count] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
+            [40] * max_item_type_count + # inventory
+            [1] * max_item_type_count    # selected item
         )
         observation_space = spaces.Box(low, high, dtype=int)
         return observation_space
@@ -177,9 +177,10 @@ class LidarAll(ObservationGenerator):
         # inventory
         inventory_result = self._generate_inventory(state_json)
         # selected item
-        selected_item = self._get_selected_item(state_json)
+        selected_item_onehot = np.zeros(self.max_item_type_count, dtype=int)
+        selected_item_onehot[self._get_selected_item(state_json)] = 1
 
-        return np.concatenate((sensor_result, inventory_result, [selected_item]), dtype=int)
+        return np.concatenate((sensor_result, inventory_result, selected_item_onehot), dtype=int)
 
 
     def _encode_items(self, json_data, num_extra_objects, item_encoder_config_path):
