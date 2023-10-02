@@ -63,18 +63,20 @@ class BasePlanningAgent(Agent):
     def plan(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             self.pddl_domain, self.pddl_problem = self.kb.generate_pddl(self.state, self.dynamic)
+            if self.verbose:
+                tmpdir = os.path.dirname(os.path.abspath(__file__))
             domain_path = os.path.join(tmpdir, PDDL_DOMAIN)
             problem_path = os.path.join(tmpdir, PDDL_PROBLEM)
             with open(domain_path, "w") as f:
                 f.write(self.pddl_domain)
-            if self.verbose:
-                print("PDDL Domain:")
-                print(self.pddl_domain)
+                if self.verbose:
+                    print("PDDL Domain File:")
+                    print(domain_path)
             with open(problem_path, "w") as f:
                 f.write(self.pddl_problem)
-            if self.verbose:
-                print("PDDL Problem:")
-                print(self.pddl_problem)
+                if self.verbose:
+                    print("PDDL Problem file:")
+                    print(problem_path)
             plan, translated = call_planner(domain_path, problem_path, verbose=self.verbose)
         if translated is not None:
             self.pddl_plan = "\n".join(["(" + " ".join(operator) + ")" for operator in plan])
@@ -93,6 +95,9 @@ class BasePlanningAgent(Agent):
             self.pddl_plan = "(nop)"
             return False
 
+    def set_stuck(self):
+        self.stuck = True
+        self.failed_action = self.last_action
 
     def policy(self, observation):
         if self.stuck:

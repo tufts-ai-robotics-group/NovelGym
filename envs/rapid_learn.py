@@ -19,17 +19,27 @@ class RapidLearnWrapper(gym.Wrapper):
     then the environment steps will start.
 
     Failure is denoted by the agent setting its stuck flag to True.
+
+    TODO so far it re-initializes a reward generator since the effect met
+    checker is bundled with the obs checker. in the future it should be
+    separated out.
     """
     metadata = {"render_modes": ["human"]}
     
     def _execute_plan(self):
+        """
+        returns true if stuck in an episode.
+        """
         # fast forward the environment until the agent is stuck.
         self.env._run_env_agents()
         agent = self.unwrapped.agent_selection
-        while agent not in self.unwrapped.terminations and \
-                not getattr(self.unwrapped.agent_manager.agents[agent].agent, "stuck", False):
+        # while not terminated and not stuck
+        while agent in self.unwrapped.terminations and \
+              not self.unwrapped.terminations[agent] and \
+              not getattr(self.unwrapped.agent_manager.agents[agent].agent, "stuck", False):
             obs, reward, terminated, truncated, info = self.unwrapped.last()
-            action = self.env.agent_manager.agents[agent].agent.policy(obs)
+            agent_obj = self.env.agent_manager.agents[agent].agent
+            action = agent_obj.policy(obs)
                         # getting the actions
             if type(action) == tuple:
                 # symbolic agent sending extra params
@@ -39,13 +49,21 @@ class RapidLearnWrapper(gym.Wrapper):
                 action = action
 
             # run the action
-            self.env.step(action)
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            if not info["success"]:
+                agent_obj.set_stuck()
             # run the agents in the environment
-            still_in_episode = self.env._run_env_agents()
-            if not still_in_episode:
+            is_stuck = self.env._run_env_agents()
+            if not is_stuck:
+                if self.unwrapped.render_mode == "human":
+                    print("------Episode is finished internally.------")
                 return False
             agent = self.unwrapped.agent_selection
-        return True
+        is_stuck = agent in self.unwrapped.terminations and \
+                    not self.unwrapped.terminations[agent]
+        if not is_stuck:
+            print("------Episode is finished internally.------")
+        return is_stuck
 
     def step(self, action):
         # this step function does not call the wrapped step function.
@@ -61,13 +79,13 @@ class RapidLearnWrapper(gym.Wrapper):
             obs, reward, env_terminated, truncated, info = self.env.last()
 
             # check if effects met and give the rewards
-            plannable_done, reward = self._gen_reward()
+            plannable_done, truncated, reward = self._gen_reward()
 
             if not is_stuck:
                 # not stuck, in a new episode.
                 # if the episode is done, we break the loop
                 break
-            elif plannable_done and self._skip_epi_when_rl_done:
+            elif plannable_done and self.skip_epi_when_rl_done:
                 # skip whole episode if RL gets us back to the normal state
                 # used in training
                 break
@@ -80,7 +98,7 @@ class RapidLearnWrapper(gym.Wrapper):
 
         # if we want to skip the rest of the symbolic learning when RL reaches
         # the goal to speed up training, we set done to be true when RL is done
-        if self._skip_epi_when_rl_done:
+        if self.skip_epi_when_rl_done:
             terminated = env_terminated or plannable_done
         else:
             terminated = env_terminated
@@ -88,10 +106,8 @@ class RapidLearnWrapper(gym.Wrapper):
 
     def reset(self, seed=None, options={}):
         _, info = self.env.reset()
-        # init obs gen again
-        # TODO bug
-        self._init_obs_gen()
-
+        # by this time the env agent have already planned. Now
+        # We try to execute the plan until there is any failure.
         skipped_epi_count = int(info["skipped_epi_count"])
 
         needs_rl = False
@@ -99,9 +115,26 @@ class RapidLearnWrapper(gym.Wrapper):
             needs_rl = self._execute_plan()
             if not needs_rl:
                 skipped_epi_count += 1
+                self.env.reset()
         # get the observation
-        obs = self.env._gen_obs()
+        self._init_obs_gen()
+        obs = self._gen_obs()
         return obs, {"skipped_epi_count": skipped_epi_count}
+    
+    def _gen_obs(self):
+        """
+        Generate the observation.
+        """
+        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        failed_action = main_agent.failed_action
+        diarc_json = generate_diarc_json_from_state(
+            player_id=self.player_id,
+            state=self.env.internal_state,
+            dynamic=self.env.dynamic,
+            failed_action=failed_action,
+            success=False,
+        )
+        return self.rep_gen.generate_observation(diarc_json)
 
 
     def _init_obs_gen(self):
@@ -174,7 +207,7 @@ class RapidLearnWrapper(gym.Wrapper):
             failed_action=failed_action,
             success=False,
         )
-        effects_met = self.env.rep_gen.check_if_effects_met(diarc_json)
+        effects_met = self.rep_gen.check_if_effects_met(diarc_json)
         # case 3.1: effects not met, return step reward and continue
         if not (effects_met[0] or effects_met[1]):
             return False, False, REWARDS['step']

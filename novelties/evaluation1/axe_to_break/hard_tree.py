@@ -4,9 +4,4 @@ from ngw_extensions.objects.easy_oak_log import OakLog
 
 class HardTree(OakLog):
     breakable = False
-    breakable_holding = []
-    
-    def acted_upon(self, action_name, agent: PolycraftEntity):
-        if action_name == "break" and agent.selectedItem != "axe":
-            raise PreconditionNotMetError("The tree cannot be broken.")
-        super().acted_upon(action_name, agent)
+    breakable_holding = ["axe"]

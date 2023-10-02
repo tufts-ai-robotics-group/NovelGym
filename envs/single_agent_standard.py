@@ -54,7 +54,7 @@ class SingleAgentWrapper(gym.Wrapper):
         self._action_space = None
         self._observation_space = None
 
-        self._skip_epi_when_rl_done = skip_epi_when_rl_done
+        self.skip_epi_when_rl_done = skip_epi_when_rl_done
 
     
     @property
@@ -186,7 +186,7 @@ class SingleAgentWrapper(gym.Wrapper):
 
         # if we want to skip the rest of the symbolic learning when RL reaches
         # the goal to speed up training, we set done to be true when RL is done
-        if self._skip_epi_when_rl_done:
+        if self.skip_epi_when_rl_done:
             terminated = env_terminated or plannable_done
         else:
             terminated = env_terminated

@@ -9,7 +9,8 @@ def make_env(
         rep_gen_args, 
         config_content=None,
         render_mode=None,
-        base_env_args={}
+        base_env_args={},
+        show_action_log=False
     ):
     if config_content is None:
         config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
@@ -21,12 +22,25 @@ def make_env(
         max_time_step=2400,
         **base_env_args
     )
-    single_agent_env = SingleAgentWrapper(
-        base_env=base_ngw_env,
-        agent_name="agent_0",
-        RepGenerator=RepGenerator,
-        rep_gen_args=rep_gen_args
-    )
+
+    # single agent wrapper
+    if env_name == "pf_s":
+        # TODO add wrapper
+        single_agent_env = RapidLearnWrapper(
+            base_env=base_ngw_env,
+            agent_name="agent_0",
+            RepGenerator=RepGenerator,
+            rep_gen_args=rep_gen_args
+        )
+    else:
+        single_agent_env = SingleAgentWrapper(
+            base_env=base_ngw_env,
+            agent_name="agent_0",
+            RepGenerator=RepGenerator,
+            rep_gen_args=rep_gen_args,
+            show_action_log=show_action_log
+        )
+
     if env_name == "pf":
         # TODO add wrapper
         single_agent_env = RapidLearnWrapper(single_agent_env)

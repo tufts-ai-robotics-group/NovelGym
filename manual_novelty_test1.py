@@ -43,7 +43,8 @@ env = make_env(
         **rep_gen_args
     },
     render_mode="human",
-    base_env_args={"logged_agents": ["agent_0"]}
+    base_env_args={"logged_agents": ["agent_0"]},
+    show_action_log=True
 )
 
 env.reset(seed=seed)
