@@ -57,10 +57,7 @@ def create_policy(
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
 
-    if state_shape[0] < 50 and action_shape < 40:
-        net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True)
-    else:
-        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
+    net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True, device=device)
     optim = torch.optim.Adam(net.parameters(), lr=lr or 1e-4)
 
     # prepare policy
@@ -78,7 +75,7 @@ def create_policy(
         ).to(device)
     elif "ppo" in rl_algo:
         # non-shared net ppo
-        critic = BasicCriticNet(state_shape, 1)
+        critic = BasicCriticNet(state_shape, 1, device=device)
         # net = Net(state_shape, hidden_sizes[0], device=device)
         # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
         # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
