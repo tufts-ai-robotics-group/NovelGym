@@ -54,11 +54,15 @@ if __name__ == "__main__":
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
     # env
-    if novelty_name == "none":
-        num_threads = 8
-        max_time_step = 2400
+    if args.num_threads is None:
+        if novelty_name == "none":
+            num_threads = 8
+            max_time_step = 2400
+        else:
+            num_threads = 4
+            max_time_step = 800
     else:
-        num_threads = 4
+        num_threads = args.num_threads
         max_time_step = 800
     envs = [
         lambda: make_env(
@@ -129,7 +133,7 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=args.num_threads), exploration_noise=True)
+    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=num_threads), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
     
     if novelty_name == "none":

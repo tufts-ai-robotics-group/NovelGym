@@ -31,7 +31,7 @@ parser.add_argument(
     type=int,
     help="Number of sub threads used to run the env.",
     required=False,
-    default=4
+    default=None
 )
 parser.add_argument(
     '--logdir', '-o',
