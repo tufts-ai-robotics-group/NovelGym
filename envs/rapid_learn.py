@@ -43,6 +43,8 @@ class RapidLearnWrapper(gym.Wrapper):
               not self.unwrapped.terminations[agent] and \
               not getattr(self.unwrapped.agent_manager.agents[agent].agent, "stuck", False):
             obs, reward, terminated, truncated, info = self.unwrapped.last()
+            if terminated or truncated:
+                break
             agent_obj = self.env.agent_manager.agents[agent].agent
             action = agent_obj.policy(obs)
                         # getting the actions
@@ -66,8 +68,6 @@ class RapidLearnWrapper(gym.Wrapper):
             agent = self.unwrapped.agent_selection
         is_stuck = agent in self.unwrapped.terminations and \
                     not self.unwrapped.terminations[agent]
-        if not is_stuck:
-            print("------Episode is finished internally.------")
         return is_stuck
 
     def step(self, action):

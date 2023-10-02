@@ -104,8 +104,8 @@ if __name__ == "__main__":
         device=args.device
     )
 
-    print("----------- metadata -----------")
-    print("using", args.num_threads, "threads")
+    print("----------- Run Info -----------")
+    print("using", num_threads, "threads")
     print("Novelty:", novelty_name)
     print("Seed:", seed)
     print("Algorithm:", args.rl_algo)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     # logging
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
-    logger = CustomTensorBoardLogger(writer)
+    logger = CustomTensorBoardLogger(writer, epi_max_len=max_time_step)
 
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=num_threads), exploration_noise=True)

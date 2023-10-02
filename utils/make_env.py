@@ -1,7 +1,7 @@
 from gym_novel_gridworlds2.envs.sequential import NovelGridWorldSequentialEnv
 from envs import SingleAgentWrapper, RealTimeRSWrapper, RSPreplannedSubgoal, RapidLearnWrapper, RSPreplannedStateSubgoal
 from gym_novel_gridworlds2.utils.json_parser import ConfigParser, load_json
-
+from gymnasium.wrappers.time_limit import TimeLimit
 def make_env(
         env_name, 
         config_file_paths, 
@@ -20,7 +20,7 @@ def make_env(
         config_dict=config_content,
         render_mode=render_mode,
         run_name="main",
-        max_time_step=max_time_step,
+        max_time_step=max_time_step + 1000, # extra 1000 allowed for planning steps
         **base_env_args
     )
 
@@ -47,4 +47,4 @@ def make_env(
         single_agent_env = RSPreplannedSubgoal(single_agent_env)
     elif env_name == "rs_s":
         single_agent_env = RSPreplannedStateSubgoal(single_agent_env)
-    return single_agent_env
+    return TimeLimit(single_agent_env, max_episode_steps=max_time_step)
