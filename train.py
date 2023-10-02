@@ -54,6 +54,12 @@ if __name__ == "__main__":
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
     # env
+    if novelty_name == "none":
+        num_threads = 8
+        max_time_step = 2400
+    else:
+        num_threads = 4
+        max_time_step = 800
     envs = [
         lambda: make_env(
                     env_name=args.env, 
@@ -66,9 +72,10 @@ if __name__ == "__main__":
                         "num_reserved_extra_objects": 2 if novelty_name == "none" else 0,
                         "item_encoder_config_path": "config/items.json",
                         **rep_gen_args
-                    }
+                    },
+                    max_time_step=max_time_step
                 )
-        for _ in range(args.num_threads)
+        for _ in range(num_threads)
     ]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
@@ -124,10 +131,18 @@ if __name__ == "__main__":
     # collector
     train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=args.num_threads), exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
-
+    
+    if novelty_name == "none":
+        step_per_epoch = 28800
+        step_per_collect = 2400
+        num_threads = 8
+    else:
+        step_per_epoch = 4800
+        step_per_collect = 400
+        num_threads = 4
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=400, step_per_epoch=28800, step_per_collect=2400,
+        max_epoch=400, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
         episode_per_test=20, batch_size=64,
         repeat_per_collect=4,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,

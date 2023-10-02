@@ -10,7 +10,8 @@ def make_env(
         config_content=None,
         render_mode=None,
         base_env_args={},
-        show_action_log=False
+        show_action_log=False,
+        max_time_step=2400,
     ):
     if config_content is None:
         config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
@@ -19,7 +20,7 @@ def make_env(
         config_dict=config_content,
         render_mode=render_mode,
         run_name="main",
-        max_time_step=2400,
+        max_time_step=max_time_step,
         **base_env_args
     )
 
