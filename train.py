@@ -143,14 +143,16 @@ if __name__ == "__main__":
         step_per_collect = 2400
         num_threads = 8
         episode_per_test = 20
+        max_epoch = 60
     else:
         step_per_epoch = 4800
         step_per_collect = 800
         num_threads = 4
         episode_per_test = 100
+        max_epoch = 40
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=400, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
+        max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
         episode_per_test=episode_per_test, batch_size=64,
         repeat_per_collect=4,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
