@@ -133,17 +133,21 @@ if __name__ == "__main__":
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
     
     if novelty_name == "none":
+        # Training the base pre-novelty model. 
+        # To speed up 
         step_per_epoch = 28800
         step_per_collect = 2400
         num_threads = 8
+        episode_per_test = 20
     else:
         step_per_epoch = 4800
-        step_per_collect = 400
+        step_per_collect = 800
         num_threads = 4
+        episode_per_test = 100
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=400, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
-        episode_per_test=20, batch_size=64,
+        episode_per_test=episode_per_test, batch_size=64,
         repeat_per_collect=4,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
