@@ -57,13 +57,13 @@ if __name__ == "__main__":
     if args.num_threads is None:
         if novelty_name == "none":
             num_threads = 8
-            max_time_step = 2400
+            max_time_step = 1200
         else:
             num_threads = 4
-            max_time_step = 800
+            max_time_step = 400
     else:
         num_threads = args.num_threads
-        max_time_step = 800
+        max_time_step = 400
     envs = [
         lambda: make_env(
                     env_name=args.env, 
