@@ -142,8 +142,8 @@ if __name__ == "__main__":
         step_per_epoch = 28800
         step_per_collect = 2400
         num_threads = 8
-        episode_per_test = 20
-        max_epoch = 60
+        episode_per_test = 100
+        max_epoch = 300
     else:
         step_per_epoch = 4800
         step_per_collect = 800
