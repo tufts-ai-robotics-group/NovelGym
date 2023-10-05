@@ -96,6 +96,10 @@ if __name__ == "__main__":
     else:
         hidden_sizes = None
     
+    if args.resume:
+        checkpoint = os.path.join(log_path, "checkpoint.pth")
+    else:
+        checkpoint = args.checkpoint
     policy = create_policy(
         args.rl_algo, state_shape, action_shape, 
         all_actions, novel_actions, 
@@ -108,10 +112,13 @@ if __name__ == "__main__":
     print("using", num_threads, "threads")
     print("Novelty:", novelty_name)
     print("Seed:", seed)
+    print("Env:", args.env)
     print("Algorithm:", args.rl_algo)
     print("lr:", args.lr or "default")
-    if args.checkpoint:
-        print("loaded checkpoint", args.checkpoint)
+    if args.resume:
+        print("Resuming training from last run:", log_path)
+    if checkpoint is not None:
+        print("loaded checkpoint", checkpoint)
     if hidden_sizes:
         print("hidden size:", hidden_sizes)
     print("Device:", args.device)
@@ -161,7 +168,8 @@ if __name__ == "__main__":
         stop_fn=lambda mean_rewards: False,
         save_best_fn=create_save_best_fn(log_path),
         save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
-        logger=logger
+        logger=logger,
+        resume_from_log=args.resume
     )
     
     print(f'Finished training! Use {result["duration"]}')
