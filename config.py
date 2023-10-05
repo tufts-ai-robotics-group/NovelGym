@@ -22,14 +22,15 @@ OBS_GEN_ARGS = {
 
 NOVELTIES = {
     "none": "",
+    "axe": "novelties/evaluation1/axe_to_break/axe_to_break.yaml",
+    "fence": "novelties/evaluation1/fence/fence_easy.yaml",
+    "chest": "novelties/evaluation1/chest_shortcut/chest_shortcut.yaml",
     "mi_h": "novelties/evaluation1/multi_interact/multi_interact.yaml",
     "mi_cantplan": "novelties/evaluation1/multi_interact/multi_interact_cant_plan.yaml",
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.yaml",
-    "axe": "novelties/evaluation1/axe_to_break/axe_to_break.yaml",
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.yaml",
     "space_ar_hard": "novelties/evaluation1/space_around/space_around_hard_high_radius.yaml",
     "space_ar": "novelties/evaluation1/space_around/space_around.yaml",
-    "fence": "novelties/evaluation1/fence/fence_easy.yaml",
     "moving_traders": "novelties/evaluation1/moving_traders/moving_traders.yaml",
     "busy_traders": "novelties/evaluation1/busy_traders/busy_traders.yaml",
     "multi_rooms": "novelties/evaluation1/multi_rooms/multi_rooms.yaml",
