@@ -140,7 +140,15 @@ if __name__ == "__main__":
     logger = CustomTensorBoardLogger(writer, epi_max_len=max_time_step)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=num_threads), exploration_noise=True)
+    if args.resume:
+        try:
+            path = os.path.join(log_path, "buffer_ckpt.pth")
+            train_buffer = ts.data.VectorReplayBuffer.load_hdf5(path)
+        except:
+            train_buffer = ts.data.VectorReplayBuffer(20000, buffer_num=num_threads)
+    else:
+        train_buffer = ts.data.VectorReplayBuffer(20000, buffer_num=num_threads)
+    train_collector = ts.data.Collector(policy, venv, train_buffer, exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
     
     if novelty_name == "none":
@@ -167,7 +175,7 @@ if __name__ == "__main__":
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
         stop_fn=lambda mean_rewards: False,
         save_best_fn=create_save_best_fn(log_path),
-        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
+        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, train_buffer),
         logger=logger,
         resume_from_log=args.resume
     )
