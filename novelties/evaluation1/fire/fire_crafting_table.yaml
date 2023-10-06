@@ -1,0 +1,17 @@
+---
+object_types:
+  water_bucket: novelties.evaluation1.fire.floating_obj.FloatingObj
+  bucket: novelties.evaluation1.fire.floating_obj.FloatingObj
+  crafting_table: novelties.evaluation1.fire.obj_on_fire.ObjOnFire
+actions:
+  craft: 
+    module: novelties.evaluation1.fire.craft.FireAwareCraft
+action_sets:
+  main:
+  - nop_placeholder1 -> approach_water_bucket
+  - nop_placeholder2 -> select_water_bucket
+objects:
+  water_bucket:
+    quantity: 1
+    room: 2
+    chunked: False
