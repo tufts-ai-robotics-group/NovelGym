@@ -156,7 +156,7 @@ if __name__ == "__main__":
         step_per_collect = 800
         num_threads = 4
         episode_per_test = 100
-        max_epoch = 200
+        max_epoch = 100 if args.env == "pf" else 200
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
