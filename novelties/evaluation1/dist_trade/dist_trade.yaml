@@ -1,0 +1,6 @@
+---
+novelties:
+  '0':
+    actions:
+      trade: 
+        min_distance: 2

@@ -23,6 +23,7 @@ OBS_GEN_ARGS = {
 NOVELTIES = {
     "none": "",
     "axe": "novelties/evaluation1/axe_to_break/axe_to_break.yaml",
+    "dist_trade": "novelties/evaluation1/dist_trade/dist_trade.yaml",
     "fence": "novelties/evaluation1/fence/fence_easy.yaml",
     "chest": "novelties/evaluation1/chest_shortcut/chest_shortcut.yaml",
     "mi_h": "novelties/evaluation1/multi_interact/multi_interact.yaml",
