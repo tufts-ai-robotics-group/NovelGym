@@ -168,8 +168,8 @@ if __name__ == "__main__":
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
-        episode_per_test=episode_per_test, batch_size=64,
-        repeat_per_collect=4,
+        episode_per_test=episode_per_test, batch_size=128,
+        repeat_per_collect=8,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
