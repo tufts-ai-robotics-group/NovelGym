@@ -174,7 +174,10 @@ if __name__ == "__main__":
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
-        stop_fn=generate_min_rew_stop_fn(min_length=22, min_rew_threshold=950),
+        stop_fn=generate_min_rew_stop_fn(
+            min_length=(40 if novelty_name == "chest" else 22), 
+            min_rew_threshold=950
+        ),
         save_best_fn=create_save_best_fn(log_path),
         save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, train_buffer),
         logger=logger,
