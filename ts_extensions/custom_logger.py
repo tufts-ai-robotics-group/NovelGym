@@ -2,9 +2,10 @@ from tianshou.utils import TensorboardLogger
 import numpy as np
 
 class CustomTensorBoardLogger(TensorboardLogger):
-    def __init__(self, writer, epi_max_len):
+    def __init__(self, writer, epi_max_len, rew_min):
         super().__init__(writer)
         self.epi_max_len = epi_max_len
+        self.rew_min = rew_min
     
     def log_test_data(self, collect_result: dict, step: int) -> None:
         """Use writer to log statistics generated during evaluating.
@@ -25,7 +26,7 @@ class CustomTensorBoardLogger(TensorboardLogger):
                 "test/reward_max": np.max(collect_result['rews']),
                 "test/length_min": np.min(collect_result['lens']),
                 "test/length_max": np.max(collect_result['lens']),
-                "test/percent_dones": np.mean(collect_result['lens'] < self.epi_max_len),
+                "test/percent_dones": np.mean((collect_result['lens'] < self.epi_max_len) & (collect_result['rew'] > self.rew_min)),
             }
             self.write("test/env_step", step, log_data)
             self.last_log_test_step = step
