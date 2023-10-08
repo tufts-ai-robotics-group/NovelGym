@@ -160,17 +160,19 @@ if __name__ == "__main__":
         num_threads = 8
         episode_per_test = 100
         max_epoch = 300
+        repeat_per_collect = 20
     else:
         step_per_epoch = 4800
         step_per_collect = 800
         num_threads = 4
         episode_per_test = 100
         max_epoch = 100 if args.env == "pf" else 200
+        repeat_per_collect = 8
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
         max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
         episode_per_test=episode_per_test, batch_size=128,
-        repeat_per_collect=8,
+        repeat_per_collect=repeat_per_collect,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
