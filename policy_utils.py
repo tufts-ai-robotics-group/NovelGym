@@ -205,7 +205,7 @@ def create_policy(
     #         disc_optim=disc_optim
     #     )
     if checkpoint is not None:
-        checkpoint = torch.load(checkpoint)
+        checkpoint = torch.load(checkpoint, map_location=device)
         policy.load_state_dict(checkpoint["model"])
         policy.optim.load_state_dict(checkpoint["optim"])
     return policy
