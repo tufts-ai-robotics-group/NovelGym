@@ -1,20 +1,15 @@
-{
-  "object_types": {
-      "fence": "novelties.evaluation1.fence.fence.Fence"
-  },
-  "novelties": {
-    "0": {
-      "map_gen_plugins": [
-        {
-          "func": "gym_novel_gridworlds2.utils.map_gen_plugin.generate_item_around",
-          "args": {
-            "center_obj_name": "oak_log",
-            "new_obj_name": "fence",
-            "radius": 1,
-            "replace": false
-          }
-        }
-      ]
-    }
-  }
-}
+---
+object_types:
+  fence: novelties.evaluation1.fence.fence.Fence
+novelties:
+  '0':
+    map_gen_plugins:
+    - func: gym_novel_gridworlds2.utils.map_gen_plugin.generate_item_around
+      args:
+        center_obj_name: oak_log
+        new_obj_name: fence
+        radius: 1
+        replace: false
+action_sets:
+  main:
+  - nop_placeholder1 -> approach_fence

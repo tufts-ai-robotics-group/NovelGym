@@ -1,28 +1,15 @@
 from gymnasium.envs.registration import register
-from .planning_until_failure import PlanningUntilFailureEnv
-from .single_agent import SingleAgentEnv
-from .single_agent_rs import SingleAgentRSShorterPlanEnv
+from .rapid_learn import RapidLearnWrapper
+from .single_agent_standard import SingleAgentWrapper
+from .reward_shaping_realtime import RealTimeRSWrapper
+from .reward_shaping_by_action import RSPreplannedSubgoal
+from .reward_shaping_by_state import RSPreplannedStateSubgoal
 
-register(
-    id='Gym-SingleAgent-v0',
-    entry_point='envs:SingleAgentEnv',
-    reward_threshold=980,
-    max_episode_steps=1000
-    # reward_threshold =
-)
-register(
-    id='Gym-PlanningUntilFail-v0',
-    entry_point='envs:PlanningUntilFailureEnv',
-    reward_threshold=980,
-    max_episode_steps=300
-    # reward_threshold =
-)
-register(
-    id='RewardShapingShorterPlan-v0',
-    entry_point='envs:SingleAgentRSShorterPlanEnv',
-    reward_threshold=980,
-    max_episode_steps=1000
-    # reward_threshold =
-)
 
-__all__ = ["SingleAgentEnv", "DiarcRapidLearn", ""]
+__all__ = [
+    "SingleAgentWrapper", 
+    "RewardShapingWrapper",
+    "RealTimeRSWrapper",
+    "RSPreplannedSubgoal",
+    "RSPreplannedStateSubgoal"
+]

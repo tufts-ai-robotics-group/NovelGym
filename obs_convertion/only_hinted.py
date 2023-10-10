@@ -1,5 +1,5 @@
 from utils.hint_utils import get_hinted_items
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 from .lidar_all import LidarAll
 import numpy as np
 from gymnasium import spaces
@@ -15,7 +15,7 @@ class NovelOnlyObs(LidarAll):
             **kwargs
         ):
         # encoder for automatically encoding new objects
-        self.item_encoder = SimpleItemEncoder({"air": 0})
+        self.item_encoder = PlaceHolderItemEncoder({"air": 0})
         self.max_item_type_count = self._encode_items(kwargs['json_input']['state'])
 
         self.novel_objects = hinted_objects + novel_objects

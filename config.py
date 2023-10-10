@@ -1,14 +1,16 @@
-from obs_convertion import LidarAll, OnlyFacingObs, NovelOnlyObs
+from obs_convertion import LidarAll, OnlyFacingObs, NovelOnlyObs, Matrix
 import tianshou as ts
 from policies import BiasedDQN
 from net.basic import BasicNet
 from net.norm_net import NormalizedNet
+from envs.single_agent_standard import SingleAgentWrapper
 
 OBS_TYPES = {
     "lidar_all": LidarAll,
     "lidar_lite": LidarAll,
     "facing_only": OnlyFacingObs,
     "hinted_only": NovelOnlyObs,
+    "matrix": Matrix
 }
 
 OBS_GEN_ARGS = {
@@ -20,14 +22,17 @@ OBS_GEN_ARGS = {
 
 NOVELTIES = {
     "none": "",
+    "axe": "novelties/evaluation1/axe_to_break/axe_to_break.yaml",
+    "dist_trade": "novelties/evaluation1/dist_trade/dist_trade.yaml",
+    "fence": "novelties/evaluation1/fence/fence_easy.yaml",
+    "fire": "novelties/evaluation1/fire/fire_crafting_table.yaml",
+    "chest": "novelties/evaluation1/chest_shortcut/chest_shortcut.yaml",
     "mi_h": "novelties/evaluation1/multi_interact/multi_interact.yaml",
     "mi_cantplan": "novelties/evaluation1/multi_interact/multi_interact_cant_plan.yaml",
     "kibt": "novelties/evaluation1/key_inventory_trade/key_inventory_trade.yaml",
-    "axe": "novelties/evaluation1/axe_to_break/axe_to_break.yaml",
     "rdb": "novelties/evaluation1/random_drop_break/random_drop_break.yaml",
     "space_ar_hard": "novelties/evaluation1/space_around/space_around_hard_high_radius.yaml",
     "space_ar": "novelties/evaluation1/space_around/space_around.yaml",
-    "fence": "novelties/evaluation1/fence/fence_easy.yaml",
     "moving_traders": "novelties/evaluation1/moving_traders/moving_traders.yaml",
     "busy_traders": "novelties/evaluation1/busy_traders/busy_traders.yaml",
     "multi_rooms": "novelties/evaluation1/multi_rooms/multi_rooms.yaml",
@@ -76,9 +81,14 @@ POLICY_PROPS = {
 }
 
 AVAILABLE_ENVS = {
-    "sa": "Gym-SingleAgent-v0",
-    "pf": "Gym-PlanningUntilFail-v0",
-    "rs": "RewardShapingShorterPlan-v0"
+    "sa": None,
+    "pf": None,
+    "rs": None,
+    "rs_s": None
+}
+
+AVAILABLE_WRAPPERS = {
+    "sa": [SingleAgentWrapper]
 }
 
 

@@ -1,17 +1,13 @@
-{
-  "object_types": {
-    "oak_log": "novelties.evaluation1.axe_to_break.hard_tree.HardTree",
-    "axe": "gym_novel_gridworlds2.contrib.polycraft.objects.PolycraftObject"
-  },
-  "novelties": {
-    "0": {
-      "entities": {
-        "main_1": {
-          "inventory": {
-            "axe": 1
-          }
-        }
-      }
-    }
-  }
-}
+---
+object_types:
+  oak_log: novelties.evaluation1.axe_to_break.hard_tree.HardTree
+  axe: gym_novel_gridworlds2.contrib.polycraft.objects.PolycraftObject
+novelties:
+  '0':
+    entities:
+      main_1:
+        inventory:
+          axe: 1
+action_sets:
+  main:
+  - nop_placeholder1 -> select_axe

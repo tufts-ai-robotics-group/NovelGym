@@ -7,7 +7,7 @@ from functools import lru_cache
 from .env_condition_set import ConditionSet
 
 # from env_utils import SimpleItemEncoder
-from .item_encoder import SimpleItemEncoder
+from .advanced_item_encoder import PlaceHolderItemEncoder
 
 """
 state = {
@@ -323,7 +323,7 @@ class RapidLearnRewardGenerator:
                 # print("effects_tokens: ", transformed_effects)
                 try:
                     return self._make_check_function(transformed_effects)
-                except SimpleItemEncoder.TooManyItemTypes as e:
+                except PlaceHolderItemEncoder.TooManyItemTypes as e:
                     raise Exception("Error while creating effect function for (" + ",".join(statement) + ")") from e
         print(action_params[0], "action not found!")
         return self._maker_map['always_false']

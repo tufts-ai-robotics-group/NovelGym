@@ -4,7 +4,7 @@ import gymnasium as gym
 from agents.base_planning import BasePlanningAgent
 from utils.diarc_json_utils import generate_diarc_json_from_state
 
-from .single_agent import SingleAgentEnv
+from .single_agent_standard import SingleAgentWrapper
 
 REWARDS = {
     "positive": 1000,
@@ -13,7 +13,7 @@ REWARDS = {
 }
 
 
-class PlanningUntilFailureEnv(SingleAgentEnv):
+class RapidLearnWrapper(SingleAgentWrapper):
     """
     An environment where given the pddl domains,
     it will execute the plan until an action failed, or until it's unable to plan.

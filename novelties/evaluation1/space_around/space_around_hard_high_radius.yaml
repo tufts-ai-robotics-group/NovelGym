@@ -1,23 +1,14 @@
-{
-  "novelties": {
-    "0": {
-      "object_types": {
-        "sapling": "novelties.evaluation1.space_around.clear_radius_obj_hard.ClearRadiusPolycraftObject"
-      },
-      "entities": {
-        "main_1": {
-          "inventory": {
-            "sapling": 10
-          }
-        }
-      },
-      "objects": {
-        "oak_log": {
-          "quantity": 2,
-          "room": 2,
-          "chunked": "False"
-        }
-      }
-    }
-  }
-}
+---
+novelties:
+  '0':
+    object_types:
+      sapling: novelties.evaluation1.space_around.clear_radius_obj_hard.ClearRadiusPolycraftObject
+    entities:
+      main_1:
+        inventory:
+          sapling: 10
+    objects:
+      oak_log:
+        quantity: 2
+        room: 2
+        chunked: 'False'

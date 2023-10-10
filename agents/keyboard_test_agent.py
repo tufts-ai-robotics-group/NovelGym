@@ -1,5 +1,5 @@
 from gym_novel_gridworlds2.agents.agent import Agent
-from gym.spaces import Discrete
+from gymnasium.spaces import Discrete
 
 
 class KeyboardAgent(Agent):

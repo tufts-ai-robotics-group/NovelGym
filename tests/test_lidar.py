@@ -1,4 +1,4 @@
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, parse_failed_action_statement
 from utils.pddl_utils import generate_obj_types, get_entities
 
@@ -8,7 +8,7 @@ from gym_novel_gridworlds2.utils.json_parser import load_json, ConfigParser
 import numpy as np
 import os
 
-JSON_CONFIG_PATH = "config/polycraft_gym_main.json"
+JSON_CONFIG_PATH = "config/polycraft_gym_main.yaml"
 
 def test_observation_space():
     config_json = load_json(JSON_CONFIG_PATH)

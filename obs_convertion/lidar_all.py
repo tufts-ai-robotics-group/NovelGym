@@ -7,21 +7,47 @@ from gymnasium import spaces
 
 from utils.env_reward_rapidlearn import RapidLearnRewardGenerator, scan_tokens
 from utils.env_condition_set import ConditionSet
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 from .base import ObservationGenerator
 
 NUM_BEAMS=8
 MAX_BEAM_RANGE=40
 
 
+###################################
+# Important!
+# TODO
+# Caveats of reserved spots in the observation space
+# the items are sorted by name on first initalization.
+# subsequent "reserved spots" will be filled with items in a first-come
+# first-encoded fashion. therefore, if two environments encounter
+# more than one new object in different orders, the encoded id could be
+# different among different instances of the environment.
+# Will need to check synchronization options.
+# y. wei. 09/13/2023
+###################################
+
 class LidarAll(ObservationGenerator):
-    def __init__(self, json_input: dict, items_lidar_disabled=[], RL_test=False, num_beams=8, max_beam_range=40, *args, **kwargs) -> None:
+    def __init__(self, 
+                 json_input: dict, 
+                 items_lidar_disabled=[], 
+                 RL_test=False, 
+                 num_beams=8, 
+                 max_beam_range=40,
+                 num_reserved_extra_objects=2,
+                 item_encoder_config_path=None,
+                 *args, 
+                 **kwargs
+        ) -> None:
         """
         The Env is instanciated using the first json input.
         """
         # encoder for automatically encoding new objects
-        self.item_encoder = SimpleItemEncoder({"air": 0})
-        self.max_item_type_count = self._encode_items(json_input['state'])
+        self.max_item_type_count, self.item_encoder = self._encode_items(
+            json_input['state'], 
+            num_reserved_extra_objects, 
+            item_encoder_config_path
+        )
 
         # rep of beams
         self.num_beams = num_beams
@@ -74,11 +100,23 @@ class LidarAll(ObservationGenerator):
             items_lidar_disabled=[], 
             num_beams=NUM_BEAMS,
             max_beam_range=MAX_BEAM_RANGE,
+            reserved_extra_objects=2, # in case we have new objects in the world
+            item_encoder_config_path=None,
             *args,
             **kwargs
         ):
+        # load and see if we already have the count
+        max_item_type_count = 0
+        if item_encoder_config_path is not None:
+            try:
+                with open(item_encoder_config_path, "r") as f:
+                    config = json.load(f)
+                    max_item_type_count = config["id_limit"]
+            except Exception as e:
+                pass
         # +1 since obj encoder has one extra error margin for unknown objects
-        max_item_type_count = len(all_objects) + len(all_entities) + 1
+        if max_item_type_count == 0:
+            max_item_type_count = len(all_objects) + len(all_entities) + reserved_extra_objects + 1
         # things to search for in lidar. only excludes disabled items
 
         # maximum of number of possible items
@@ -87,13 +125,13 @@ class LidarAll(ObservationGenerator):
         # limits
         low = np.array(
             [0] * (lidar_items_max_count * num_beams) + 
-            [0] * max_item_type_count + 
-            [0]
+            [0] * max_item_type_count + # inventory
+            [0] * max_item_type_count # selected item
         )
         high = np.array(
             [max_beam_range] * (lidar_items_max_count * num_beams) + 
-            [40] * max_item_type_count + 
-            [max_item_type_count] # maximum 40 stick can be crafted (5 log -> 20 plank -> 40 stick)
+            [40] * max_item_type_count + # inventory
+            [1] * max_item_type_count    # selected item
         )
         observation_space = spaces.Box(low, high, dtype=int)
         return observation_space
@@ -139,31 +177,49 @@ class LidarAll(ObservationGenerator):
         # inventory
         inventory_result = self._generate_inventory(state_json)
         # selected item
-        selected_item = self._get_selected_item(state_json)
+        selected_item_onehot = np.zeros(self.max_item_type_count, dtype=int)
+        selected_item_onehot[self._get_selected_item(state_json)] = 1
 
-        return np.concatenate((sensor_result, inventory_result, [selected_item]), dtype=int)
+        return np.concatenate((sensor_result, inventory_result, selected_item_onehot), dtype=int)
 
 
-    def _encode_items(self, json_data):
+    def _encode_items(self, json_data, num_extra_objects, item_encoder_config_path):
         """
         Run through the json and loads items into the list. Returns the number of items.
         Used to know how many items to expect so we can instantiate the array accordingly.
         """
-        # This is a dry run of some functions to make sure the all items are included.
-        # Nothing will be returned. The same function will be run again when generate_observation is called.
-        self._generate_map(json_data)
-        
-        for slot in json_data['inventory']['slots']:
-            self.item_encoder.get_id(slot['item'])
-        
-        all_items_keys = sorted(self.item_encoder.item_list)
-        # create a new one with sorted keys
-        self.item_encoder = SimpleItemEncoder({key: idx for idx, key in enumerate(all_items_keys)})
+        self.item_encoder = PlaceHolderItemEncoder({"air": 0})
+        if item_encoder_config_path is not None:
+            try:
+                self.item_encoder.load_json(item_encoder_config_path)
+            except FileNotFoundError:
+                print("Unable to load item encoder. starting new file.")
+                pass
 
-        # prevent new items from being encoded since we made the 
-        #     assumption that no new items will be discovered after the first run.
-        self.item_encoder.id_limit = len(self.item_encoder.item_list)
-        return self.item_encoder.id_limit
+        # find all objects in the world
+        items_in_the_world = set()
+        for key, item in json_data['map'].items():
+            items_in_the_world.add(item)
+        for slot in json_data['inventory']['slots']:
+            items_in_the_world.add(slot['item'])
+        items_in_the_world.add(json_data['inventory']['selectedItem'])
+        
+        # see if it found new objects
+        new_items = items_in_the_world - set(self.item_encoder.item_list.keys())
+        
+        # if it found new objexts, then sort them and add new objects.
+        if len(new_items) > 0:
+            all_new_items_keys = sorted(list(new_items))
+            for item in all_new_items_keys:
+                # encode everything
+                self.item_encoder.get_id(item)
+
+            # prevent new items from being encoded since we made the 
+            #     assumption that no new items will be discovered after the first run.
+            self.item_encoder.alloc_placeholders(num_extra_objects)
+            self.item_encoder.id_limit = len(self.item_encoder.item_list)
+        self.item_encoder.save_json("results/items.json")
+        return self.item_encoder.id_limit, self.item_encoder
 
 
     #################################################################

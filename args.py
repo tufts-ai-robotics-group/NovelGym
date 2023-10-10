@@ -31,7 +31,7 @@ parser.add_argument(
     type=int,
     help="Number of sub threads used to run the env.",
     required=False,
-    default=4
+    default=None
 )
 parser.add_argument(
     '--logdir', '-o',
@@ -74,8 +74,13 @@ parser.add_argument(
     choices=AVAILABLE_ENVS.keys()
 )
 parser.add_argument(
+    '--resume', '-r',
+    help="whether to resume training from a saved checkpoint.",
+    action='store_true'
+)
+parser.add_argument(
     '--checkpoint', '--ckpt',
-    help="The path to the checkpoint to load.",
+    help="The path to the checkpoint to load the model. This is used to fine tune a model. To resume training, use --resume instead.",
     default=None
 )
 parser.add_argument(

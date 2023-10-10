@@ -1,0 +1,34 @@
+{
+    "item_mapping": {
+        "air": 0,
+        "bedrock": 1,
+        "block_of_diamond": 2,
+        "block_of_platinum": 3,
+        "block_of_titanium": 4,
+        "blue_key": 5,
+        "crafting_table": 6,
+        "diamond": 7,
+        "diamond_ore": 8,
+        "door": 9,
+        "entity_0": 10,
+        "entity_102": 11,
+        "entity_103": 12,
+        "iron_pickaxe": 13,
+        "oak_log": 14,
+        "planks": 15,
+        "plastic_chest": 16,
+        "pogo_stick": 17,
+        "rubber": 18,
+        "safe": 19,
+        "sapling": 20,
+        "stick": 21,
+        "tree_tap": 22,
+        "__placeholder_0": 23,
+        "__placeholder_1": 24
+    },
+    "placeholders": [
+        "__placeholder_1",
+        "__placeholder_0"
+    ],
+    "id_limit": 25
+}

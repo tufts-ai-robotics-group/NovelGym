@@ -1,0 +1,9 @@
+
+---
+novelties:
+  '0':
+    object_types:
+      plastic_chest: novelties.evaluation1.chest_shortcut.chest.PlasticChest
+    action_sets:
+      main:
+        - nop_placeholder1 -> approach_plastic_chest

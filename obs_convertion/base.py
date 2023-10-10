@@ -7,14 +7,14 @@ from abc import (
   abstractmethod,
 )
 
-from utils.item_encoder import SimpleItemEncoder
+from utils.advanced_item_encoder import PlaceHolderItemEncoder
 
 class ObservationGenerator(ABC):
     def __init__(self, *args, **kwargs):
         self.action_set: List[str] = []
         self.novel_action_set: List[str] = []
         self.failed_action: str = []
-        self.item_encoder: SimpleItemEncoder = SimpleItemEncoder()
+        self.item_encoder: PlaceHolderItemEncoder = PlaceHolderItemEncoder()
         pass
     
     @staticmethod

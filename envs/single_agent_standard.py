@@ -15,7 +15,7 @@ REWARDS = {
 }
 
 
-class SingleAgentEnv(gym.Wrapper):
+class SingleAgentWrapper(gym.Wrapper):
     """
     An environment where given the pddl domains,
     it will execute the plan until an action failed, or until it's unable to plan.
@@ -24,29 +24,18 @@ class SingleAgentEnv(gym.Wrapper):
     metadata = {"render_modes": ["human"]}
     def __init__(
             self, 
-            config_file_paths, 
+            base_env: NovelGridWorldSequentialEnv,
             agent_name, 
             task_name="", 
             show_action_log=False, 
             RepGenerator=LidarAll,
             rep_gen_args={},
-            render_mode=None,
             skip_epi_when_rl_done=True,
             seed=None
         ):
-        config_content = load_json(config_json={"extends": config_file_paths}, verbose=False)
-        self.config_content = config_content
-
         self.player_id = 0
 
-        self.env = NovelGridWorldSequentialEnv(
-            config_dict=config_content, 
-            max_time_step=None, 
-            time_limit=None,
-            render_mode=render_mode,
-            run_name=task_name,
-            logged_agents=['main_1'] if show_action_log else []
-        )
+        self.env = base_env
         self.show_action_log = show_action_log
         self.agent_name = agent_name
 
@@ -59,13 +48,13 @@ class SingleAgentEnv(gym.Wrapper):
 
         if seed is not None:
             self.env.reset(seed=seed)
-        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
-        self.env.dynamic.all_entities = get_entities(self.config_content)
+        self.env.dynamic.all_objects = generate_obj_types(self.env.config_dict)
+        self.env.dynamic.all_entities = get_entities(self.env.config_dict)
 
         self._action_space = None
         self._observation_space = None
 
-        self._skip_epi_when_rl_done = skip_epi_when_rl_done
+        self.skip_epi_when_rl_done = skip_epi_when_rl_done
 
     
     @property
@@ -78,7 +67,7 @@ class SingleAgentEnv(gym.Wrapper):
             )
         else:
             return self._observation_space
-    
+
 
     @property
     def action_space(self):
@@ -89,31 +78,30 @@ class SingleAgentEnv(gym.Wrapper):
         return self._action_space
 
     
-    def _fast_forward(self):
+    def _run_env_agents(self):
         # fast forward the environment until the agent in interest is reached.
         agent = self.env.agent_selection
         while agent != self.agent_name:
-            if len(self.env.dones) == 0 or (agent == self.agent_name and self.env.dones[agent]):
+            if agent not in self.env.terminations or \
+                    (agent == self.agent_name and (self.env.terminations[agent] or 
+                                                   self.env.truncations[agent])):
                 # episode is done, restart a new episode.
-                if self.env.enable_render:
+                if self.env.render_mode == "human":
                     print("------Episode is finished internally.------")
                 return False
-            if agent not in self.env.dones or self.env.dones[agent]:
-                # skips the process if agent is not the main agent and is done.
-                self.env.step(0, {})
+            # TODO: remove extra params
+            obs, reward, terminated, truncated, info = self.env.last()
+            action = self.env.agent_manager.agents[agent].agent.policy(obs)
+                        # getting the actions
+            extra_params = {}
+            if type(action) == tuple:
+                # symbolic agent sending extra params
+                action, extra_params = action
             else:
-                obs, reward, done, info = self.env.last()
-                action = self.env.agent_manager.agents[agent].agent.policy(obs)
-                            # getting the actions
-                extra_params = {}
-                if type(action) == tuple:
-                    # symbolic agent sending extra params
-                    action, extra_params = action
-                else:
-                    # rl agent / actions with no extra params
-                    action = action
+                # rl agent / actions with no extra params
+                action = action
 
-                self.env.step(action, extra_params)
+            self.env.step(action, extra_params)
             agent = self.env.agent_selection
         return True
 
@@ -169,14 +157,15 @@ class SingleAgentEnv(gym.Wrapper):
 
 
     def _gen_reward(self):
+        """
+        env_done, reward
+        """
         if self.env.internal_state._goal_achieved:
-            return True, False, REWARDS["positive"]
+            return True, REWARDS["positive"]
         elif self.env.internal_state._given_up:
-            return True, False, REWARDS["negative"]
-        elif self.env.dones["agent_0"]:
-            return False, True, REWARDS["step"]
+            return True, REWARDS["negative"]
         else:
-            return False, False, REWARDS["step"]
+            return False, REWARDS["step"]
         
 
     def step(self, action):
@@ -185,45 +174,36 @@ class SingleAgentEnv(gym.Wrapper):
 
         # run another step of other agents using the stored policy 
         # until the agent in interest is reached again.
-        while True:
-            needs_rl = self._fast_forward()
+        needs_rl = self._run_env_agents()
 
-            obs, reward, env_terminated, env_truncated, info = self.env.last()
+        obs, reward, env_terminated, truncated, info = self.env.last()
 
-            # check if effects met and give the rewards
-            plannable_done, truncated, reward = self._gen_reward()
-
-            if not needs_rl:
-                # if the episode is done, we break the loop
-                break
-            elif self._skip_epi_when_rl_done:
-                # skip whole episode if RL gets us back to the normal state
-                # used in training
-                break
-            elif not plannable_done:
-                # if not plannable done, we continue the learning
-                break
+        # check if effects met and give the rewards
+        plannable_done, reward = self._gen_reward()
 
         # generate the observation
         obs = self._gen_obs()
 
         # if we want to skip the rest of the symbolic learning when RL reaches
         # the goal to speed up training, we set done to be true when RL is done
-        if self._skip_epi_when_rl_done:
+        if self.skip_epi_when_rl_done:
             terminated = env_terminated or plannable_done
         else:
             terminated = env_terminated
-        return obs, reward, terminated, truncated, {"skipped_epi_count": 0}
+        return obs, reward, terminated, truncated, {"skipped_epi_count": 0, **info}
 
     def seed(self, seed=None):
         self.env.reset(seed=seed)
-        self.env.dynamic.all_objects = generate_obj_types(self.config_content)
-        self.env.dynamic.all_entities = get_entities(self.config_content)
+        self.env.dynamic.all_objects = generate_obj_types(self.env.config_dict)
+        self.env.dynamic.all_entities = get_entities(self.env.config_dict)
 
     def reset(self, seed=None, options={}):
+        if options is None:
+            options = {}
+        # print("reset")
         # reset the environment
         needs_rl = False
-        main_agent = self.env.agent_manager.agents["agent_0"].agent
+        main_agent = self.env.agent_manager.agents[self.agent_name].agent
         main_agent._reset()
         if self.show_action_log:
             main_agent.verbose = True
@@ -232,18 +212,17 @@ class SingleAgentEnv(gym.Wrapper):
         skipped_epi_count = 0
         while not needs_rl:
             self.episode += 1
-            self.env.reset(seed=seed, options={"episode": self.episode})
-            self.env.dynamic.all_objects = generate_obj_types(self.config_content)
-            self.env.dynamic.all_entities = get_entities(self.config_content)
+            self.env.reset(seed=seed, options={"episode": self.episode, **options})
+            self.env.dynamic.all_objects = generate_obj_types(self.env.config_dict)
+            self.env.dynamic.all_entities = get_entities(self.env.config_dict)
             
             # fast forward
             self._agent_iter = self.env.agent_iter()
 
-            needs_rl = self._fast_forward()
+            needs_rl = self._run_env_agents()
             if not needs_rl:
                 skipped_epi_count += 1
         obs, reward, terminated, truncated, info = self.env.last()
-
         # plan the main agent so utils can be used
         main_agent.plan()
 
@@ -259,5 +238,5 @@ class SingleAgentEnv(gym.Wrapper):
 
         # get the observation
         obs = self._gen_obs()
-        return obs, {"skipped_epi_count": skipped_epi_count}
+        return obs, {"skipped_epi_count": skipped_epi_count, **info}
 

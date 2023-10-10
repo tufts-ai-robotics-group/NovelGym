@@ -13,13 +13,37 @@ from policies import BiasedDQN
 from config import POLICIES, POLICY_PROPS
 
 
+def create_policy_for_matrix(
+        rl_algo,
+        state_space,
+        action_space,
+        all_actions,
+        novel_actions=[], 
+        hidden_sizes=[256, 128, 64],
+        buffer=None, 
+        lr=None,
+        device="cpu",
+        checkpoint=None
+    ):
+        if lr is not None:
+            lr = float(lr)
+        if hidden_sizes is None:
+            hidden_sizes = [256, 128, 64]
+        
+        if rl_algo == "ppo":
+            policy = ts.policy.PPOPolicy(
+                # TODO
+            )
+
+
+
 def create_policy(
         rl_algo, 
         state_shape, 
         action_shape, 
         all_actions, 
         novel_actions=[], 
-        hidden_sizes=[256, 128, 64],
+        hidden_sizes=[256, 64],
         buffer=None, 
         lr=None,
         device="cpu",
@@ -28,15 +52,12 @@ def create_policy(
     if lr is not None:
         lr = float(lr)
     if hidden_sizes is None:
-        hidden_sizes = [256, 128, 64]
+        hidden_sizes = [256, 64]
     
     PolicyModule = POLICIES[rl_algo]
     policy_props = POLICY_PROPS.get(rl_algo) or {}
 
-    if state_shape[0] < 50 and action_shape < 40:
-        net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True)
-    else:
-        net = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64], softmax=True)
+    net = Net(state_shape, action_shape, hidden_sizes=[128, 64], softmax=True, device=device)
     optim = torch.optim.Adam(net.parameters(), lr=lr or 1e-4)
 
     # prepare policy
@@ -54,12 +75,12 @@ def create_policy(
         ).to(device)
     elif "ppo" in rl_algo:
         # non-shared net ppo
-        critic = BasicCriticNet(state_shape, 1)
+        critic = BasicCriticNet(state_shape, 1, device=device)
         # net = Net(state_shape, hidden_sizes[0], device=device)
         # actor = Actor(net, action_shape, hidden_sizes=hidden_sizes, softmax_output=True, device=device)
         # critic = Critic(net, hidden_sizes=hidden_sizes, last_size=1, device=device)
         actor_critic = ActorCritic(net, critic).to(device)
-        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-4)
+        optim = torch.optim.Adam(actor_critic.parameters(), lr=lr or 1e-5)
         ppo_policy = ts.policy.PPOPolicy(
             actor=net,
             critic=critic,
@@ -184,7 +205,7 @@ def create_policy(
     #         disc_optim=disc_optim
     #     )
     if checkpoint is not None:
-        checkpoint = torch.load(checkpoint)
+        checkpoint = torch.load(checkpoint, map_location=device)
         policy.load_state_dict(checkpoint["model"])
-        optim.load_state_dict(checkpoint["optim"])
+        policy.optim.load_state_dict(checkpoint["optim"])
     return policy

@@ -1,22 +1,15 @@
-{
-  "novelties": {
-    "0": {
-      "action_sets": {
-        "trader": [
-          "move_forward",
-          "move_backward",
-          "move_left",
-          "move_right",
-          "nop",
-          "nop"
-        ]
-      },
-      "entities": {
-        "trader_joe": {
-          "agent": "gym_novel_gridworlds2.agents.RandomAgent",
-          "action_set": "trader"
-        }
-      }
-    }
-  }
-}
+---
+novelties:
+  '0':
+    action_sets:
+      trader:
+      - move_forward
+      - move_backward
+      - move_left
+      - move_right
+      - nop
+      - nop
+    entities:
+      trader_joe:
+        agent: gym_novel_gridworlds2.agents.RandomAgent
+        action_set: trader

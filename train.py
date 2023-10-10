@@ -3,8 +3,6 @@ import os
 import tianshou as ts
 import gymnasium as gym
 
-from envs.planning_until_failure import SingleAgentEnv
-
 import torch
 import numpy as np
 import pickle
@@ -15,7 +13,9 @@ from args import parser, NOVELTIES, OBS_TYPES, HINTS, POLICIES, POLICY_PROPS, NO
 from utils.hint_utils import get_hinted_actions, get_novel_action_indices, get_hinted_items
 from utils.pddl_utils import get_all_actions, KnowledgeBase
 from policy_utils import create_policy
-from utils.train_utils import set_train_eps, create_save_best_fn, generate_stop_fn, create_save_checkpoint_fn
+from utils.train_utils import set_train_eps, create_save_best_fn, generate_min_rew_stop_fn, create_save_checkpoint_fn
+
+from utils.make_env import make_env
 
 args = parser.parse_args()
 seed = args.seed
@@ -25,6 +25,7 @@ exp_name = args.exp_name
 log_path = os.path.join(
     args.logdir, 
     exp_name or "default_exp",
+    args.env,
     args.novelty,
     args.obs_type,
     args.rl_algo,
@@ -53,21 +54,33 @@ if __name__ == "__main__":
     rep_gen_args = OBS_GEN_ARGS.get(args.obs_type, {})
 
     # env
-    env_name = AVAILABLE_ENVS[args.env]
-    envs = [lambda: gym.make(
-        env_name,
-        config_file_paths=config_file_paths,
-        agent_name="agent_0",
-        task_name="main",
-        show_action_log=False,
-        RepGenerator=RepGenerator,
-        rep_gen_args={
-            "hints": HINTS.get(novelty_name) or "",
-            "hinted_objects": hinted_objects,
-            "novel_objects": [], # TODO
-            **rep_gen_args
-        }
-    ) for _ in range(args.num_threads)]
+    if args.num_threads is None:
+        if novelty_name == "none":
+            num_threads = 8
+            max_time_step = 1200
+        else:
+            num_threads = 4
+            max_time_step = 400
+    else:
+        num_threads = args.num_threads
+        max_time_step = 400
+    envs = [
+        lambda: make_env(
+                    env_name=args.env, 
+                    config_file_paths=config_file_paths,
+                    RepGenerator=RepGenerator,
+                    rep_gen_args={
+                        "hints": HINTS.get(novelty_name) or "",
+                        "hinted_objects": hinted_objects,
+                        "novel_objects": [], # TODO
+                        "num_reserved_extra_objects": 2 if novelty_name == "none" else 0,
+                        "item_encoder_config_path": "config/items.json",
+                        **rep_gen_args
+                    },
+                    max_time_step=max_time_step
+                )
+        for _ in range(num_threads)
+    ]
     # tianshou env
     venv = ts.env.SubprocVectorEnv(envs)
 
@@ -83,6 +96,10 @@ if __name__ == "__main__":
     else:
         hidden_sizes = None
     
+    if args.resume:
+        checkpoint = os.path.join(log_path, "checkpoint.pth")
+    else:
+        checkpoint = args.checkpoint
     policy = create_policy(
         args.rl_algo, state_shape, action_shape, 
         all_actions, novel_actions, 
@@ -91,14 +108,17 @@ if __name__ == "__main__":
         device=args.device
     )
 
-    print("----------- metadata -----------")
-    print("using", args.num_threads, "threads")
+    print("----------- Run Info -----------")
+    print("using", num_threads, "threads")
     print("Novelty:", novelty_name)
     print("Seed:", seed)
+    print("Env:", args.env)
     print("Algorithm:", args.rl_algo)
     print("lr:", args.lr or "default")
-    if args.checkpoint:
-        print("loaded checkpoint", args.checkpoint)
+    if args.resume:
+        print("Resuming training from last run:", log_path)
+    if checkpoint is not None:
+        print("loaded checkpoint", checkpoint)
     if hidden_sizes:
         print("hidden size:", hidden_sizes)
     print("Device:", args.device)
@@ -117,24 +137,53 @@ if __name__ == "__main__":
     # logging
     writer = SummaryWriter(log_path)
     writer.add_text("args", str(args))
-    logger = CustomTensorBoardLogger(writer)
+    rew_min = 500 if args.env == "sa_a" else 0
+    logger = CustomTensorBoardLogger(writer, epi_max_len=max_time_step, rew_min=rew_min)
 
     # collector
-    train_collector = ts.data.Collector(policy, venv, ts.data.VectorReplayBuffer(20000, buffer_num=args.num_threads), exploration_noise=True)
+    if args.resume:
+        try:
+            path = os.path.join(log_path, "buffer_ckpt.pth")
+            train_buffer = ts.data.VectorReplayBuffer.load_hdf5(path)
+        except:
+            train_buffer = ts.data.VectorReplayBuffer(20000, buffer_num=num_threads)
+    else:
+        train_buffer = ts.data.VectorReplayBuffer(20000, buffer_num=num_threads)
+    train_collector = ts.data.Collector(policy, venv, train_buffer, exploration_noise=True)
     test_collector = ts.data.Collector(policy, venv, exploration_noise=True)
-
+    
+    if novelty_name == "none":
+        # Training the base pre-novelty model. 
+        # To speed up 
+        step_per_epoch = 28800
+        step_per_collect = 2400
+        num_threads = 8
+        episode_per_test = 100
+        max_epoch = 300
+        repeat_per_collect = 20
+    else:
+        step_per_epoch = 4800
+        step_per_collect = 800
+        num_threads = 4
+        episode_per_test = 100
+        max_epoch = 100 if args.env == "pf" else 200
+        repeat_per_collect = 8
     result = ts.trainer.onpolicy_trainer(
         policy, train_collector, test_collector,
-        max_epoch=300, step_per_epoch=1200, step_per_collect=1200,
-        update_per_step=0.1, episode_per_test=100, batch_size=64,
-        repeat_per_collect=4,
+        max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
+        episode_per_test=episode_per_test, batch_size=128,
+        repeat_per_collect=repeat_per_collect,
         train_fn=set_train_eps if args.rl_algo == "dqn" else None,
         test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
         # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
-        stop_fn=lambda mean_rewards: False,
+        stop_fn=generate_min_rew_stop_fn(
+            min_length=22, 
+            min_rew_threshold=(950 if args.env == "pf" else 900)
+        ),
         save_best_fn=create_save_best_fn(log_path),
-        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy),
-        logger=logger
+        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, train_buffer),
+        logger=logger,
+        resume_from_log=args.resume
     )
     
     print(f'Finished training! Use {result["duration"]}')
