@@ -11,33 +11,53 @@ def set_train_eps(epoch, env_step):
     else:
         return max_eps - (max_eps - min_eps) / 10 * epoch
 
-def create_save_best_fn(log_path):
+def create_save_best_fn(log_path, policy_name):
     def save_best_fn(policy):
         torch.save(policy.state_dict(), os.path.join(log_path, "best_policy.pth"))
         ckpt_path = os.path.join(log_path, "best_checkpoint.pth")
         # Example: saving by epoch num
         # ckpt_path = os.path.join(log_path, f"checkpoint_{epoch}.pth")
-        torch.save(
-            {
+        if "sac" not in policy_name:
+            torch.save(
+                {
+                    "model": policy.state_dict(),
+                    "optim": policy.optim.state_dict(),
+                }, ckpt_path
+            )
+        else:
+            torch.save({
                 "model": policy.state_dict(),
-                "optim": policy.optim.state_dict(),
-            }, ckpt_path
-        )
+                "optim": {
+                    "a": policy.actor_optim.state_dict(),
+                    "c1": policy.critic1_optim.state_dict(),
+                    "c2": policy.critic2_optim.state_dict()
+                }
+            }, ckpt_path)
     return save_best_fn
 
-def create_save_checkpoint_fn(log_path, policy, buffer: ts.data.ReplayBuffer):
+def create_save_checkpoint_fn(log_path, policy, policy_name, buffer: ts.data.ReplayBuffer):
     def save_checkpoint_fn(epoch, env_step, gradient_step):
         # see also: https://pytorch.org/tutorials/beginner/saving_loading_models.html
         ckpt_path = os.path.join(log_path, "checkpoint.pth")
         buffer_path = os.path.join(log_path, "buffer_ckpt.pth")
         # Example: saving by epoch num
         # ckpt_path = os.path.join(log_path, f"checkpoint_{epoch}.pth")
-        torch.save(
-            {
+        if "sac" not in policy_name:
+            torch.save(
+                {
+                    "model": policy.state_dict(),
+                    "optim": policy.optim.state_dict(),
+                }, ckpt_path
+            )
+        else:
+            torch.save({
                 "model": policy.state_dict(),
-                "optim": policy.optim.state_dict(),
-            }, ckpt_path
-        )
+                "optim": {
+                    "a": policy.actor_optim.state_dict(),
+                    "c1": policy.critic1_optim.state_dict(),
+                    "c2": policy.critic2_optim.state_dict()
+                }
+            }, ckpt_path)
         buffer.save_hdf5(buffer_path)
         return ckpt_path, buffer_path
     return save_checkpoint_fn

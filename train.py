@@ -168,23 +168,42 @@ if __name__ == "__main__":
         episode_per_test = 100
         max_epoch = 100 if args.env == "pf" else 200
         repeat_per_collect = 8
-    result = ts.trainer.onpolicy_trainer(
-        policy, train_collector, test_collector,
-        max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
-        episode_per_test=episode_per_test, batch_size=128,
-        repeat_per_collect=repeat_per_collect,
-        train_fn=set_train_eps if args.rl_algo == "dqn" else None,
-        test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
-        # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
-        stop_fn=generate_min_rew_stop_fn(
-            min_length=22, 
-            min_rew_threshold=(950 if args.env == "pf" else 900)
-        ),
-        save_best_fn=create_save_best_fn(log_path),
-        save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, train_buffer),
-        logger=logger,
-        resume_from_log=args.resume
-    )
+    if "ppo" in args.rl_algo:
+        result = ts.trainer.onpolicy_trainer(
+            policy, train_collector, test_collector,
+            max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=step_per_collect,
+            episode_per_test=episode_per_test, batch_size=128,
+            repeat_per_collect=repeat_per_collect,
+            train_fn=set_train_eps if args.rl_algo == "dqn" else None,
+            test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
+            # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
+            stop_fn=generate_min_rew_stop_fn(
+                min_length=30, 
+                min_rew_threshold=(950 if args.env == "pf" or args.novelty == "axe" else 900)
+            ),
+            save_best_fn=create_save_best_fn(log_path, args.rl_algo),
+            save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, args.rl_algo, train_buffer),
+            logger=logger,
+            resume_from_log=args.resume
+        )
+    else:
+        result = ts.trainer.offpolicy_trainer(
+            policy, train_collector, test_collector,
+            max_epoch=max_epoch, step_per_epoch=step_per_epoch, step_per_collect=4,
+            episode_per_test=episode_per_test, batch_size=32,
+            repeat_per_collect=1,
+            train_fn=set_train_eps if args.rl_algo == "dqn" else None,
+            test_fn=(lambda epoch, env_step: policy.set_eps(0.05)) if args.rl_algo == "dqn" else None,
+            # stop_fn=generate_stop_fn(length=20, threshold=venv.spec[0].reward_threshold),
+            stop_fn=generate_min_rew_stop_fn(
+                min_length=30, 
+                min_rew_threshold=(950 if args.env == "pf" or args.novelty == "axe" else 900)
+            ),
+            save_best_fn=create_save_best_fn(log_path, args.rl_algo),
+            save_checkpoint_fn=create_save_checkpoint_fn(log_path, policy, args.rl_algo, train_buffer),
+            logger=logger,
+            resume_from_log=args.resume,
+        )
     
     print(f'Finished training! Use {result["duration"]}')
 

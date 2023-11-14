@@ -134,21 +134,26 @@ def create_policy(
             ppo_policy, icm_module, icm_optim, lr_scale, reward_scale,
             forward_loss_weight
         )
-    # elif rl_algo == "dsac":
-    #     net_c1 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-    #     net_c2 = Net(state_shape, action_shape, hidden_sizes=[256, 128, 64])
-    #     critic1 = Critic(net_c1, last_size=action_shape)
-    #     critic2 = Critic(net_c2, last_size=action_shape)
-    #     critic1_optim = torch.optim.Adam(critic1.parameters(), lr=lr or 1e-4)
-    #     critic2_optim = torch.optim.Adam(critic2.parameters(), lr=lr or 1e-4)
-    #     policy = ts.policy.DiscreteSACPolicy(
-    #         actor=net,
-    #         critic1=critic1,
-    #         critic2=critic2,
-    #         actor_optim=optim,
-    #         critic1_optim=critic1_optim,
-    #         critic2_optim=critic2_optim,
-    #     )
+    elif rl_algo == "dsac":
+        net_a = Net(state_shape, action_shape, hidden_sizes=hidden_sizes[:-1])
+        actor = Actor(net_a, action_shape, softmax_output=False)
+        a_optim = torch.optim.Adam(actor.parameters(), lr=lr or 1e-4)
+        net_c1 = Net(state_shape, action_shape, hidden_sizes=hidden_sizes[:-1])
+        net_c2 = Net(state_shape, action_shape, hidden_sizes=hidden_sizes[:-1])
+        critic1 = Critic(net_c1, last_size=action_shape)
+        critic2 = Critic(net_c2, last_size=action_shape)
+        critic1_optim = torch.optim.Adam(critic1.parameters(), lr=lr or 1e-4)
+        critic2_optim = torch.optim.Adam(critic2.parameters(), lr=lr or 1e-4)
+        policy = ts.policy.DiscreteSACPolicy(
+            actor=net_a,
+            critic1=critic1,
+            critic2=critic2,
+            actor_optim=a_optim,
+            critic1_optim=critic1_optim,
+            critic2_optim=critic2_optim,
+            alpha=0.05,
+            # reward_normalization=True
+        )
     ## imitation learning
     elif rl_algo == "crr":
         net = Net(state_shape, hidden_sizes[0], device=device)
