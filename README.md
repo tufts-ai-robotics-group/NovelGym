@@ -42,7 +42,7 @@ make
 
 ### Project Structure
 
-The project consists of an environment, taken from [NovelGridWorldsV2](https://github.com/tufts-ai-robotics-group/NovelGridWorldsV2), and a single-agent training architecture. See [docs/project_structure.md](docs/project_structure.md) for a detailed explanation of the project structure.
+The project consists of an environment, taken from [NovelGridWorldsV2](https://github.com/tufts-ai-robotics-group/NovelGridWorldsV2), and a single-agent training architecture. See the [documentation](https://clarech712.github.io/ng-website/) for a detailed explanation of the project structure.
 
 ### Online Training
 
@@ -58,7 +58,7 @@ An example command would be the below, where we train an RapidLearn<sup>+</sup>(
 python train.py --novelty none --seed 1 --obs_type lidar_all --env sa --rl_algo icm_ppo
 ```
 
-For specifics of the task being trained for and the details of the available agents, see [docs/project_structure.md](docs/project_structure.md)
+For specifics of the task being trained for and the details of the available agents, see the [documentation](https://clarech712.github.io/ng-website/).
 
 ### Testing Novelties
 
@@ -91,3 +91,16 @@ A wrapper on [NovelGridWorldsV2](https://github.com/tufts-ai-robotics-group/Nove
 ## License
 
 This repository bundles [Metric-FF](https://fai.cs.uni-saarland.de/hoffmann/metric-ff.html), distributed under the [GPLv2 License](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
+
+## Citation
+
+To cite the [NovelGym](https://clarech712.github.io/ng-website/) project, please use
+
+```
+@article{novelgym2023,
+    title={NovelGym: A Flexible Ecosystem for Hybrid Planning and Learning Agents Designed for Open Worlds},
+    author={Shivam Goel and Yichen Wei and Panagiotis Lymperopoulos and Klára Churá and Matthias Scheutz and Jivko Sinapov},
+    booktitle={submitted for publication},
+    year={2023}
+}
+```
