@@ -68,7 +68,7 @@ In order to train the same agent as above and test it on the built-in fence nove
 python train.py --novelty fence --seed 1 --obs_type lidar_all --env sa --rl_algo icm_ppo
 ```
 
-For more detail on how to implement and inject your own novelties, see NovelGridWorldsV2 documentation. For the built-in novelties for the NovelGym project, explore the [novelties](novelties) folder.
+For more detail on how to implement and inject your own novelties, see the [documentation](https://clarech712.github.io/ng-website/). For the built-in novelties for the NovelGym project, explore the [novelties](novelties) folder.
 
 ### Other Usage
 
