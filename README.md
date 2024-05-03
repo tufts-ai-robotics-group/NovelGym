@@ -25,8 +25,6 @@ Next, clone this repository and install dependencies using `pip`, keeping the sa
 ```
 cd ..
 git clone https://github.com/tufts-ai-robotics-group/NovelGym.git
-cd NovelGym
-pip install .
 ```
 
 ### Compile MetricFF
