@@ -20,7 +20,7 @@ pip install .
 
 ### Install NovelGym
 
-Next, clone this repository and install dependencies using `pip`, keeping the same virtual environment activated (if applicable).
+Next, clone this repository, keeping the same virtual environment activated (if applicable).
 
 ```
 cd ..
