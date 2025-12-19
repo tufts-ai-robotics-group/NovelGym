@@ -1,4 +1,5 @@
 # NovelGym
+This is the codebase that accompanies the Novel Gym [paper](https://arxiv.org/pdf/2401.03546).
 
 This is a wrapper on [NovelGridWorldsV2](https://github.com/tufts-ai-robotics-group/NovelGridWorldsV2), itself a redesigned version of [gym-novel-gridworlds](https://github.com/gtatiya/gym-novel-gridworlds), which
 
